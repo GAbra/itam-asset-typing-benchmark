@@ -2,6 +2,8 @@
 
 **English** · [Русский](ARCHITECTURE_RU.md)
 
+This page shows the high-level architecture. For the actual class/module execution path, continue with [detailed software implementation](IMPLEMENTATION.md). Internals of HashMap + BitSet, CEL and DMN/KIE are documented separately in [detailed engine implementation](ENGINE_IMPLEMENTATION.md).
+
 ## Data flow
 
 The seeded generator emits normalized `DatasetRecord` JSONL. Each record contains an `AssetTypingContext` with asset ID, sources, source object kinds, attributes and system parameters, plus expected type/subtype labels. Raw source samples are illustrative; there are no source adapters or live integrations.
@@ -19,6 +21,15 @@ flowchart LR
     B & E & D --> M[Shared MatchResolver]
     M --> O[Type / subtype / status / rule IDs]
 ```
+
+## Implementation documentation levels
+
+To keep this page readable, implementation details are split into two documents:
+
+- [Detailed software implementation](IMPLEMENTATION.md) — package/class map, rule loading, data model, `generate`, `verify`, `benchmark`, `explain`, `export-dmn`, engine lifecycle and exact runtime flow;
+- [Detailed engine implementation](ENGINE_IMPLEMENTATION.md) — separate preparation/execution diagrams for HashMap + BitSet, CEL and DMN/KIE, candidate indexes, masks/programs/DMN rows and the shared `MatchResolver`.
+
+In other words, this page answers **“what architectural blocks exist”**, `IMPLEMENTATION.md` answers **“which classes call which components”**, and `ENGINE_IMPLEMENTATION.md` answers **“how each engine computes matched rules”**.
 
 ## Canonical rules
 
@@ -50,4 +61,4 @@ Verification compares outputs and labels, emits ordered SHA-256 result digests a
 
 Benchmarking streams parsed batches, records elapsed classification/checksum time per engine and summarizes measured passes. JSON parsing, file I/O, engine construction, report serialization and input hashing are outside the per-engine timed sections.
 
-The controlled baseline v2 adds explicit host/container/JVM provenance around this same execution model; it does not change the classification semantics. See [methodology](METHODOLOGY.md) for exact timing boundaries and limitations and [results](../benchmark-results/README.md) for archived vs controlled baselines.
+The controlled baseline v2 adds explicit host/container/JVM provenance around this same execution model; it does not change the classification semantics. See [methodology](METHODOLOGY.md) for exact timing boundaries and limitations, [results](../benchmark-results/README.md) for archived vs controlled baselines, and [detailed software implementation](IMPLEMENTATION.md) for the class/module execution flow.
