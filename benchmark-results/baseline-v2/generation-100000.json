@@ -1,0 +1,15 @@
+{
+  "count" : 100000,
+  "seed" : 20260909,
+  "output" : "data/generated/baseline-v2-100000.jsonl",
+  "distribution" : {
+    "WINDOWS_WORKSTATION" : 26178,
+    "WINDOWS_SERVER" : 14621,
+    "LINUX_SERVER" : 12988,
+    "NETWORK_DEVICE" : 11033,
+    "USER_ACCOUNT" : 14140,
+    "SERVICE_ACCOUNT" : 7047,
+    "SECURITY_SOFTWARE" : 7030,
+    "APPLICATION_SOFTWARE" : 6963
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "result" : "PASS",
+  "data" : "data/generated/baseline-v2-500000.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "checked" : 500000,
+  "engineMismatches" : 0,
+  "groundTruthMismatches" : 0,
+  "hashBitset" : "cb84778cacec2c47d7b18a13c24e54fa6d367d4780566937aae299949a360c76",
+  "hashCel" : "cb84778cacec2c47d7b18a13c24e54fa6d367d4780566937aae299949a360c76",
+  "hashDmn" : "cb84778cacec2c47d7b18a13c24e54fa6d367d4780566937aae299949a360c76",
+  "samples" : [ ],
+  "groundTruthChecked" : 500000,
+  "provenance" : {
+    "harnessVersion" : 2,
+    "datasetSha256" : "34dc9c943d7b0bc2e316295c4c0709595fc3c5afacd7453ae51b347d021c024e",
+    "rulesSha256" : "4ad9e8663f1722996f33ed90cb54cefef2adfcb44bdb876634623ed161dcf6d3",
+    "rulesetVersion" : "1.0.0",
+    "enabledRules" : 14,
+    "engineOrder" : [ "HASHMAP_BITSET", "CEL", "DMN_KIE" ]
+  }
+}

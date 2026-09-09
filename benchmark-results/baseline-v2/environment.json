@@ -1,0 +1,104 @@
+{
+  "startedAtUtc": "2026-09-09T14:26:29.0780931Z",
+  "sourceCommit": "5bddf65fd8388e6f77a3cd990f84cf8078de3b35",
+  "measurementScriptCommit": "c5b5b751c7905bdfc5fcc56001e6c8b9e2ba287b",
+  "cpu": [
+    {
+      "Name": "AMD Ryzen 9 7950X 16-Core Processor            ",
+      "NumberOfCores": 16,
+      "NumberOfLogicalProcessors": 32
+    }
+  ],
+  "physicalRamBytes": 33408700416,
+  "hostOS": {
+    "Caption": "Майкрософт Windows 11 Pro",
+    "Version": "10.0.26200",
+    "BuildNumber": "26200",
+    "OSArchitecture": "64-разрядная"
+  },
+  "docker": {
+    "Client": {
+      "Version": "28.0.4",
+      "ApiVersion": "1.48",
+      "DefaultAPIVersion": "1.48",
+      "GitCommit": "b8034c0",
+      "GoVersion": "go1.23.7",
+      "Os": "windows",
+      "Arch": "amd64",
+      "BuildTime": "Tue Mar 25 15:07:48 2025",
+      "Context": "desktop-linux"
+    },
+    "Server": {
+      "Platform": {
+        "Name": "Docker Desktop 4.40.0 (187762)"
+      },
+      "Components": [
+        {
+          "Name": "Engine",
+          "Version": "28.0.4",
+          "Details": {
+            "ApiVersion": "1.48",
+            "Arch": "amd64",
+            "BuildTime": "Tue Mar 25 15:07:22 2025",
+            "Experimental": "false",
+            "GitCommit": "6430e49",
+            "GoVersion": "go1.23.7",
+            "KernelVersion": "6.6.87.1-microsoft-standard-WSL2",
+            "MinAPIVersion": "1.24",
+            "Os": "linux"
+          }
+        },
+        {
+          "Name": "containerd",
+          "Version": "1.7.26",
+          "Details": {
+            "GitCommit": "753481ec61c7c8955a23d6ff7bc8e4daed455734"
+          }
+        },
+        {
+          "Name": "runc",
+          "Version": "1.2.5",
+          "Details": {
+            "GitCommit": "v1.2.5-0-g59923ef"
+          }
+        },
+        {
+          "Name": "docker-init",
+          "Version": "0.19.0",
+          "Details": {
+            "GitCommit": "de40ad0"
+          }
+        }
+      ],
+      "Version": "28.0.4",
+      "ApiVersion": "1.48",
+      "MinAPIVersion": "1.24",
+      "GitCommit": "6430e49",
+      "GoVersion": "go1.23.7",
+      "Os": "linux",
+      "Arch": "amd64",
+      "KernelVersion": "6.6.87.1-microsoft-standard-WSL2",
+      "BuildTime": "2025-03-25T15:07:22.000000000+00:00"
+    }
+  },
+  "dockerHost": {
+    "NCPU": 32,
+    "MemTotal": 16295022592,
+    "KernelVersion": "6.6.87.1-microsoft-standard-WSL2",
+    "OperatingSystem": "Docker Desktop"
+  },
+  "jarSha256": "ba49045430a5b1f5800038c7d57bc6271f59c41e0a51458573003105ddb4e26d",
+  "wslVersion": "\u0012\u00045\u0004@\u0004A\u00048\u0004O\u0004 WSL: 2.5.7.0\r\n\r\n\u0012\u00045\u0004@\u0004A\u00048\u0004O\u0004 O\u00044\u0004@\u00040\u0004: 6.6.87.1-1\r\n\r\n\u0012\u00045\u0004@\u0004A\u00048\u0004O\u0004 WSLg: 1.0.66\r\n\r\n\u0012\u00045\u0004@\u0004A\u00048\u0004O\u0004 MSRDC: 1.2.6074\r\n\r\n\u0012\u00045\u0004@\u0004A\u00048\u0004O\u0004 Direct3D: 1.611.1-81528511\r\n\r\n\u0012\u00045\u0004@\u0004A\u00048\u0004O\u0004 DXCore: 10.0.26100.1-240331-1435.ge-release\r\n\r\n\u0012\u00045\u0004@\u0004A\u00048\u0004O\u0004 Windows: 10.0.26200.9168",
+  "powerScheme": "GUID схемы питания: 381b4222-f694-41f0-9685-ff5bb260df2e  (Сбалансированная)",
+  "otherRunningContainersAtStart": 0,
+  "imageId": "sha256:bb493747deaf5cbc2fb5f21a04227dea6b162d42b7300bf8ba6ffe85e8a4a167",
+  "containerPlatform": "linux/amd64",
+  "containerCpuQuota": 4,
+  "containerMemoryBytes": 4294967296,
+  "containerMemoryPlusSwapBytes": 4294967296,
+  "jvmFlags": "-Xms2g -Xmx2g -XX:+UseG1GC -XX:ActiveProcessorCount=4",
+  "seed": 20260909,
+  "warmup": 2,
+  "measuredRuns": 5,
+  "notes": "Local workstation; background workload not controlled. Fixed engine order; one JVM per measurement invocation."
+}

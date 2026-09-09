@@ -1,0 +1,176 @@
+{
+  "result" : "OK",
+  "generatedAt" : "2026-09-09T14:30:02.949321588Z",
+  "data" : "data/generated/baseline-v2-500000.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "warmupIterations" : 2,
+  "measuredRuns" : 5,
+  "batchSize" : 10000,
+  "engineLoadMs" : {
+    "CEL" : 289.920889,
+    "CANONICAL_RULESET" : 78.147673,
+    "DMN_KIE" : 340.837973,
+    "HASHMAP_BITSET" : 5.861297
+  },
+  "runs" : [ {
+    "run" : 1,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1582680159,
+    "assetsPerSecond" : 315919.8004452901,
+    "nsPerAsset" : 3165.360318,
+    "checksum" : 2119057570
+  }, {
+    "run" : 1,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 4997549367,
+    "assetsPerSecond" : 100049.0366941882,
+    "nsPerAsset" : 9995.098734,
+    "checksum" : 2119057570
+  }, {
+    "run" : 1,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 10632006977,
+    "assetsPerSecond" : 47027.80962067083,
+    "nsPerAsset" : 21264.013954,
+    "checksum" : 2119057570
+  }, {
+    "run" : 2,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1475996092,
+    "assetsPerSecond" : 338754.28445240087,
+    "nsPerAsset" : 2951.992184,
+    "checksum" : 2119057570
+  }, {
+    "run" : 2,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 4883660265,
+    "assetsPerSecond" : 102382.22416562795,
+    "nsPerAsset" : 9767.32053,
+    "checksum" : 2119057570
+  }, {
+    "run" : 2,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 10479475906,
+    "assetsPerSecond" : 47712.309707561435,
+    "nsPerAsset" : 20958.951812,
+    "checksum" : 2119057570
+  }, {
+    "run" : 3,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1452514744,
+    "assetsPerSecond" : 344230.58496678504,
+    "nsPerAsset" : 2905.029488,
+    "checksum" : 2119057570
+  }, {
+    "run" : 3,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 4830256956,
+    "assetsPerSecond" : 103514.16178365315,
+    "nsPerAsset" : 9660.513912,
+    "checksum" : 2119057570
+  }, {
+    "run" : 3,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 10063981843,
+    "assetsPerSecond" : 49682.124610327555,
+    "nsPerAsset" : 20127.963686,
+    "checksum" : 2119057570
+  }, {
+    "run" : 4,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1471769040,
+    "assetsPerSecond" : 339727.21698236023,
+    "nsPerAsset" : 2943.53808,
+    "checksum" : 2119057570
+  }, {
+    "run" : 4,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 4861428306,
+    "assetsPerSecond" : 102850.43171014111,
+    "nsPerAsset" : 9722.856612,
+    "checksum" : 2119057570
+  }, {
+    "run" : 4,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 10110893883,
+    "assetsPerSecond" : 49451.61187386977,
+    "nsPerAsset" : 20221.787766,
+    "checksum" : 2119057570
+  }, {
+    "run" : 5,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1488164679,
+    "assetsPerSecond" : 335984.3215308566,
+    "nsPerAsset" : 2976.329358,
+    "checksum" : 2119057570
+  }, {
+    "run" : 5,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 4840178808,
+    "assetsPerSecond" : 103301.96875652285,
+    "nsPerAsset" : 9680.357616,
+    "checksum" : 2119057570
+  }, {
+    "run" : 5,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 10144999681,
+    "assetsPerSecond" : 49285.36379714451,
+    "nsPerAsset" : 20289.999362,
+    "checksum" : 2119057570
+  } ],
+  "summary" : [ {
+    "engine" : "HASHMAP_BITSET",
+    "medianAssetsPerSecond" : 338754.28445240087,
+    "medianNsPerAsset" : 2951.992184,
+    "minAssetsPerSecond" : 315919.8004452901,
+    "maxAssetsPerSecond" : 344230.58496678504
+  }, {
+    "engine" : "CEL",
+    "medianAssetsPerSecond" : 102850.43171014111,
+    "medianNsPerAsset" : 9722.856612,
+    "minAssetsPerSecond" : 100049.0366941882,
+    "maxAssetsPerSecond" : 103514.16178365315
+  }, {
+    "engine" : "DMN_KIE",
+    "medianAssetsPerSecond" : 49285.36379714451,
+    "medianNsPerAsset" : 20289.999362,
+    "minAssetsPerSecond" : 47027.80962067083,
+    "maxAssetsPerSecond" : 49682.124610327555
+  } ],
+  "warmupRecordsPerIteration" : 5000,
+  "provenance" : {
+    "harnessVersion" : 2,
+    "datasetSha256" : "34dc9c943d7b0bc2e316295c4c0709595fc3c5afacd7453ae51b347d021c024e",
+    "rulesSha256" : "4ad9e8663f1722996f33ed90cb54cefef2adfcb44bdb876634623ed161dcf6d3",
+    "rulesetVersion" : "1.0.0",
+    "enabledRules" : 14,
+    "engineOrder" : [ "HASHMAP_BITSET", "CEL", "DMN_KIE" ]
+  },
+  "environment" : {
+    "java.version" : "21.0.12",
+    "java.vendor" : "Eclipse Adoptium",
+    "java.vm.name" : "OpenJDK 64-Bit Server VM",
+    "java.vm.version" : "21.0.12+8-LTS",
+    "os.name" : "Linux",
+    "os.version" : "6.6.87.1-microsoft-standard-WSL2",
+    "os.arch" : "amd64",
+    "availableProcessors" : 4,
+    "maxHeapBytes" : 2147483648,
+    "garbageCollectors" : [ "G1 Young Generation", "G1 Concurrent GC", "G1 Old Generation" ]
+  }
+}
