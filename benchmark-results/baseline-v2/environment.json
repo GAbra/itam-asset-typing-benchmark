@@ -100,5 +100,7 @@
   "seed": 20260909,
   "warmup": 2,
   "measuredRuns": 5,
-  "notes": "Local workstation; background workload not controlled. Fixed engine order; one JVM per measurement invocation."
+  "notes": "Local workstation; background workload not controlled. Fixed engine order; one JVM per measurement invocation.",
+  "completedAtUtc": "2026-09-09T15:16:36.516309+00:00",
+  "completionNote": "100K and 500K were produced by scripts/run-baseline.ps1; 1M was resumed using the same pinned container image, JAR checksum, CPU and memory limits, JVM flags, seed, warmup configuration, engine order and measured-run settings."
 }

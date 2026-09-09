@@ -1,0 +1,29 @@
+# Reproducible baseline v2
+# Container image:
+sha256:bb493747deaf5cbc2fb5f21a04227dea6b162d42b7300bf8ba6ffe85e8a4a167
+#
+# Fixed limits:
+# --cpus 4
+# --memory 4g
+# --memory-swap 4g
+# JAVA_TOOL_OPTIONS=-Xms2g -Xmx2g -XX:+UseG1GC -XX:ActiveProcessorCount=4
+#
+# Seed: 20260909
+# Warmup iterations: 2
+# Measured runs: 5
+# Engine order: HASHMAP_BITSET -> CEL -> DMN_KIE
+
+# 100K
+generate --count 100000 --seed 20260909 --out data/generated/baseline-v2-100000.jsonl
+verify --data data/generated/baseline-v2-100000.jsonl --out benchmark-results/baseline-v2/verify-100000.json
+benchmark --data data/generated/baseline-v2-100000.jsonl --warmup 2 --runs 5 --batch 5000 --out benchmark-results/baseline-v2/benchmark-100000.json
+
+# 500K
+generate --count 500000 --seed 20260909 --out data/generated/baseline-v2-500000.jsonl
+verify --data data/generated/baseline-v2-500000.jsonl --out benchmark-results/baseline-v2/verify-500000.json
+benchmark --data data/generated/baseline-v2-500000.jsonl --warmup 2 --runs 5 --batch 10000 --out benchmark-results/baseline-v2/benchmark-500000.json
+
+# 1M
+generate --count 1000000 --seed 20260909 --out data/generated/baseline-v2-1000000.jsonl
+verify --data data/generated/baseline-v2-1000000.jsonl --out benchmark-results/baseline-v2/verify-1000000.json
+benchmark --data data/generated/baseline-v2-1000000.jsonl --warmup 2 --runs 5 --batch 10000 --out benchmark-results/baseline-v2/benchmark-1000000.json
