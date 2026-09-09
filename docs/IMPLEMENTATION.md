@@ -4,10 +4,10 @@
 
 This page describes the actual class/module execution path of the current implementation. The high-level architecture is in [ARCHITECTURE.md](ARCHITECTURE.md), while the three engine internals are in [ENGINE_IMPLEMENTATION.md](ENGINE_IMPLEMENTATION.md).
 
-For the two most branch-heavy flows, `verify` and `benchmark`, static SVG renderings and editable draw.io sources are stored next to the Mermaid source. The SVG files are intended as a fallback for GitHub clients that do not render Mermaid.
+For the two most branch-heavy flows, `verify` and `benchmark`, static SVG renderings and editable draw.io sources are stored next to the Mermaid source. The English page uses English SVGs so the diagrams remain readable in GitHub clients that do not render Mermaid. The draw.io files remain the shared editable source.
 
-- `verify`: [SVG](diagrams/verify-flow.svg) · [draw.io](diagrams/verify-flow.drawio)
-- `benchmark`: [SVG](diagrams/benchmark-flow.svg) · [draw.io](diagrams/benchmark-flow.drawio)
+- `verify`: [English SVG](diagrams/verify-flow-en.svg) · [draw.io](diagrams/verify-flow.drawio)
+- `benchmark`: [English SVG](diagrams/benchmark-flow-en.svg) · [draw.io](diagrams/benchmark-flow.drawio)
 
 ## Package map
 
@@ -102,11 +102,13 @@ Every `classify` call invokes the shared `FeatureExtractor`, which creates the s
 
 Verification constructs all three engines once and streams the dataset through `DatasetReader.forEach`.
 
-For every record all three classifiers execute and all three SHA-256 digests are updated. The results are then compared for equivalence. A differential mismatch increments `engineMismatches` and may retain a diagnostic sample, but processing continues to the label check. When `expectedType` is present, `groundTruthChecked` is incremented and the BitSet type/subtype is compared with the generator label; a mismatch increments `groundTruthMismatches`. Processing then continues to the next record. Only after EOF is `VerificationReport` built and PASS/FAIL decided.
+For every record all three classifiers execute and all three SHA-256 digests are updated. Their results are then compared. If the results are not equivalent, `engineMismatches` is incremented and a diagnostic sample may be retained; processing still continues. If the results are equivalent, the mismatch counter is unchanged and processing moves directly to the ground-truth branch.
 
-![Complete verify flow](diagrams/verify-flow.svg)
+If `expectedType` is absent, that record is not counted in ground-truth coverage and processing moves to the next record. If `expectedType` is present, `groundTruthChecked` is incremented and the BitSet `type/subtype` is compared with the generator label. A match leaves `groundTruthMismatches` unchanged; a mismatch increments it and stores a diagnostic sample. After EOF, `VerificationReport` is built and only then is PASS/FAIL decided.
 
-[Open SVG](diagrams/verify-flow.svg) · [Editable draw.io](diagrams/verify-flow.drawio)
+![Complete verify flow in English](diagrams/verify-flow-en.svg)
+
+[Open English SVG](diagrams/verify-flow-en.svg) · [Editable draw.io](diagrams/verify-flow.drawio)
 
 <details>
 <summary>Mermaid source for verify</summary>
@@ -134,7 +136,7 @@ flowchart TD
     GM --> NEXT
     NEXT -->|yes| X
     NEXT -->|no / EOF| REP[Build VerificationReport]
-    REP --> P{checked > 0 AND mismatches = 0?}
+    REP --> P{checked > 0 AND engineMismatches = 0 AND groundTruthMismatches = 0?}
     P -->|yes| OK[PASS / exit 0]
     P -->|no| FAIL[FAIL / exit 2]
 ```
@@ -147,13 +149,15 @@ flowchart TD
 
 Benchmark creates the engines once. `DatasetReader.first` reads the warmup prefix `min(max, batch, 5000)` and warmup iterations run outside measured results.
 
-Each measured run streams the dataset again. `BatchAccumulator.accept` stops accepting new records after `max`; otherwise it increments `seen`, appends the record to the batch, and calls `flush` when the batch reaches `batchSize`. If EOF occurs with a partial batch, `Main.benchmark()` explicitly calls a final `acc.flush()`, so the tail is not lost.
+Each measured run streams the dataset again. `BatchAccumulator.accept` first checks `seen >= max`. If the limit has already been reached, that record is not appended to the batch and the reader proceeds toward the next record/EOF. Otherwise `seen` is incremented and the record is appended. If the batch is not full yet, the next record is read. If it reaches `batchSize`, `flush()` executes.
 
-Inside `flush()` engines execute **sequentially**, not in parallel, in fixed order `HASHMAP_BITSET → CEL → DMN_KIE`. Each engine gets its own timer around the already parsed batch; classification, `resultHash()` and XOR checksum are accumulated into `MutableTiming`. Only after the full measured run are three `RunResult` objects created. After all measured runs, median/min/max summaries are computed and `BenchmarkReport` is written.
+Inside `flush()`, engines execute **sequentially**, not in parallel, in fixed order `HASHMAP_BITSET → CEL → DMN_KIE`. Each engine gets a separate timer around the already parsed batch; classification, `resultHash()` and XOR checksum are accumulated into `MutableTiming`. After DMN finishes, the batch is cleared and input processing continues.
 
-![Complete benchmark flow](diagrams/benchmark-flow.svg)
+If EOF arrives while the batch is non-empty, `Main.benchmark()` performs a final `acc.flush()`. If the batch is already empty, there is no extra classification. Only after the complete measured run are three `RunResult` objects created; after all measured runs, median/min/max summaries are calculated and `BenchmarkReport` is written.
 
-[Open SVG](diagrams/benchmark-flow.svg) · [Editable draw.io](diagrams/benchmark-flow.drawio)
+![Complete benchmark flow in English](diagrams/benchmark-flow-en.svg)
+
+[Open English SVG](diagrams/benchmark-flow-en.svg) · [Editable draw.io](diagrams/benchmark-flow.drawio)
 
 <details>
 <summary>Mermaid source for benchmark</summary>
@@ -170,7 +174,7 @@ flowchart TD
     MAX -->|no| ADD[seen++ and add record to batch]
     ADD --> Q{batch.size >= batchSize?}
     Q -->|no| MORE
-    Q -->|yes| B[timer HASHMAP_BITSET]
+    Q -->|yes / flush| B[timer HASHMAP_BITSET]
     B --> BT[accumulate timing]
     BT --> C[timer CEL]
     C --> CT[accumulate timing]
@@ -179,7 +183,7 @@ flowchart TD
     DT --> MORE
     MORE -->|yes| A
     MORE -->|no / EOF| E{batch empty?}
-    E -->|no| B
+    E -->|no / final flush| B
     E -->|yes| RR[Create 3 RunResult from MutableTiming]
     RR --> NR{More measured runs?}
     NR -->|yes| RUN
