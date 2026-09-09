@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.gabra</groupId>
   <artifactId>itam-asset-typing-benchmark</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>ITAM Asset Typing Benchmark</name>
   <description>Reproducible comparison of HashMap + BitSet, CEL and DMN/KIE for synthetic IT asset classification.</description>
   <url>https://github.com/GAbra/itam-asset-typing-benchmark</url>

@@ -11,6 +11,14 @@ Compare **HashMap + BitSet**, **Common Expression Language (CEL)** and **DMN / A
 
 [Русская версия](README_RU.md) · [Methodology](docs/METHODOLOGY.md) · [Raw results](benchmark-results) · [Reproduce](docs/TEST_PROTOCOL.md) · [Contribute](CONTRIBUTING.md)
 
+## Why this experiment exists
+
+Automatic asset typing becomes difficult when several discovery systems describe the same object differently. AD might report a computer and its OS, Nmap a network device signature, and an inventory tool a workstation/server flag. Evidence can be incomplete or contradictory. A classifier must turn that evidence into a deterministic type/subtype while handling priorities, missing evidence and conflicts consistently.
+
+The implementation choice also matters. A specialized indexed Java engine offers direct control over execution; CEL expresses conditions as compiled expressions; DMN expresses decisions in a standard table. Comparing them requires the same inputs, rules and output semantics. Otherwise a speed difference could simply reflect different classification behavior.
+
+This experiment asks: do the three adapters agree with one another and the synthetic labels; how much classification work can each perform; how does throughput change from 10K to 1M assets; and how much initialization does each require? The results inform the engineering trade-off between runtime cost and how rules are represented. They do not evaluate production ingestion quality or all possible implementations of these technologies.
+
 ## Results at a glance
 
 The archived 1M-asset experiment reports **zero engine disagreements and zero generator-label mismatches** with 14 fixed rules. These are observations on synthetic data, not a proof of general equivalence or a production capacity estimate.
@@ -55,6 +63,10 @@ Each engine extracts the same 22 boolean features inside its `classify` call. Al
 
 The raw source samples illustrate formats. The benchmark consumes generated, normalized JSONL; it does not connect to those products or parse their raw exports. See [architecture](docs/ARCHITECTURE.md) and [data provenance](data/SOURCES.md).
 
+## Versioned distribution
+
+[Release v1.0.0](https://github.com/GAbra/itam-asset-typing-benchmark/releases/tag/v1.0.0) provides the JAR, portable Docker tar and SHA-256 checksums without Actions artifact expiration. The container is `ghcr.io/gabra/itam-asset-typing-benchmark:v1.0.0`; `latest` is a moving alias. See [runtime instructions](docs/PREBUILT_RUNTIME.md).
+
 ## Quick start
 
 ### Docker (no local JDK or Maven required)
@@ -81,14 +93,14 @@ If registry access is unavailable, use the [CI-built portable runtime](docs/PREB
 
 ```sh
 mvn -B clean verify
-java -jar target/itam-asset-typing-benchmark-1.0.0-SNAPSHOT.jar generate --count 10000 --seed 20260909
-java -jar target/itam-asset-typing-benchmark-1.0.0-SNAPSHOT.jar verify --data data/generated/normalized-10000.jsonl --out results/local/verify-10000.json
+java -jar target/itam-asset-typing-benchmark-1.0.0.jar generate --count 10000 --seed 20260909
+java -jar target/itam-asset-typing-benchmark-1.0.0.jar verify --data data/generated/normalized-10000.jsonl --out results/local/verify-10000.json
 ```
 
 After `verify` reports `PASS` and exits successfully:
 
 ```sh
-java -jar target/itam-asset-typing-benchmark-1.0.0-SNAPSHOT.jar benchmark --data data/generated/normalized-10000.jsonl --warmup 2 --runs 5 --batch 2000 --out results/local/benchmark-10000.json
+java -jar target/itam-asset-typing-benchmark-1.0.0.jar benchmark --data data/generated/normalized-10000.jsonl --warmup 2 --runs 5 --batch 2000 --out results/local/benchmark-10000.json
 ```
 
 `benchmark` alone measures execution; it does not run the correctness gate. Use the supplied scripts for an enforced sequence. See [the protocol](docs/TEST_PROTOCOL.md) for 100K–1M runs and environment capture.
@@ -105,6 +117,21 @@ java -jar target/itam-asset-typing-benchmark-1.0.0-SNAPSHOT.jar benchmark --data
 Verification compares type, subtype, status and sorted winning rule IDs; SHA-256 digests also include asset IDs. Generator labels check type/subtype separately. Shared feature extraction and resolution can produce shared bugs, and generator labels are not independent real-world annotations. Targeted integration tests exercise conflict, fallback, forbidden-feature and disabled-rule cases outside the normal generator profiles.
 
 CI checks source tests, deterministic generation across separate JVMs, 10K verification, report/figure consistency and the portable Docker runtime. **Throughput is never a CI pass/fail threshold.**
+
+## How performance is calculated
+
+For each engine and measured pass:
+
+```text
+assets/s = count × 1,000,000,000 / elapsedNs
+ns/asset = elapsedNs / count
+```
+
+`ns` means nanoseconds (one billionth of a second). `assets/s` describes throughput: higher is faster. `ns/asset` describes average processing time per asset: lower is faster. They are reciprocal views of the same elapsed time, not independent evidence. For example, 1M assets in 3,394,789,334 ns corresponds to about 294,569 assets/s and 3,395 ns/asset (3.395 µs).
+
+We report the median of five measured passes after two prefix warmups to reduce the influence of an unusually fast or slow pass. Min/max retain the observed spread; a median does not eliminate JIT, GC or scheduling effects. These are batch-derived averages, not per-request latency percentiles.
+
+The timed section includes feature extraction, rule evaluation, shared resolution and checksum calculation. JSON parsing and file I/O are outside the timer, as is engine initialization. Consequently, these figures do not measure a full ingestion-to-database ITAM pipeline.
 
 ## Measurement scope and limitations
 

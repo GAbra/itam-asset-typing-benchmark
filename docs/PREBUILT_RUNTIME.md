@@ -1,6 +1,10 @@
 # Portable runtime
 
-Use this path if Docker is available but local registry/Maven access is blocked. You need a successful `ci` run on `main` with an unexpired artifact. Artifacts are retained for 14 days; an authenticated GitHub session may be needed to download them.
+Use the [versioned release](https://github.com/GAbra/itam-asset-typing-benchmark/releases/tag/v1.0.0) for persistent downloads: JAR, portable Docker tar, SHA256SUMS, SOURCE_COMMIT and IMAGE_ID. These release assets do not have the 14-day Actions artifact expiration.
+
+The versioned registry image is `ghcr.io/gabra/itam-asset-typing-benchmark:v1.0.0`. Use `docker pull ghcr.io/gabra/itam-asset-typing-benchmark:v1.0.0`, then `docker run --rm ghcr.io/gabra/itam-asset-typing-benchmark:v1.0.0 --help`. The `latest` tag is a moving convenience alias; use a version or digest for research.
+
+The steps below describe the temporary main-branch CI alternative. For stable use, download the same named tar and provenance files from the release instead.
 
 1. Open [CI runs](https://github.com/GAbra/itam-asset-typing-benchmark/actions/workflows/ci.yml) and choose a successful main-branch run.
 2. Download `itam-asset-typing-benchmark-prebuilt` and extract it into the repository root.

@@ -2,6 +2,7 @@ cff-version: 1.2.0
 message: "If you use this benchmark, cite this repository and the exact commit used."
 title: "ITAM Asset Typing Benchmark"
 type: software
+version: 1.0.0
 authors:
   - name: "GAbra"
 repository-code: "https://github.com/GAbra/itam-asset-typing-benchmark"
