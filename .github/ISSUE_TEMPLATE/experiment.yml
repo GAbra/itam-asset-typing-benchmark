@@ -1,0 +1,17 @@
+name: Research experiment
+description: Propose or report a controlled benchmark experiment
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Research question
+      description: What hypothesis or limitation does this experiment address?
+    validations:
+      required: true
+  - type: textarea
+    id: protocol
+    attributes:
+      label: Protocol and evidence
+      description: Variables, controls, environment, correctness gate and raw reports if available.
+    validations:
+      required: true

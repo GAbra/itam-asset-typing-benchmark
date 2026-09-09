@@ -1,103 +1,37 @@
-# Архитектура DEMO
+# Architecture
 
-## Конвейер
+## Data flow
 
-```text
-synthetic source-faithful data
-        |
-        v
-AssetTypingContext
-        |
-        +------------------+----------------+------------------+
-        |                  |                |
-        v                  v                v
-HashMap + BitSet          CEL            DMN/KIE
-        |                  |                |
-        +------------------+----------------+
-                           |
-                           v
-                    MatchResolver
-                           |
-                           v
-                     TypingResult
-```
+The seeded generator emits normalized `DatasetRecord` JSONL. Each record contains an `AssetTypingContext` (asset ID, sources, source object kinds, attributes and system parameters) and expected type/subtype labels. Raw source samples are illustrative; there are no source adapters or live integrations.
 
-## Один контекст — один актив
+Each engine independently invokes `FeatureExtractor` inside `classify`. The extractor emits the same 22 boolean features. No deduplication or cross-asset comparison occurs.
 
-`AssetTypingContext` содержит:
+## Canonical rules
 
-- `assetId`;
-- `sources`;
-- `sourceObjectKinds`;
-- `attributes`;
-- `systemParameters`.
+All implementations receive the same `rules/canonical-rules.yaml` with version 1.0.0 and 14 rules. A rule defines ID, target type/subtype, priority, required features, any-of features, forbidden features and enabled state.
 
-Активы не сравниваются друг с другом. Дедупликации в этом проекте нет.
+A condition matches when all required features are true, no forbidden feature is true, and at least one any-of feature is true if the any-of list is nonempty. Disabled rules do not participate.
 
-## Один набор правил
+## Engine adapters
 
-Все три реализации читают один `rules/canonical-rules.yaml`.
+| Adapter | Preparation | Per-asset execution |
+|:--|:--|:--|
+| HashMap + BitSet | Feature IDs, masks and a required-feature candidate index | Extract features, select candidates, compare masks |
+| CEL | Generate and compile expressions; cache programs and a required-feature candidate index | Extract features, evaluate candidate programs |
+| DMN / KIE | Generate and load a DMN `COLLECT` decision table | Extract features, evaluate table, map returned IDs to rules |
 
-Правило содержит:
+Rules without a required feature remain eligible in indexed adapters. DMN any-of conditions can expand into multiple rows. Duplicate matches from that expansion are deduplicated by rule ID.
 
-- `ruleId`;
-- `targetType`;
-- `targetSubtype`;
-- `priority`;
-- `required`;
-- `any`;
-- `forbidden`;
-- `enabled`.
+## Shared resolution
 
-Таким образом, CEL и DMN не являются отдельными бизнес-описаниями. Они автоматически строятся из того же канонического правила, что используется BitSet-вариантом.
+`MatchResolver` deduplicates rule IDs and retains the maximum priority. Different types at that priority produce `TYPE_CONFLICT`; different subtypes produce `SUBTYPE_CONFLICT`. A type without a subtype produces `AUTO_TYPE_ONLY`, and a complete result produces `AUTO`. No matches produce `NOT_CLASSIFIED`.
 
-## HashMap + BitSet
+This shared code keeps output semantics consistent but is also a shared failure surface. Differential agreement is therefore complemented by expected-output tests.
 
-При загрузке правил:
+## CLI and measurements
 
-1. каждому признаку назначается стабильный ID в рамках набора правил;
-2. `required`, `any`, `forbidden` преобразуются в `BitSet`;
-3. выбирается обязательный опорный признак;
-4. строится индекс `feature -> candidate rules`.
+`generate`, `verify`, `benchmark`, `explain` and `export-dmn` are implemented in `ru.itam.typing.cli.Main`. See `--help` for options.
 
-На активе сначала выбираются кандидаты по индексу, затем выполняется проверка масок.
+Verification compares outputs and labels, emits ordered SHA-256 result digests, and returns exit code 2 on mismatch or empty input. Exceptions also produce a nonzero process exit. Records without expected types contribute to engine verification but not label coverage; new reports expose `groundTruthChecked`.
 
-## CEL
-
-При загрузке правил:
-
-1. каноническое условие переводится в CEL;
-2. выражение компилируется один раз;
-3. `Program` кэшируется;
-4. строится лёгкий индекс по обязательному опорному признаку.
-
-Во время типизации парсер и компилятор CEL не вызываются.
-
-## DMN/KIE
-
-Из канонического набора автоматически создаётся DMN Decision Table с `COLLECT`.
-
-Каждая строка возвращает код совпавшего `ruleId`. Условие `any` при необходимости разворачивается в несколько эквивалентных строк; повторные совпадения одного `ruleId` удаляются `MatchResolver`.
-
-Результат DMN не определяет отдельную семантику конфликтов: финальное разрешение совпадений едино для всех трёх вариантов.
-
-## Разрешение правил
-
-1. Удалить дубликаты одного `ruleId`.
-2. Оставить правила максимального `priority`.
-3. Если их типы различаются -> `TYPE_CONFLICT`.
-4. Если тип один, но подтипы различаются -> `SUBTYPE_CONFLICT`.
-5. Если подтип отсутствует -> `AUTO_TYPE_ONLY`.
-6. Иначе -> `AUTO`.
-
-## Честность первичного замера
-
-- входной `AssetTypingContext` одинаков;
-- канонические правила одинаковы;
-- CEL компилируется до измерения;
-- DMN загружается до измерения;
-- данные читаются один раз на пакет, после чего тот же пакет передаётся каждому движку;
-- результат каждого вызова участвует в checksum;
-- порядок движков фиксирован, поэтому результаты нужно интерпретировать вместе с повторными прогонами, а не по одному числу.
-
-Для строгого JVM-микробенчмарка следующим этапом можно добавить JMH, но это не требуется для первого запуска и проверки работоспособности трёх подходов.
+Benchmarking streams parsed batches, records elapsed classification/checksum time per engine and summarizes passes. Input hashing and runtime metadata are collected outside measured sections. See [methodology](METHODOLOGY.md) for exact warmup, order and measurement limitations.

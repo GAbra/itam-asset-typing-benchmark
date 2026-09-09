@@ -1,8 +1,11 @@
 target/*
-!target/itam-typing-demo-1.0.0-SNAPSHOT.jar
+!target/itam-asset-typing-benchmark-1.0.0-SNAPSHOT.jar
 .git
 .idea
 .vscode
 data/generated
 benchmark-results
 rules/generated
+results
+*.tar
+*.zip

@@ -28,7 +28,7 @@ public final class DatasetGenerator {
                 distribution.put(profile, distribution.get(profile) + 1);
                 DatasetRecord record = buildRecord(i + 1, profile, random.split());
                 writer.write(json.writeValueAsString(record));
-                writer.newLine();
+                writer.write('\n');
             }
         }
         return new GenerationSummary(count, seed, out.toString(), distribution);
@@ -100,7 +100,8 @@ public final class DatasetGenerator {
     private static DatasetRecord rec(String id, Set<String> sources, Set<String> kinds,
                                      Map<String, String> a, Map<String, Long> p,
                                      AssetType type, AssetSubtype subtype) {
-        return new DatasetRecord(new AssetTypingContext(id, Set.copyOf(sources), Set.copyOf(kinds), Map.copyOf(a), Map.copyOf(p)), type, subtype);
+        return new DatasetRecord(new AssetTypingContext(id, new TreeSet<>(sources), new TreeSet<>(kinds),
+                new TreeMap<>(a), new TreeMap<>(p)), type, subtype);
     }
 
     private static Profile pickProfile(SplittableRandom r) {

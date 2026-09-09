@@ -1,11 +1,11 @@
-PREBUILT RUNTIME QUICK START
+PORTABLE RUNTIME QUICK START
 
-1. Download the artifact named itam-typing-demo-prebuilt from the latest successful GitHub Actions ci run.
-2. Extract itam-typing-demo-prebuilt.tar to the repository root.
-3. Run:
-   docker load -i .\itam-typing-demo-prebuilt.tar
-4. Run:
-   powershell -ExecutionPolicy Bypass -File .\run-quick-demo-prebuilt.ps1
-5. Send:
-   benchmark-results\verify-10000.json
-   benchmark-results\benchmark-10000.json
+See docs/PREBUILT_RUNTIME.md for complete instructions and artifact provenance.
+Download itam-asset-typing-benchmark-prebuilt from a successful main-branch ci run:
+https://github.com/GAbra/itam-asset-typing-benchmark/actions/workflows/ci.yml
+
+Extract, verify SHA256SUMS, then run:
+  docker load -i .\itam-asset-typing-benchmark-prebuilt.tar
+  powershell -ExecutionPolicy Bypass -File .\run-quick-demo-prebuilt.ps1
+
+New reports: results/local/verify-10000.json and results/local/benchmark-10000.json

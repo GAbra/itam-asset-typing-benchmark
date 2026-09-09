@@ -15,6 +15,8 @@ import ru.itam.typing.rules.RuleLoader;
 import ru.itam.typing.rules.RuleSet;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,20 +32,26 @@ public final class Main {
     private Main() {}
 
     public static void main(String[] args) throws Exception {
+        int code = execute(args);
+        if (code != 0) System.exit(code);
+    }
+
+    public static int execute(String[] args) throws Exception {
         if (args.length == 0 || "help".equalsIgnoreCase(args[0]) || "--help".equalsIgnoreCase(args[0])) {
             printHelp();
-            return;
+            return 0;
         }
         String command = args[0].toLowerCase(Locale.ROOT);
         Args a = new Args(Arrays.copyOfRange(args, 1, args.length));
         switch (command) {
             case "generate" -> generate(a);
-            case "verify" -> verify(a);
+            case "verify" -> { return verify(a); }
             case "benchmark" -> benchmark(a);
             case "explain" -> explain(a);
             case "export-dmn" -> exportDmn(a);
             default -> throw new IllegalArgumentException("Unknown command: " + command);
         }
+        return 0;
     }
 
     private static void generate(Args a) throws IOException {
@@ -51,13 +59,15 @@ public final class Main {
         long seed = a.longValue("--seed", DatasetGenerator.DEFAULT_SEED);
         Path out = Path.of(a.value("--out", "data/generated/normalized-" + count + ".jsonl"));
         var summary = new DatasetGenerator().generate(count, seed, out);
+        JSON.writeValue(Path.of(out + ".meta.json").toFile(), summary);
         System.out.println(JSON.writeValueAsString(summary));
     }
 
-    private static void verify(Args a) throws Exception {
+    private static int verify(Args a) throws Exception {
         Path data = requiredPath(a, "--data");
         Path rulesPath = Path.of(a.value("--rules", DEFAULT_RULES.toString()));
         long max = a.longValue("--max", Long.MAX_VALUE);
+        if (max <= 0) throw new IllegalArgumentException("--max must be > 0");
         EngineBundle bundle = engines(rulesPath);
 
         VerificationStats stats = new VerificationStats();
@@ -80,20 +90,25 @@ public final class Main {
                     stats.samples.add(Map.of("assetId", record.context().assetId(), "bitset", b, "cel", c, "dmn", d));
                 }
             }
+            if (record.expectedType() != null) stats.groundTruthChecked++;
             if (record.expectedType() != null && (b.type() != record.expectedType() || b.subtype() != record.expectedSubtype())) {
                 stats.groundTruthMismatches++;
                 if (stats.samples.size() < 20) {
-                    stats.samples.add(Map.of("assetId", record.context().assetId(), "expectedType", record.expectedType(),
-                            "expectedSubtype", record.expectedSubtype(), "actual", b));
+                    Map<String, Object> sample = new LinkedHashMap<>();
+                    sample.put("assetId", record.context().assetId());
+                    sample.put("expectedType", record.expectedType());
+                    sample.put("expectedSubtype", record.expectedSubtype());
+                    sample.put("actual", b);
+                    stats.samples.add(sample);
                 }
             }
         });
 
         VerificationReport report = new VerificationReport(
-                stats.engineMismatches == 0 && stats.groundTruthMismatches == 0 ? "PASS" : "FAIL",
+                stats.total > 0 && stats.engineMismatches == 0 && stats.groundTruthMismatches == 0 ? "PASS" : "FAIL",
                 data.toString(), rulesPath.toString(), stats.total, stats.engineMismatches,
                 stats.groundTruthMismatches, hex(digestBitset.digest()), hex(digestCel.digest()),
-                hex(digestDmn.digest()), stats.samples);
+                hex(digestDmn.digest()), stats.samples, stats.groundTruthChecked, provenance(data, rulesPath));
         String outValue = a.value("--out", null);
         if (outValue != null) {
             Path out = Path.of(outValue);
@@ -101,7 +116,7 @@ public final class Main {
             JSON.writeValue(out.toFile(), report);
         }
         System.out.println(JSON.writeValueAsString(report));
-        if (!"PASS".equals(report.result())) System.exit(2);
+        return "PASS".equals(report.result()) ? 0 : 2;
     }
 
     private static void benchmark(Args a) throws Exception {
@@ -111,12 +126,16 @@ public final class Main {
         int runs = a.intValue("--runs", 5);
         int batch = a.intValue("--batch", 5_000);
         long max = a.longValue("--max", Long.MAX_VALUE);
-        Path out = Path.of(a.value("--out", "benchmark-results/benchmark.json"));
+        Path out = Path.of(a.value("--out", "results/local/benchmark.json"));
+        if (warmup < 0 || runs <= 0 || batch <= 0 || max <= 0) {
+            throw new IllegalArgumentException("--warmup must be >= 0; --runs, --batch and --max must be > 0");
+        }
 
         EngineBundle bundle = engines(rulesPath);
         List<TypingEngine> engines = List.of(bundle.bitset, bundle.cel, bundle.dmn);
         DatasetReader reader = new DatasetReader();
-        List<DatasetRecord> warm = reader.first(data, Math.min(batch, 5_000));
+        List<DatasetRecord> warm = reader.first(data, (int) Math.min(max, Math.min(batch, 5_000)));
+        if (warm.isEmpty()) throw new IllegalArgumentException("Cannot benchmark an empty dataset");
         for (int i = 0; i < warmup; i++) {
             for (TypingEngine engine : engines) {
                 long checksum = 0;
@@ -151,7 +170,8 @@ public final class Main {
         }
 
         BenchmarkReport report = new BenchmarkReport("OK", Instant.now().toString(), data.toString(), rulesPath.toString(),
-                warmup, runs, batch, bundle.loadMs, allRuns, summaries);
+                warmup, runs, batch, bundle.loadMs, allRuns, summaries,
+                warm.size(), provenance(data, rulesPath), runtimeEnvironment());
         Files.createDirectories(out.toAbsolutePath().getParent());
         JSON.writeValue(out.toFile(), report);
         System.out.println(JSON.writeValueAsString(report));
@@ -234,6 +254,39 @@ public final class Main {
         return sb.toString();
     }
 
+    private static String fileSha256(Path path) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        try (InputStream input = Files.newInputStream(path)) {
+            byte[] buffer = new byte[64 * 1024];
+            int size;
+            while ((size = input.read(buffer)) != -1) digest.update(buffer, 0, size);
+        }
+        return hex(digest.digest());
+    }
+
+    private static Map<String, Object> provenance(Path data, Path rules) throws Exception {
+        RuleSet ruleSet = RuleLoader.load(rules);
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("harnessVersion", 2);
+        result.put("datasetSha256", fileSha256(data));
+        result.put("rulesSha256", fileSha256(rules));
+        result.put("rulesetVersion", ruleSet.rulesetVersion());
+        result.put("enabledRules", ruleSet.rules().stream().filter(r -> r.enabled()).count());
+        result.put("engineOrder", List.of("HASHMAP_BITSET", "CEL", "DMN_KIE"));
+        return result;
+    }
+
+    private static Map<String, Object> runtimeEnvironment() {
+        Map<String, Object> result = new LinkedHashMap<>();
+        for (String key : List.of("java.version", "java.vendor", "java.vm.name", "java.vm.version",
+                "os.name", "os.version", "os.arch")) result.put(key, System.getProperty(key));
+        result.put("availableProcessors", Runtime.getRuntime().availableProcessors());
+        result.put("maxHeapBytes", Runtime.getRuntime().maxMemory());
+        result.put("garbageCollectors", ManagementFactory.getGarbageCollectorMXBeans().stream()
+                .map(b -> b.getName()).toList());
+        return result;
+    }
+
     private static double median(double[] values) {
         if (values.length == 0) return 0.0;
         Arrays.sort(values);
@@ -249,12 +302,12 @@ public final class Main {
 
     private static void printHelp() {
         System.out.println("""
-                ITAM Asset Typing Demo
+                ITAM Asset Typing Benchmark
 
                 Commands:
                   generate  --count 10000 [--seed 20260909] [--out data/generated/normalized-10000.jsonl]
-                  verify    --data <file> [--rules rules/canonical-rules.yaml] [--max N] [--out benchmark-results/verify.json]
-                  benchmark --data <file> [--warmup 2] [--runs 5] [--batch 5000] [--max N] [--out benchmark-results/benchmark.json]
+                  verify    --data <file> [--rules rules/canonical-rules.yaml] [--max N] [--out results/local/verify.json]
+                  benchmark --data <file> [--warmup 2] [--runs 5] [--batch 5000] [--max N] [--out results/local/benchmark.json]
                   explain   --data <file> --asset <asset-id>
                   export-dmn [--out rules/generated/itam-typing.dmn]
                 """);
@@ -266,13 +319,15 @@ public final class Main {
         long total;
         long engineMismatches;
         long groundTruthMismatches;
+        long groundTruthChecked;
         final List<Map<String, Object>> samples = new ArrayList<>();
     }
 
     private record VerificationReport(String result, String data, String rules, long checked,
                                       long engineMismatches, long groundTruthMismatches,
                                       String hashBitset, String hashCel, String hashDmn,
-                                      List<Map<String, Object>> samples) {}
+                                      List<Map<String, Object>> samples, long groundTruthChecked,
+                                      Map<String, Object> provenance) {}
 
     private static final class MutableTiming {
         long count;
@@ -326,7 +381,9 @@ public final class Main {
     private record BenchmarkReport(String result, String generatedAt, String data, String rules,
                                    int warmupIterations, int measuredRuns, int batchSize,
                                    Map<String, Double> engineLoadMs,
-                                   List<RunResult> runs, List<EngineSummary> summary) {}
+                                   List<RunResult> runs, List<EngineSummary> summary,
+                                   int warmupRecordsPerIteration, Map<String, Object> provenance,
+                                   Map<String, Object> environment) {}
 
     private static final class Args {
         private final Map<String, String> values = new LinkedHashMap<>();

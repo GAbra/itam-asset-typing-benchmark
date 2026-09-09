@@ -1,4 +1,8 @@
 FROM eclipse-temurin:21-jre
 WORKDIR /workspace
-COPY target/itam-typing-demo-1.0.0-SNAPSHOT.jar /opt/itam/itam-typing-demo.jar
-ENTRYPOINT ["java", "-jar", "/opt/itam/itam-typing-demo.jar"]
+LABEL org.opencontainers.image.title="ITAM Asset Typing Benchmark" \
+      org.opencontainers.image.source="https://github.com/GAbra/itam-asset-typing-benchmark" \
+      org.opencontainers.image.licenses="MIT"
+COPY rules/canonical-rules.yaml /workspace/rules/canonical-rules.yaml
+COPY target/itam-asset-typing-benchmark-1.0.0-SNAPSHOT.jar /opt/itam/itam-asset-typing-benchmark.jar
+ENTRYPOINT ["java", "-jar", "/opt/itam/itam-asset-typing-benchmark.jar"]

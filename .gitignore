@@ -5,5 +5,8 @@ target/
 .DS_Store
 /data/generated/
 /rules/generated/
+/itam-asset-typing-benchmark-prebuilt.tar
+/itam-asset-typing-benchmark-prebuilt.zip
 /itam-typing-demo-prebuilt.tar
-/itam-typing-demo-prebuilt.zip
+/results/
+__pycache__/

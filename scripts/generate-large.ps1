@@ -5,4 +5,5 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 New-Item -ItemType Directory -Force -Path data/generated | Out-Null
-docker compose run --rm demo java -jar target/itam-typing-demo-1.0.0-SNAPSHOT.jar generate --count $Count --seed 20260909 --out "data/generated/normalized-$Count.jsonl"
+docker compose run --rm demo java -jar target/itam-asset-typing-benchmark-1.0.0-SNAPSHOT.jar generate --count $Count --seed 20260909 --out "data/generated/normalized-$Count.jsonl"
+if ($LASTEXITCODE -ne 0) { throw "Generation failed (exit $LASTEXITCODE)." }
