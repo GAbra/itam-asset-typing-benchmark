@@ -2,7 +2,12 @@
 
 [English](IMPLEMENTATION.md) · **Русский**
 
-Эта страница описывает не общую идею эксперимента, а фактический путь выполнения по классам и модулям текущей реализации. Верхнеуровневая архитектура находится в [ARCHITECTURE_RU.md](ARCHITECTURE_RU.md), а внутреннее устройство трёх движков вынесено отдельно в [ENGINE_IMPLEMENTATION_RU.md](ENGINE_IMPLEMENTATION_RU.md).
+Эта страница описывает фактический путь выполнения по классам и модулям текущей реализации. Верхнеуровневая архитектура находится в [ARCHITECTURE_RU.md](ARCHITECTURE_RU.md), а внутреннее устройство трёх движков — в [ENGINE_IMPLEMENTATION_RU.md](ENGINE_IMPLEMENTATION_RU.md).
+
+Для двух наиболее ветвящихся потоков — `verify` и `benchmark` — рядом с Mermaid сохранены статические SVG и редактируемые draw.io-файлы. SVG предназначены в том числе для клиентов GitHub, где Mermaid может не отображаться.
+
+- `verify`: [SVG](diagrams/verify-flow.svg) · [draw.io](diagrams/verify-flow.drawio)
+- `benchmark`: [SVG](diagrams/benchmark-flow.svg) · [draw.io](diagrams/benchmark-flow.drawio)
 
 ## Карта пакетов
 
@@ -42,59 +47,40 @@ src/main/java/ru/itam/typing/
 ```mermaid
 flowchart TD
     CLI[Main.execute] --> CMD{Команда}
-
     CMD -->|generate| GEN[DatasetGenerator]
     GEN --> JSONL[DatasetRecord JSONL]
     GEN --> META[generation metadata]
-
     CMD -->|verify / benchmark / explain| LOAD[RuleLoader.load]
     LOAD --> VALID[RuleLoader.validate]
     VALID --> RS[RuleSet / CanonicalRule]
-
     RS --> BUILD[Main.engines]
     BUILD --> FX[FeatureExtractor]
     BUILD --> B[BitSetTypingEngine]
     BUILD --> C[CelTypingEngine]
     BUILD --> D[DmnTypingEngine]
-
     CMD -->|verify / benchmark / explain| READ[DatasetReader]
     READ --> REC[DatasetRecord]
     REC --> CTX[AssetTypingContext]
-
-    CTX --> B
-    CTX --> C
-    CTX --> D
-
+    CTX --> B & C & D
     B --> RB[RuleMatch list]
     C --> RC[RuleMatch list]
     D --> RD[RuleMatch list]
-
     RB --> RES[MatchResolver.resolve]
     RC --> RES
     RD --> RES
     RES --> TR[TypingResult]
-
     TR --> VERIFY[verify: compare + SHA-256 + labels]
     TR --> BENCH[benchmark: checksum + timing]
     TR --> EXPLAIN[explain: JSON]
-
     CMD -->|export-dmn| D
     D --> DMNXML[generated DMN XML]
 ```
 
-`Main` является orchestration layer: разбирает CLI-аргументы, загружает правила, создаёт один `FeatureExtractor` и три движка, читает dataset и формирует отчёты. Интерфейс `TypingEngine` задаёт единый контракт `name()` + `classify(AssetTypingContext)` для всех реализаций.
+`Main` — orchestration layer: разбирает CLI-аргументы, загружает правила, создаёт один `FeatureExtractor` и три движка, читает dataset и формирует отчёты. `TypingEngine` задаёт общий контракт `name()` + `classify(AssetTypingContext)`.
 
 ## Модель входа и результата
 
-`DatasetRecord` состоит из `AssetTypingContext` и ожидаемых `expectedType` / `expectedSubtype`. Контекст содержит:
-
-- `assetId`;
-- `sources`;
-- `sourceObjectKinds`;
-- `attributes`;
-- `systemParameters`.
-
-Результат `TypingResult` содержит `assetId`, итоговый `type`, `subtype`, `status` и список `matchedRuleIds`.
+`DatasetRecord` состоит из `AssetTypingContext` и ожидаемых `expectedType` / `expectedSubtype`. Контекст содержит `assetId`, `sources`, `sourceObjectKinds`, `attributes`, `systemParameters`. `TypingResult` содержит `assetId`, итоговые `type`, `subtype`, `status` и `matchedRuleIds`.
 
 ```mermaid
 flowchart LR
@@ -108,17 +94,7 @@ flowchart LR
 
 ## Загрузка и валидация правил
 
-Единственный источник правил — `rules/canonical-rules.yaml`. `RuleLoader` десериализует YAML в `RuleSet`, после чего выполняет валидацию до создания движков.
-
-Проверяется:
-
-- наличие `rulesetVersion`;
-- непустой `ruleId`;
-- уникальность `ruleId`;
-- наличие `targetType`;
-- отсутствие признака одновременно в `required` и `forbidden`.
-
-`CanonicalRule` хранит `ruleId`, target type/subtype, `priority`, `required`, `any`, `forbidden` и `enabled`. Null-списки признаков нормализуются в пустые неизменяемые списки.
+Единственный источник правил — `rules/canonical-rules.yaml`. `RuleLoader` десериализует YAML в `RuleSet` и валидирует его до создания движков. Проверяются `rulesetVersion`, непустой и уникальный `ruleId`, наличие `targetType` и отсутствие признака одновременно в `required` и `forbidden`.
 
 ```mermaid
 flowchart LR
@@ -133,24 +109,11 @@ flowchart LR
 
 ## Извлечение признаков
 
-Каждый вызов `classify` сам вызывает общий `FeatureExtractor`. Он всегда создаёт карту из 22 известных булевых признаков и выставляет их на основании `sources`, `sourceObjectKinds` и атрибутов контекста.
-
-Примеры фактических преобразований:
-
-- source `ad` → `SRC_AD`;
-- `ad:user` → `OBJ_AD_USER`;
-- `ad:computer` → `OBJ_AD_COMPUTER`;
-- признаки имени/описания service account → `ACCOUNT_SERVICE_HINT`;
-- строки ОС → `OS_WINDOWS`, `OS_LINUX`, `OS_SERVER`;
-- `ksc.KLHST_WKS_CTYPE` → `KSC_WORKSTATION` / `KSC_SERVER`;
-- `nmap.deviceType` → `NMAP_NETWORK_DEVICE` / `NMAP_GENERAL_PURPOSE`;
-- признаки security software по display name / publisher → `SECURITY_SOFTWARE_HINT`.
-
-Таким образом, все три движка получают одинаковую семантическую карту признаков. Они отличаются только способом дальнейшего исполнения правил.
+Каждый `classify` вызывает общий `FeatureExtractor`. Он строит одну и ту же карту из 22 булевых признаков по `sources`, `sourceObjectKinds` и атрибутам контекста. Все три движка получают одинаковую семантическую карту и отличаются только способом исполнения правил.
 
 ## Создание движков
 
-`Main.engines()` выполняет следующую последовательность:
+`Main.engines()` загружает `RuleSet`, создаёт один `FeatureExtractor`, затем последовательно конструирует `BitSetTypingEngine`, `CelTypingEngine`, `DmnTypingEngine`. Время загрузки правил и каждого конструктора фиксируется в `engineLoadMs`; оно не входит в per-engine classification timing.
 
 ```mermaid
 sequenceDiagram
@@ -160,7 +123,6 @@ sequenceDiagram
     participant B as BitSetTypingEngine
     participant C as CelTypingEngine
     participant D as DmnTypingEngine
-
     M->>RL: load(rulesPath)
     RL-->>M: RuleSet
     M->>F: new FeatureExtractor()
@@ -170,31 +132,22 @@ sequenceDiagram
     M-->>M: сохранить loadMs
 ```
 
-Время загрузки canonical rules и конструкторов каждого движка фиксируется отдельно в `engineLoadMs`. Оно не входит в per-engine classification timing benchmark.
-
 ## Команда `generate`
 
-`Main.generate()` вызывает `DatasetGenerator.generate(count, seed, out)`. Генератор записывает JSONL и отдельный sidecar `<dataset>.meta.json` с параметрами генерации.
-
-```mermaid
-flowchart LR
-    CLI[generate] --> G[DatasetGenerator.generate]
-    G --> J[normalized-*.jsonl]
-    G --> S[Generation summary]
-    S --> M[*.jsonl.meta.json]
-```
+`Main.generate()` вызывает `DatasetGenerator.generate(count, seed, out)`, записывает JSONL и sidecar `<dataset>.meta.json`.
 
 ## Команда `verify`
 
-Verification создаёт все три движка один раз и потоково читает dataset через `DatasetReader.forEach`.
+Verification создаёт три движка один раз и потоково читает dataset через `DatasetReader.forEach`.
 
-Для каждой записи:
+Для каждой записи выполняются все три классификации, обновляются три SHA-256 digest, затем проверяется эквивалентность результатов. Если результаты различаются, увеличивается `engineMismatches` и сохраняется diagnostic sample. Независимо от исхода differential check поток продолжается к label-check. При наличии `expectedType` увеличивается `groundTruthChecked`, затем BitSet type/subtype сравниваются с generator label; несовпадение увеличивает `groundTruthMismatches`. После обработки записи чтение продолжается до EOF. Только после EOF строится `VerificationReport` и вычисляется PASS/FAIL.
 
-1. выполняются `bitset.classify`, `cel.classify`, `dmn.classify`;
-2. сравниваются `type`, `subtype`, `status` и отсортированное множество `matchedRuleIds`;
-3. отдельно обновляется SHA-256 digest результата каждого движка;
-4. если есть generator label, результат BitSet сравнивается с `expectedType` / `expectedSubtype`;
-5. сохраняется до 20 диагностических samples при расхождениях.
+![Полный поток verify](diagrams/verify-flow.svg)
+
+[Открыть SVG отдельно](diagrams/verify-flow.svg) · [Редактируемый draw.io](diagrams/verify-flow.drawio)
+
+<details>
+<summary>Mermaid-источник verify</summary>
 
 ```mermaid
 flowchart TD
@@ -202,61 +155,83 @@ flowchart TD
     X --> B[BitSet classify]
     X --> C[CEL classify]
     X --> D[DMN classify]
-    B --> EQ[Equivalent?]
+    B --> H[Обновить SHA-256 BitSet]
+    C --> H2[Обновить SHA-256 CEL]
+    D --> H3[Обновить SHA-256 DMN]
+    B --> EQ{Equivalent?}
     C --> EQ
     D --> EQ
-    EQ -->|нет| EM[engineMismatches++]
-    B --> GT{expectedType есть?}
-    GT -->|да| GC[Сравнить type/subtype с label]
-    GC -->|не совпало| GM[groundTruthMismatches++]
-    B --> HB[SHA-256 BitSet]
-    C --> HC[SHA-256 CEL]
-    D --> HD[SHA-256 DMN]
-    EM --> REP[VerificationReport]
-    GM --> REP
-    HB --> REP
-    HC --> REP
-    HD --> REP
+    EQ -->|нет| EM[engineMismatches++ + sample]
+    EQ -->|да| GT{expectedType есть?}
+    EM --> GT
+    GT -->|нет| NEXT{Есть следующая запись?}
+    GT -->|да| GTC[groundTruthChecked++]
+    GTC --> GC{type/subtype совпали с label?}
+    GC -->|да| NEXT
+    GC -->|нет| GM[groundTruthMismatches++ + sample]
+    GM --> NEXT
+    NEXT -->|да| X
+    NEXT -->|нет / EOF| REP[Сформировать VerificationReport]
+    REP --> P{checked > 0 И mismatches = 0?}
+    P -->|да| OK[PASS / exit 0]
+    P -->|нет| FAIL[FAIL / exit 2]
 ```
 
-`PASS` выдаётся только если dataset не пустой, `engineMismatches == 0` и `groundTruthMismatches == 0`. При `FAIL` команда возвращает exit code `2`.
+</details>
 
-Важно: label-check непосредственно выполняется по результату BitSet; CEL и DMN проверяются отдельным differential comparison. При PASS это означает, что все три движка совпали между собой, а BitSet совпал с generator labels.
+`PASS` выдаётся только если dataset не пустой, `engineMismatches == 0` и `groundTruthMismatches == 0`. При `FAIL` команда возвращает exit code `2`. Label-check выполняется непосредственно по BitSet; CEL и DMN покрываются differential comparison.
 
 ## Команда `benchmark`
 
-Benchmark также создаёт движки один раз. Затем `DatasetReader.first` читает warmup-prefix размером `min(max, batch, 5000)`. Warmup выполняет все три движка, но его время не попадает в measured runs.
+Benchmark создаёт движки один раз. `DatasetReader.first` читает warmup-prefix `min(max, batch, 5000)`, после чего выполняются warmup iterations вне measured results.
 
-Measured run работает через `BatchAccumulator`:
+Каждый measured run заново потоково читает dataset. `BatchAccumulator.accept` прекращает добавление новых записей после `max`, иначе увеличивает `seen`, добавляет запись в batch и вызывает `flush`, когда batch достиг `batchSize`. Если EOF наступил на неполном batch, `Main.benchmark()` вызывает финальный `acc.flush()`, поэтому хвост данных не теряется.
+
+Критически важно: внутри `flush()` движки выполняются **не параллельно**, а строго последовательно в фиксированном порядке `HASHMAP_BITSET → CEL → DMN_KIE`. Для каждого движка отдельно стартует таймер, классифицируется весь уже распарсенный batch, считается `resultHash`/XOR checksum и накопительные `elapsedNs`, `count`, `checksum`. Только после завершения всего measured run из накопленных `MutableTiming` создаются три `RunResult`. После всех measured runs вычисляются median/min/max и формируется `BenchmarkReport`.
+
+![Полный поток benchmark](diagrams/benchmark-flow.svg)
+
+[Открыть SVG отдельно](diagrams/benchmark-flow.svg) · [Редактируемый draw.io](diagrams/benchmark-flow.drawio)
+
+<details>
+<summary>Mermaid-источник benchmark</summary>
 
 ```mermaid
 flowchart TD
-    F[DatasetReader.forEach] --> A[BatchAccumulator.accept]
-    A --> Q{batch заполнен?}
-    Q -->|нет| A
-    Q -->|да| FL[flush]
-    FL --> B[HASHMAP_BITSET]
-    FL --> C[CEL]
-    FL --> D[DMN_KIE]
-    B --> T1[elapsedNs + count + checksum]
-    C --> T2[elapsedNs + count + checksum]
-    D --> T3[elapsedNs + count + checksum]
-    T1 --> S[RunResult]
-    T2 --> S
-    T3 --> S
-    S --> M[median / min / max]
-    M --> R[BenchmarkReport]
+    S[benchmark] --> W[DatasetReader.first min(max,batch,5000)]
+    W --> WI[Warmup × warmupIterations]
+    WI --> RUN[Начать measured run]
+    RUN --> F[DatasetReader.forEach]
+    F --> A[BatchAccumulator.accept]
+    A --> MAX{seen >= max?}
+    MAX -->|да| MORE{Есть следующая запись?}
+    MAX -->|нет| ADD[seen++ и добавить record в batch]
+    ADD --> Q{batch.size >= batchSize?}
+    Q -->|нет| MORE
+    Q -->|да| B[таймер HASHMAP_BITSET]
+    B --> BT[накопить timing]
+    BT --> C[таймер CEL]
+    C --> CT[накопить timing]
+    CT --> D[таймер DMN_KIE]
+    D --> DT[накопить timing и очистить batch]
+    DT --> MORE
+    MORE -->|да| A
+    MORE -->|нет / EOF| E{batch пуст?}
+    E -->|нет| B
+    E -->|да| RR[Создать 3 RunResult из MutableTiming]
+    RR --> NR{Остались measured runs?}
+    NR -->|да| RUN
+    NR -->|нет| SUM[median / min / max]
+    SUM --> REP[BenchmarkReport]
 ```
 
-Внутри `flush()` таймер каждого движка охватывает цикл по уже распарсенному batch и включает `engine.classify(record.context())` плюс `resultHash()` и XOR checksum. Парсинг JSONL происходит до этого таймера. Движки исполняются в фиксированном порядке `HASHMAP_BITSET → CEL → DMN_KIE`.
+</details>
 
-Для каждого measured run сохраняются `count`, `elapsedNs`, `assetsPerSecond`, `nsPerAsset` и checksum. Summary вычисляет медиану throughput и ns/asset, а также min/max throughput.
+В timed section входит `engine.classify(record.context())`, `resultHash()` и XOR checksum. JSONL parsing находится за пределами per-engine timer. `RunResult` создаётся после полного прохода run, а не после каждого `flush()`.
 
 ## Команды `explain` и `export-dmn`
 
-`explain` ищет asset по `assetId`, отдельно выводит его 22 features и результаты всех трёх движков. Это диагностический путь, а не отдельная классификационная реализация.
-
-`export-dmn` создаёт тот же `DmnTypingEngine`, который используется в benchmark/verify, и записывает его `generatedDmn()` в файл. Поэтому экспортируемая таблица соответствует реально загружаемой KIE-модели для того же ruleset.
+`explain` ищет asset по `assetId`, выводит 22 features и результаты всех трёх движков. `export-dmn` создаёт тот же `DmnTypingEngine`, который используется в benchmark/verify, и записывает его `generatedDmn()`.
 
 ## Ответственность классов
 
@@ -264,17 +239,17 @@ flowchart TD
 |:--|:--|
 | `Main` | CLI orchestration, engine lifecycle, verify, benchmark, provenance, reports |
 | `DatasetGenerator` | детерминированная генерация synthetic dataset |
-| `DatasetReader` | потоковое чтение JSONL и чтение warmup-prefix |
+| `DatasetReader` | потоковое чтение JSONL и warmup-prefix |
 | `AssetTypingContext` | нормализованный вход классификации |
 | `DatasetRecord` | контекст + expected labels |
-| `FeatureExtractor` | преобразование контекста в 22 boolean features |
+| `FeatureExtractor` | контекст → 22 boolean features |
 | `RuleLoader` | загрузка и базовая валидация YAML ruleset |
 | `RuleSet` / `CanonicalRule` | canonical in-memory rule model |
 | `TypingEngine` | общий интерфейс движков |
 | `BitSetTypingEngine` | masks + candidate index + BitSet evaluation |
-| `CelRuleExpression` | генерация CEL expression из canonical rule |
+| `CelRuleExpression` | canonical rule → CEL expression |
 | `CelTypingEngine` | compile/cache CEL programs + candidate evaluation |
-| `DmnModelGenerator` | генерация DMN XML decision table |
+| `DmnModelGenerator` | canonical rules → DMN XML decision table |
 | `DmnTypingEngine` | загрузка/исполнение DMN через Apache KIE |
 | `RuleMatch` | промежуточное совпадение правила |
 | `MatchResolver` | единая priority/conflict resolution semantics |
@@ -282,6 +257,6 @@ flowchart TD
 
 ## Что не входит в эту реализацию
 
-Текущий benchmark не содержит live connectors к AD/Nmap/KSC/Zabbix/SIEM, persistence layer, ITAM API, очередей, фонового сервиса, дедупликации активов или многопоточного production serving. Raw source samples используются как иллюстрации форматов, а benchmark работает по нормализованному synthetic JSONL.
+Текущий benchmark не содержит live connectors к AD/Nmap/KSC/Zabbix/SIEM, persistence layer, ITAM API, очередей, фонового сервиса, дедупликации активов или многопоточного production serving. Benchmark работает по нормализованному synthetic JSONL.
 
-Подробности именно по внутреннему устройству **HashMap + BitSet, CEL и DMN/KIE** см. в [ENGINE_IMPLEMENTATION_RU.md](ENGINE_IMPLEMENTATION_RU.md).
+Подробности внутреннего устройства **HashMap + BitSet, CEL и DMN/KIE** см. в [ENGINE_IMPLEMENTATION_RU.md](ENGINE_IMPLEMENTATION_RU.md).
