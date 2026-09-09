@@ -5,42 +5,75 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-0f766e)](LICENSE)
 [![Synthetic data](https://img.shields.io/badge/data-100%25_synthetic-64748b)](data/SOURCES.md)
 
+**English** · [Русский](README_RU.md)
+
 **One ruleset. Three execution engines. A reproducible IT asset classification experiment.**
 
 Compare **HashMap + BitSet**, **Common Expression Language (CEL)** and **DMN / Apache KIE** on the same normalized assets and classification rules. Explore the trade-off between a specialized Java classifier, compiled expressions and a standard decision table.
 
-[Русская версия](README_RU.md) · [Methodology](docs/METHODOLOGY.md) · [Raw results](benchmark-results) · [Reproduce](docs/TEST_PROTOCOL.md) · [Contribute](CONTRIBUTING.md)
+[Methodology](docs/METHODOLOGY.md) · [Results](benchmark-results/README.md) · [Reproduce](docs/TEST_PROTOCOL.md) · [Architecture](docs/ARCHITECTURE.md) · [Contribute](CONTRIBUTING.md)
 
 ## Why this experiment exists
 
-Automatic asset typing becomes difficult when several discovery systems describe the same object differently. AD might report a computer and its OS, Nmap a network device signature, and an inventory tool a workstation/server flag. Evidence can be incomplete or contradictory. A classifier must turn that evidence into a deterministic type/subtype while handling priorities, missing evidence and conflicts consistently.
+Automatic asset typing becomes difficult when several discovery systems describe the same object differently. AD might report a computer and its OS, Nmap a network-device signature, and an inventory tool a workstation/server flag. Evidence can be incomplete or contradictory. A classifier must turn that evidence into a deterministic type/subtype while handling priorities, missing evidence and conflicts consistently.
 
 The implementation choice also matters. A specialized indexed Java engine offers direct control over execution; CEL expresses conditions as compiled expressions; DMN expresses decisions in a standard table. Comparing them requires the same inputs, rules and output semantics. Otherwise a speed difference could simply reflect different classification behavior.
 
-This experiment asks: do the three adapters agree with one another and the synthetic labels; how much classification work can each perform; how does throughput change from 10K to 1M assets; and how much initialization does each require? The results inform the engineering trade-off between runtime cost and how rules are represented. They do not evaluate production ingestion quality or all possible implementations of these technologies.
+This experiment asks whether the three adapters agree with one another and the synthetic labels, how much classification work each performs per unit of time, how throughput behaves as dataset size grows, and what initialization cost each adapter has. The results inform an engineering trade-off between runtime cost and rule representation. They do not evaluate production ingestion quality or every possible implementation of these technologies.
 
-## Results at a glance
+## Controlled baseline v2 — primary result
 
-The archived 1M-asset experiment reports **zero engine disagreements and zero generator-label mismatches** with 14 fixed rules. These are observations on synthetic data, not a proof of general equivalence or a production capacity estimate.
+The current reference measurement is `benchmark-results/baseline-v2/`. It was created specifically to fix the provenance gap of the original experiment: the executable image, JAR checksum, host/container limits, JVM settings, seed, rule hash and input hashes are recorded.
 
-| Engine | Median assets/s | Mean time per asset, median run | Observed initialization |
-|:--|--:|--:|--:|
-| HashMap + BitSet | **294,569** | **3.395 µs** | 6.6 ms |
-| CEL | 97,462 | 10.260 µs | 297.1 ms |
-| DMN / KIE | 40,773 | 24.526 µs | 375.5 ms |
+All three controlled verification runs passed with **0 engine mismatches** and **0 generator-label mismatches**.
 
-Source: [benchmark-1000000.json](benchmark-results/benchmark-1000000.json), [verify-1000000.json](benchmark-results/verify-1000000.json). Five measured passes; two warmups over the first 5,000 records. Initialization is a single observation per engine in one JVM, not an isolated cold-start benchmark. **The original host/JVM environment was not recorded**, so absolute performance comparisons with other machines are limited.
+| Assets | HashMap + BitSet | CEL | DMN / KIE |
+|--:|--:|--:|--:|
+| 100,000 | **337,868 assets/s** | 102,782 | 48,071 |
+| 500,000 | **338,754 assets/s** | 102,850 | 49,285 |
+| 1,000,000 | **334,237 assets/s** | 104,800 | 49,150 |
 
-![Median throughput across four dataset sizes, with observed min–max ranges](docs/assets/throughput.svg)
+At 1M assets the median per-asset times are **2.992 µs** for HashMap + BitSet, **9.542 µs** for CEL and **20.346 µs** for DMN / KIE. On this workload, BitSet uses about 3.19× less processing time than CEL and about 6.80× less than DMN; CEL uses about 2.13× less than DMN. These are measurements of these concrete adapters, not universal technology rankings.
+
+### Controlled environment
+
+| Parameter | Baseline v2 |
+|:--|:--|
+| Host CPU | AMD Ryzen 9 7950X, 16 cores / 32 threads |
+| Host RAM | ~32 GiB physical |
+| Host / virtualization | Windows 11 Pro, Docker Desktop 4.40.0, WSL2 |
+| Container limit | 4 CPU, 4 GiB RAM, no additional swap |
+| Java | Eclipse Adoptium 21.0.12 |
+| JVM | `-Xms2g -Xmx2g -XX:+UseG1GC -XX:ActiveProcessorCount=4` |
+| Seed | `20260909` |
+| Rules | version `1.0.0`, 14 enabled rules |
+| Warmup / measured passes | 2 / 5 |
+| Engine order | HashMap + BitSet → CEL → DMN / KIE |
+| Container image | pinned by SHA-256 image ID |
+| JAR | pinned by SHA-256 |
+
+The exact values, commands and checksums are committed in [baseline-v2](benchmark-results/baseline-v2/). Background host workload was not fully controlled, fixed engine order remains a limitation, and the benchmark is not JMH.
+
+## Archived original experiment
+
+The original 10K / 100K / 500K / 1M reports remain unchanged in `benchmark-results/*.json`. They established the first functional and performance baseline, but the original CPU, exact JVM, container limits and binary provenance were not recorded. For that reason their absolute speeds are retained as historical observations rather than the primary reproducible result.
 
 <details>
-<summary>Per-asset time and initialization figures</summary>
+<summary>Archived 1M headline and figures</summary>
 
-![Time per asset at 1M records](docs/assets/ns-per-asset.svg)
+| Engine | Median assets/s | Median time per asset |
+|:--|--:|--:|
+| HashMap + BitSet | 294,569 | 3.395 µs |
+| CEL | 97,462 | 10.260 µs |
+| DMN / KIE | 40,773 | 24.526 µs |
 
-![Single observed engine initialization at 1M records](docs/assets/startup.svg)
+![Archived median throughput across four dataset sizes](docs/assets/throughput.svg)
 
-Figures are generated directly from committed reports by [scripts/render-results.py](scripts/render-results.py). Throughput and time per asset are reciprocal views of the same measurement.
+![Archived time per asset at 1M records](docs/assets/ns-per-asset.svg)
+
+![Archived single observed initialization at 1M records](docs/assets/startup.svg)
+
+The figures are generated from the archived reports by [scripts/render-results.py](scripts/render-results.py). Do not interpret differences between the archived baseline and baseline v2 as code speedups: the old measurement environment is unknown.
 
 </details>
 
@@ -63,13 +96,13 @@ Each engine extracts the same 22 boolean features inside its `classify` call. Al
 
 The raw source samples illustrate formats. The benchmark consumes generated, normalized JSONL; it does not connect to those products or parse their raw exports. See [architecture](docs/ARCHITECTURE.md) and [data provenance](data/SOURCES.md).
 
-## Versioned distribution
+## Release status
 
-[Release v1.0.0](https://github.com/GAbra/itam-asset-typing-benchmark/releases/tag/v1.0.0) provides the JAR, portable Docker tar and SHA-256 checksums without Actions artifact expiration. The container is `ghcr.io/gabra/itam-asset-typing-benchmark:v1.0.0`; `latest` is a moving alias. See [runtime instructions](docs/PREBUILT_RUNTIME.md).
+The Maven project version is `1.0.0`, and CI contains the workflow that will publish a versioned GitHub Release and GHCR image when tag `v1.0.0` is created. Until that tag/release exists, use a successful main-branch CI artifact or build locally. See [portable runtime instructions](docs/PREBUILT_RUNTIME.md).
 
 ## Quick start
 
-### Docker (no local JDK or Maven required)
+### Docker
 
 Install Docker with Compose and use Linux containers:
 
@@ -85,7 +118,7 @@ Windows PowerShell, from the repository directory:
 .\run-quick-demo.ps1
 ```
 
-The scripts build and test, generate 10,000 assets, verify all three engines, benchmark only after verification succeeds, and export the DMN model. Reports go to ignored `results/local/`; committed research results remain intact. The `run-quick-demo` filenames remain as compatibility entry points.
+The scripts build and test, generate 10,000 assets, verify all three engines, benchmark only after verification succeeds, and export the DMN model. Reports go to ignored `results/local/`; committed research results remain intact.
 
 If registry access is unavailable, use the [CI-built portable runtime](docs/PREBUILT_RUNTIME.md). Runtime-only execution does not run the source test suite.
 
@@ -97,22 +130,25 @@ java -jar target/itam-asset-typing-benchmark-1.0.0.jar generate --count 10000 --
 java -jar target/itam-asset-typing-benchmark-1.0.0.jar verify --data data/generated/normalized-10000.jsonl --out results/local/verify-10000.json
 ```
 
-After `verify` reports `PASS` and exits successfully:
+After `verify` reports `PASS`:
 
 ```sh
 java -jar target/itam-asset-typing-benchmark-1.0.0.jar benchmark --data data/generated/normalized-10000.jsonl --warmup 2 --runs 5 --batch 2000 --out results/local/benchmark-10000.json
 ```
 
-`benchmark` alone measures execution; it does not run the correctness gate. Use the supplied scripts for an enforced sequence. See [the protocol](docs/TEST_PROTOCOL.md) for 100K–1M runs and environment capture.
+`benchmark` alone measures execution; it does not run the correctness gate. See [the protocol](docs/TEST_PROTOCOL.md) for controlled 100K–1M runs and environment capture.
 
 ## Correctness evidence
 
+### Controlled baseline v2
+
 | Assets | Engine mismatches | Generator-label mismatches | Result |
 |--:|--:|--:|:--|
-| 10,000 | 0 | 0 | [PASS](benchmark-results/verify-10000.json) |
-| 100,000 | 0 | 0 | [PASS](benchmark-results/verify-100000.json) |
-| 500,000 | 0 | 0 | [PASS](benchmark-results/verify-500000.json) |
-| 1,000,000 | 0 | 0 | [PASS](benchmark-results/verify-1000000.json) |
+| 100,000 | 0 | 0 | [PASS](benchmark-results/baseline-v2/verify-100000.json) |
+| 500,000 | 0 | 0 | [PASS](benchmark-results/baseline-v2/verify-500000.json) |
+| 1,000,000 | 0 | 0 | [PASS](benchmark-results/baseline-v2/verify-1000000.json) |
+
+The archived 10K / 100K / 500K / 1M verification reports also contain zero mismatches and remain available in the repository root of `benchmark-results/`.
 
 Verification compares type, subtype, status and sorted winning rule IDs; SHA-256 digests also include asset IDs. Generator labels check type/subtype separately. Shared feature extraction and resolution can produce shared bugs, and generator labels are not independent real-world annotations. Targeted integration tests exercise conflict, fallback, forbidden-feature and disabled-rule cases outside the normal generator profiles.
 
@@ -127,7 +163,9 @@ assets/s = count × 1,000,000,000 / elapsedNs
 ns/asset = elapsedNs / count
 ```
 
-`ns` means nanoseconds (one billionth of a second). `assets/s` describes throughput: higher is faster. `ns/asset` describes average processing time per asset: lower is faster. They are reciprocal views of the same elapsed time, not independent evidence. For example, 1M assets in 3,394,789,334 ns corresponds to about 294,569 assets/s and 3,395 ns/asset (3.395 µs).
+`ns` means nanoseconds, one billionth of a second. `assets/s` describes throughput: higher is faster. `ns/asset` describes average processing time per asset: lower is faster. They are reciprocal views of the same elapsed time.
+
+For example, the median 1M BitSet pass in baseline v2 took 2,991,889,882 ns: about 334,237 assets/s and 2,991.89 ns/asset, or 2.992 µs/asset.
 
 We report the median of five measured passes after two prefix warmups to reduce the influence of an unusually fast or slow pass. Min/max retain the observed spread; a median does not eliminate JIT, GC or scheduling effects. These are batch-derived averages, not per-request latency percentiles.
 
@@ -135,25 +173,27 @@ The timed section includes feature extraction, rule evaluation, shared resolutio
 
 ## Measurement scope and limitations
 
-- Timed work includes feature extraction, rule evaluation, result resolution and checksum calculation. JSON parsing, file I/O and engine initialization are outside those timed sections.
-- Each batch is processed sequentially in fixed order: BitSet → CEL → DMN. The engines share a JVM, JIT, GC and caches. There are no independent JVM forks or confidence intervals.
-- Warmup repeats a prefix of `min(batch, 5000, max)` records, not the full dataset. Five passes do not establish that all JIT effects have disappeared.
+- Each batch is processed sequentially in fixed order: BitSet → CEL → DMN. The engines share a JVM, JIT, GC and caches.
+- Warmup repeats a prefix of `min(batch, 5000, max)` records, not the full dataset.
+- Five passes in one JVM do not provide confidence intervals or independent-process variance.
 - Only asset count scales. The ruleset stays at 14 rules; rule-count scaling, contention and production data are unmeasured.
-- The committed reports are an archived baseline. New runs add runtime metadata, input hashes and explicit warmup size; missing historical environment information is left unknown.
+- Baseline v2 fixes executable/environment provenance for the documented run, but background host load was not fully controlled.
+- Archived and controlled baselines must not be merged into one performance curve or interpreted as before/after optimization results.
 
-Read the [full methodology and environment table](docs/METHODOLOGY.md) before interpreting speed ratios. This is a functional, batched JVM benchmark; a JMH microbenchmark is future work.
+Read the [full methodology](docs/METHODOLOGY.md) before interpreting speed ratios.
 
 ## Research roadmap
 
 - [x] Canonical rules and three real execution engines
-- [x] Seeded synthetic data, differential verification and 10K → 1M baseline
-- [x] Docker workflows, CI correctness gate and generated figures
-- [x] Input fingerprints and runtime metadata for new measurements
+- [x] Seeded synthetic data and differential verification
+- [x] Archived 10K → 1M experiment retained unchanged
+- [x] Controlled baseline v2 with pinned runtime/provenance through 1M assets
+- [x] Docker workflows, CI correctness gate and generated archived figures
 - [ ] Independent JVM forks / JMH, allocation and GC profiling
 - [ ] Rule-count scaling: 14 → 100 → 1,000 at fixed asset count
 - [ ] Conflict-heavy, missing-evidence and noisy-data workloads
 - [ ] Incremental typing and multi-threaded throughput
-- [ ] Fully documented repeat measurements on additional machines
+- [ ] Repeat controlled measurements on additional machines
 
 ## Contributing and citation
 
