@@ -1,10 +1,24 @@
 # Architecture
 
+**English** · [Русский](ARCHITECTURE_RU.md)
+
 ## Data flow
 
-The seeded generator emits normalized `DatasetRecord` JSONL. Each record contains an `AssetTypingContext` (asset ID, sources, source object kinds, attributes and system parameters) and expected type/subtype labels. Raw source samples are illustrative; there are no source adapters or live integrations.
+The seeded generator emits normalized `DatasetRecord` JSONL. Each record contains an `AssetTypingContext` with asset ID, sources, source object kinds, attributes and system parameters, plus expected type/subtype labels. Raw source samples are illustrative; there are no source adapters or live integrations.
 
 Each engine independently invokes `FeatureExtractor` inside `classify`. The extractor emits the same 22 boolean features. No deduplication or cross-asset comparison occurs.
+
+```mermaid
+flowchart LR
+    G[Seeded synthetic generator] --> C[DatasetRecord / AssetTypingContext]
+    C --> F[22-feature extraction]
+    F --> B[HashMap + BitSet]
+    F --> E[Compiled CEL]
+    F --> D[Generated DMN / KIE]
+    R[Canonical YAML rules] --> B & E & D
+    B & E & D --> M[Shared MatchResolver]
+    M --> O[Type / subtype / status / rule IDs]
+```
 
 ## Canonical rules
 
@@ -26,12 +40,14 @@ Rules without a required feature remain eligible in indexed adapters. DMN any-of
 
 `MatchResolver` deduplicates rule IDs and retains the maximum priority. Different types at that priority produce `TYPE_CONFLICT`; different subtypes produce `SUBTYPE_CONFLICT`. A type without a subtype produces `AUTO_TYPE_ONLY`, and a complete result produces `AUTO`. No matches produce `NOT_CLASSIFIED`.
 
-This shared code keeps output semantics consistent but is also a shared failure surface. Differential agreement is therefore complemented by expected-output tests.
+This shared code keeps output semantics consistent but is also a shared failure surface. Differential agreement is therefore complemented by expected-output tests and generator-label verification.
 
 ## CLI and measurements
 
-`generate`, `verify`, `benchmark`, `explain` and `export-dmn` are implemented in `ru.itam.typing.cli.Main`. See `--help` for options.
+`generate`, `verify`, `benchmark`, `explain` and `export-dmn` are implemented in `ru.itam.typing.cli.Main`.
 
-Verification compares outputs and labels, emits ordered SHA-256 result digests, and returns exit code 2 on mismatch or empty input. Exceptions also produce a nonzero process exit. Records without expected types contribute to engine verification but not label coverage; new reports expose `groundTruthChecked`.
+Verification compares outputs and labels, emits ordered SHA-256 result digests and returns a nonzero exit on mismatch or invalid/empty input. Records without expected types still contribute to engine agreement but not to label coverage; reports expose `groundTruthChecked`.
 
-Benchmarking streams parsed batches, records elapsed classification/checksum time per engine and summarizes passes. Input hashing and runtime metadata are collected outside measured sections. See [methodology](METHODOLOGY.md) for exact warmup, order and measurement limitations.
+Benchmarking streams parsed batches, records elapsed classification/checksum time per engine and summarizes measured passes. JSON parsing, file I/O, engine construction, report serialization and input hashing are outside the per-engine timed sections.
+
+The controlled baseline v2 adds explicit host/container/JVM provenance around this same execution model; it does not change the classification semantics. See [methodology](METHODOLOGY.md) for exact timing boundaries and limitations and [results](../benchmark-results/README.md) for archived vs controlled baselines.

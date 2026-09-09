@@ -1,26 +1,30 @@
 # Reproduction protocol
 
-Run commands from the repository root. Requirements: Docker with Compose/Linux containers, or Java 21 plus Maven 3.9+. Docker builds need registry access and Maven Central; see [portable runtime](PREBUILT_RUNTIME.md) when those are unavailable.
+**English** · [Русский](TEST_PROTOCOL_RU.md)
+
+Run commands from the repository root. Requirements: Docker with Compose/Linux containers, or Java 21 plus Maven 3.9+.
 
 ## Quick verification and measurement
+
+Windows PowerShell:
 
 ```powershell
 .\run-quick-demo.ps1
 ```
 
-Or:
+Linux/macOS/Git Bash:
 
 ```sh
 sh run-quick-demo.sh
 ```
 
-These entry points enforce build/test → generate → verify → benchmark → DMN export. A failed native command stops the sequence, including in Windows PowerShell 5.1. Generated data is in `data/generated/`; reports are in ignored `results/local/`.
+These entry points enforce build/test → generate → verify → benchmark → DMN export. A failed native command stops the sequence. Generated data is written under `data/generated/`; ad-hoc reports go to ignored `results/local/`.
 
-For local Java, use the commands in [README](../README.md#local-java-21--maven-39). Run benchmark only after verify succeeds; standalone benchmark does not imply correctness.
+Standalone `benchmark` does not imply correctness. Always run verification first when producing publishable measurements.
 
 ## Correctness gate
 
-For a fully labeled generated dataset, require:
+For a fully labeled generated dataset require:
 
 ```text
 result = PASS
@@ -31,37 +35,117 @@ groundTruthMismatches = 0
 hashBitset = hashCel = hashDmn
 ```
 
-An empty dataset fails verification. Exit code 2 indicates a verification failure; malformed input or invalid arguments also cause a nonzero exit. If `--max` is set, only the prefix is classified (the reader currently still scans the file); record that limit in the experiment.
+An empty dataset fails verification. A mismatch or malformed input produces a nonzero process exit. If `--max` is used, only the requested prefix is classified; record that limit in the experiment note.
 
-## Scale the dataset
+## Controlled baseline-v2 profile
 
-Build once using `scripts/build.ps1` or `sh scripts/build.sh`. Then in PowerShell:
+The committed reference baseline uses the following fixed settings:
 
-```powershell
-.\scripts\generate-large.ps1 -Count 100000
-.\scripts\benchmark-size.ps1 -Count 100000
+```text
+seed = 20260909
+warmup = 2
+measured runs = 5
+engine order = HASHMAP_BITSET -> CEL -> DMN_KIE
+container CPUs = 4
+container memory = 4 GiB
+container memory+swap = 4 GiB
+JVM = -Xms2g -Xmx2g -XX:+UseG1GC -XX:ActiveProcessorCount=4
 ```
 
-Repeat for `500000` and `1000000`. The benchmark script checks verification first and selects the archived protocol's batch sizes: 2K / 5K / 10K / 10K for 10K / 100K / 500K / 1M.
+Dataset/batch pairs:
 
-For other shells or the prebuilt image, use the same CLI with `--count` and `--batch` adjusted. Keep seed 20260909, warmup 2 and runs 5 for this protocol. Larger datasets require substantial disk space and processing time.
+| Assets | Batch |
+|--:|--:|
+| 100,000 | 5,000 |
+| 500,000 | 10,000 |
+| 1,000,000 | 10,000 |
+
+The exact image ID and JAR checksum used by the committed run are stored in `benchmark-results/baseline-v2/environment.json`; the normalized command sequence is in `benchmark-results/baseline-v2/commands.txt`.
+
+Do not silently substitute another image or JAR when claiming to reproduce that exact baseline. A run with another machine/runtime is a new experiment and should use a separately named result directory.
+
+## Reproducing with Docker
+
+For a new controlled experiment, build or load the runtime image, record its ID, then constrain Docker explicitly. Example shell pattern:
+
+```sh
+IMAGE=<image-or-digest>
+REPO="$(pwd)"
+
+docker run --rm \
+  --cpus 4 \
+  --memory 4g \
+  --memory-swap 4g \
+  -e 'JAVA_TOOL_OPTIONS=-Xms2g -Xmx2g -XX:+UseG1GC -XX:ActiveProcessorCount=4' \
+  -v "$REPO:/workspace" \
+  -w /workspace \
+  "$IMAGE" \
+  generate --count 100000 --seed 20260909 --out data/generated/experiment-100000.jsonl
+```
+
+Then run `verify`, require `PASS`, and only then run `benchmark` with the intended batch size.
+
+Git Bash on Windows may rewrite POSIX-looking Docker paths. If `/workspace` is converted unexpectedly, use the repository's existing Windows scripts or disable MSYS path conversion for the Docker invocation.
+
+## Local Java
+
+Build once:
+
+```sh
+mvn -B clean verify
+```
+
+Generate, verify and benchmark with the same seed/warmup/runs/batch values as the protocol. Record the full `java -version`, effective JVM flags, host CPU/RAM and source commit. A local-Java result is not directly comparable to the Docker baseline unless the execution environment is intentionally matched.
 
 ## Environment record
 
-Before measuring, copy [ENVIRONMENT_TEMPLATE.md](ENVIRONMENT_TEMPLATE.md) into your experiment directory and fill it in. For Docker, record both host and container settings. New JSON automatically records Java/VM/OS properties, available processors, maximum JVM heap, GC names, input hashes and actual warmup size. This does not reveal host CPU model, physical RAM, Docker limits, JVM flags or background load.
+Before measuring, copy [ENVIRONMENT_TEMPLATE.md](ENVIRONMENT_TEMPLATE.md) into the experiment directory and fill it in. For Docker, record both host and container settings.
 
-Useful read-only commands include `git rev-parse HEAD`, `java -version`, `docker version`, `docker info` and `docker image inspect <image> --format '{{.Id}}'`. Extract only relevant non-sensitive fields into the published note. Do not upload a full environment-variable dump.
+At minimum capture:
 
-Generation emits a `.meta.json` sidecar with count, seed and profile distribution. Preserve it alongside raw reports. Archive exact command lines and input hashes with the source commit; keep each machine/configuration in a separate experiment directory.
+- source commit and worktree status;
+- CPU model, cores/threads and physical RAM;
+- host OS, Docker/virtualization version if applicable;
+- Java vendor/full version, JVM flags, heap and GC;
+- image ID/digest and JAR SHA-256;
+- container CPU/memory limits;
+- dataset count, seed, SHA-256 and generation sidecar;
+- ruleset version/count/SHA-256;
+- warmup, batch, measured passes and exact commands;
+- verification report and all raw benchmark reports;
+- background-load notes and known limitations.
 
-## Report and figure checks
+Do not publish environment-variable dumps, credentials, private paths or production data.
+
+## Validation of committed results
+
+Archived baseline:
 
 ```sh
 python scripts/validate-results.py
+```
+
+Controlled baseline v2:
+
+```sh
+python scripts/validate-baseline.py
+```
+
+Expected controlled-baseline output:
+
+```text
+PASS: baseline v2, 100,000 assets
+PASS: baseline v2, 500,000 assets
+PASS: baseline v2, 1,000,000 assets
+```
+
+Archived figures are checked with:
+
+```sh
 python -m pip install -r scripts/requirements-figures.txt
 python scripts/render-results.py --check
 ```
 
-These commands validate the committed baseline and detect stale figures. Run `python scripts/render-results.py` to regenerate figures after an intentional baseline/plot update.
+CI runs correctness and packaging checks plus a smoke benchmark with no throughput threshold. CI runner speeds are not additions to the research baseline.
 
-CI runs correctness and packaging checks, plus a one-pass benchmark smoke test. It has no throughput threshold, and its smoke reports are not additions to the archived performance study. See [methodology](METHODOLOGY.md) for interpretation.
+See [methodology](METHODOLOGY.md) for interpretation and [result-set structure](../benchmark-results/README.md) for why archived and controlled runs are kept separately.

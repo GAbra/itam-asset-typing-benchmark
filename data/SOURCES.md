@@ -1,18 +1,20 @@
 # Provenance of synthetic source data
 
-All committed source samples are **SYNTHETIC**. They contain no production data, secrets, real user identifiers, or customer addresses.
+**English** · [Русский](SOURCES_RU.md)
 
-The goal is to reproduce the shape and semantics of common ITAM discovery/security sources closely enough for a local classification-engine comparison.
+All committed source samples are **SYNTHETIC**. They contain no production data, secrets, real user identifiers or customer addresses.
+
+The goal is to reproduce the shape and semantics of common ITAM discovery/security sources closely enough for a local classification-engine comparison. The benchmark itself consumes normalized generated JSONL; these raw samples are illustrative fixtures, not live integrations.
 
 ## Active Directory
 
-The AD sample uses standard LDAP/AD attributes such as `objectClass`, `objectCategory`, `sAMAccountName`, `userPrincipalName`, `distinguishedName`, `operatingSystem`, `dNSHostName`, and `userAccountControl`.
+The AD sample uses standard LDAP/AD attributes such as `objectClass`, `objectCategory`, `sAMAccountName`, `userPrincipalName`, `distinguishedName`, `operatingSystem`, `dNSHostName` and `userAccountControl`.
 
 Reference: Microsoft Active Directory schema and attribute documentation.
 
 ## Nmap
 
-`raw-samples/nmap/scan.xml` follows Nmap XML structure: `host`, `status`, `address`, `hostnames`, `ports`, `service`, `osmatch`, and `osclass`. Nmap documents device types including `general purpose`, `router`, `switch`, `WAP`, etc.
+`raw-samples/nmap/scan.xml` follows Nmap XML structure: `host`, `status`, `address`, `hostnames`, `ports`, `service`, `osmatch` and `osclass`. Nmap documents device types including `general purpose`, `router`, `switch`, `WAP` and others.
 
 References:
 - https://nmap.org/book/output-formats-xml-output.html
@@ -20,9 +22,9 @@ References:
 
 ## Kaspersky Security Center
 
-The KSC samples use names documented in KSC 16.1 Open API. In particular, `KLHST_WKS_CTYPE` is a bit set where bit 0 means Workstation and bit 1 means Server. Other used host attributes include `KLHST_WKS_DN`, `KLHST_WKS_HOSTNAME`, `KLHST_WKS_FQDN`, `KLHST_WKS_OS_NAME`, `KLHST_WKS_STATUS`, `KLHST_WKS_RTP_STATE`, and `KLHST_WKS_CPU_ARCH`.
+The KSC samples use names documented in KSC 16.1 Open API. In particular, `KLHST_WKS_CTYPE` is a bit set where bit 0 means Workstation and bit 1 means Server. Other host attributes used include `KLHST_WKS_DN`, `KLHST_WKS_HOSTNAME`, `KLHST_WKS_FQDN`, `KLHST_WKS_OS_NAME`, `KLHST_WKS_STATUS`, `KLHST_WKS_RTP_STATE` and `KLHST_WKS_CPU_ARCH`.
 
-Software inventory samples use documented `ProductID`, `bIsMsi`, `DisplayName`, `DisplayVersion`, `Publisher`, `InstallDate`, and `InstallDir` attributes.
+Software inventory samples use documented `ProductID`, `bIsMsi`, `DisplayName`, `DisplayVersion`, `Publisher`, `InstallDate` and `InstallDir` attributes.
 
 References:
 - https://support.kaspersky.com/help/KSC/16.1/KSCAPI/a00012.html
@@ -38,8 +40,10 @@ Reference:
 
 ## SIEM / CEF
 
-The SIEM sample uses conventional CEF header/extension syntax and common extension keys (`src`, `dhost`, `suser`, `cat`, etc.). Values are synthetic.
+The SIEM sample uses conventional CEF header/extension syntax and common extension keys such as `src`, `dhost`, `suser` and `cat`. Values are synthetic.
 
 ## Generator
 
-Large datasets are generated locally instead of committed to Git. The generator uses a fixed seed and emits normalized `DatasetRecord` JSONL. Every generated record also contains the expected type/subtype so correctness can be checked independently of engine equivalence.
+Large datasets are generated locally instead of committed to Git. The generator uses a fixed seed and emits normalized `DatasetRecord` JSONL. Every generated record also contains expected type/subtype so correctness can be checked separately from engine-to-engine equivalence.
+
+Baseline v2 preserves the generation sidecars, seed, dataset SHA-256 and rules SHA-256 with the controlled experiment. See [methodology](../docs/METHODOLOGY.md) for the distinction between synthetic-label validation and real-world accuracy.
