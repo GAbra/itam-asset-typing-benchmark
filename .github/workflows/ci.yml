@@ -81,6 +81,7 @@ jobs:
             target/itam-asset-typing-benchmark-1.0.0.jar
           compression-level: 0
           retention-days: 14
+          if-no-files-found: error
       - name: Publish versioned release and container
         if: startsWith(github.ref, 'refs/tags/v')
         env:
@@ -99,7 +100,6 @@ jobs:
           gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME — research baseline" --notes-file docs/RELEASE_NOTES.md --draft
           gh release upload "$GITHUB_REF_NAME" itam-asset-typing-benchmark-"$version".jar itam-asset-typing-benchmark-prebuilt.tar SHA256SUMS SOURCE_COMMIT IMAGE_ID
           gh release edit "$GITHUB_REF_NAME" --draft=false
-          if-no-files-found: error
       - name: Upload test and verification reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
