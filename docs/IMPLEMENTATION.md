@@ -2,7 +2,12 @@
 
 **English** · [Русский](IMPLEMENTATION_RU.md)
 
-This page describes the actual class/module execution path of the current implementation rather than only the experiment concept. The high-level architecture is in [ARCHITECTURE.md](ARCHITECTURE.md); internals of the three execution engines are documented separately in [ENGINE_IMPLEMENTATION.md](ENGINE_IMPLEMENTATION.md).
+This page describes the actual class/module execution path of the current implementation. The high-level architecture is in [ARCHITECTURE.md](ARCHITECTURE.md), while the three engine internals are in [ENGINE_IMPLEMENTATION.md](ENGINE_IMPLEMENTATION.md).
+
+For the two most branch-heavy flows, `verify` and `benchmark`, static SVG renderings and editable draw.io sources are stored next to the Mermaid source. The SVG files are intended as a fallback for GitHub clients that do not render Mermaid.
+
+- `verify`: [SVG](diagrams/verify-flow.svg) · [draw.io](diagrams/verify-flow.drawio)
+- `benchmark`: [SVG](diagrams/benchmark-flow.svg) · [draw.io](diagrams/benchmark-flow.drawio)
 
 ## Package map
 
@@ -42,122 +47,69 @@ src/main/java/ru/itam/typing/
 ```mermaid
 flowchart TD
     CLI[Main.execute] --> CMD{Command}
-
     CMD -->|generate| GEN[DatasetGenerator]
     GEN --> JSONL[DatasetRecord JSONL]
     GEN --> META[generation metadata]
-
     CMD -->|verify / benchmark / explain| LOAD[RuleLoader.load]
     LOAD --> VALID[RuleLoader.validate]
     VALID --> RS[RuleSet / CanonicalRule]
-
     RS --> BUILD[Main.engines]
     BUILD --> FX[FeatureExtractor]
     BUILD --> B[BitSetTypingEngine]
     BUILD --> C[CelTypingEngine]
     BUILD --> D[DmnTypingEngine]
-
     CMD -->|verify / benchmark / explain| READ[DatasetReader]
     READ --> REC[DatasetRecord]
     REC --> CTX[AssetTypingContext]
-
-    CTX --> B
-    CTX --> C
-    CTX --> D
-
+    CTX --> B & C & D
     B --> RB[RuleMatch list]
     C --> RC[RuleMatch list]
     D --> RD[RuleMatch list]
-
     RB --> RES[MatchResolver.resolve]
     RC --> RES
     RD --> RES
     RES --> TR[TypingResult]
-
     TR --> VERIFY[verify: compare + SHA-256 + labels]
     TR --> BENCH[benchmark: checksum + timing]
     TR --> EXPLAIN[explain: JSON]
-
     CMD -->|export-dmn| D
     D --> DMNXML[generated DMN XML]
 ```
 
-`Main` is the orchestration layer: it parses CLI arguments, loads rules, creates one `FeatureExtractor` and all three engines, reads datasets and emits reports. `TypingEngine` defines the shared `name()` + `classify(AssetTypingContext)` contract.
+`Main` is the orchestration layer: it parses CLI arguments, loads rules, creates one `FeatureExtractor` and all three engines, reads datasets and emits reports. `TypingEngine` defines the common `name()` + `classify(AssetTypingContext)` contract.
 
 ## Input and output model
 
-`DatasetRecord` contains an `AssetTypingContext` plus expected `expectedType` / `expectedSubtype` labels. The context contains `assetId`, `sources`, `sourceObjectKinds`, `attributes` and `systemParameters`.
-
-`TypingResult` contains `assetId`, final `type`, `subtype`, `status` and `matchedRuleIds`.
-
-```mermaid
-flowchart LR
-    DR[DatasetRecord] --> C[AssetTypingContext]
-    DR --> GT[expectedType / expectedSubtype]
-    C --> E[TypingEngine.classify]
-    E --> R[TypingResult]
-    GT --> V[Verification]
-    R --> V
-```
+`DatasetRecord` contains an `AssetTypingContext` plus expected `expectedType` / `expectedSubtype` labels. The context contains `assetId`, `sources`, `sourceObjectKinds`, `attributes` and `systemParameters`. `TypingResult` contains `assetId`, final `type`, `subtype`, `status` and `matchedRuleIds`.
 
 ## Rule loading and validation
 
-The single rule source is `rules/canonical-rules.yaml`. `RuleLoader` deserializes YAML into `RuleSet` and validates it before any engine is created.
-
-Validation checks ruleset version, non-empty and unique rule IDs, required target type, and that a feature is not simultaneously required and forbidden. `CanonicalRule` stores rule ID, target type/subtype, priority, required/any/forbidden feature lists and enabled state. Null feature lists are normalized to empty immutable lists.
-
-```mermaid
-flowchart LR
-    Y[rules/canonical-rules.yaml] --> L[RuleLoader.load]
-    L --> P[YAML -> RuleSet]
-    P --> V[validate]
-    V --> R[RuleSet]
-    R --> B[BitSet constructor]
-    R --> C[CEL constructor]
-    R --> D[DMN constructor]
-```
+The single rule source is `rules/canonical-rules.yaml`. `RuleLoader` deserializes YAML into `RuleSet` and validates it before engine construction. Validation covers ruleset version, non-empty and unique rule IDs, required target type, and required/forbidden overlap.
 
 ## Feature extraction
 
-Every `classify` call invokes the same `FeatureExtractor`. It creates the same map of 22 known boolean features from `sources`, `sourceObjectKinds` and context attributes.
-
-Examples include source flags such as `SRC_AD`; object-kind flags such as `OBJ_AD_USER`; service-account hints; OS flags; KSC workstation/server flags; Nmap network/general-purpose flags; and a security-software hint.
-
-All three engines therefore receive the same semantic feature map. They differ only in how the canonical rules are executed afterward.
+Every `classify` call invokes the shared `FeatureExtractor`, which creates the same 22-feature boolean map from the normalized context. All three engines receive the same semantic feature map and differ only in rule execution.
 
 ## Engine construction
 
-`Main.engines()` executes the following sequence:
-
-```mermaid
-sequenceDiagram
-    participant M as Main.engines
-    participant RL as RuleLoader
-    participant F as FeatureExtractor
-    participant B as BitSetTypingEngine
-    participant C as CelTypingEngine
-    participant D as DmnTypingEngine
-
-    M->>RL: load(rulesPath)
-    RL-->>M: RuleSet
-    M->>F: new FeatureExtractor()
-    M->>B: new(ruleSet, featureExtractor)
-    M->>C: new(ruleSet, featureExtractor)
-    M->>D: new(ruleSet, featureExtractor)
-    M-->>M: record loadMs
-```
-
-Canonical-rule loading time and each engine constructor time are recorded separately in `engineLoadMs`; they are outside per-engine classification timing.
+`Main.engines()` loads the `RuleSet`, creates one `FeatureExtractor`, and then constructs `BitSetTypingEngine`, `CelTypingEngine`, and `DmnTypingEngine` sequentially. Rule-load and constructor times are captured in `engineLoadMs` and remain outside per-engine classification timing.
 
 ## `generate`
 
-`Main.generate()` calls `DatasetGenerator.generate(count, seed, out)`, writes JSONL and stores a separate `<dataset>.meta.json` generation summary.
+`Main.generate()` calls `DatasetGenerator.generate(count, seed, out)`, writes JSONL and a `<dataset>.meta.json` sidecar.
 
 ## `verify`
 
-Verification constructs all engines once and streams the dataset through `DatasetReader.forEach`.
+Verification constructs all three engines once and streams the dataset through `DatasetReader.forEach`.
 
-For each record it executes all three engines, compares type/subtype/status plus the sorted set of matched rule IDs, updates a separate SHA-256 result digest per engine, and checks generator labels when present. Up to 20 diagnostic samples are retained for mismatches.
+For every record all three classifiers execute and all three SHA-256 digests are updated. The results are then compared for equivalence. A differential mismatch increments `engineMismatches` and may retain a diagnostic sample, but processing continues to the label check. When `expectedType` is present, `groundTruthChecked` is incremented and the BitSet type/subtype is compared with the generator label; a mismatch increments `groundTruthMismatches`. Processing then continues to the next record. Only after EOF is `VerificationReport` built and PASS/FAIL decided.
+
+![Complete verify flow](diagrams/verify-flow.svg)
+
+[Open SVG](diagrams/verify-flow.svg) · [Editable draw.io](diagrams/verify-flow.drawio)
+
+<details>
+<summary>Mermaid source for verify</summary>
 
 ```mermaid
 flowchart TD
@@ -165,61 +117,83 @@ flowchart TD
     X --> B[BitSet classify]
     X --> C[CEL classify]
     X --> D[DMN classify]
-    B --> EQ[Equivalent?]
+    B --> H[Update SHA-256 BitSet]
+    C --> H2[Update SHA-256 CEL]
+    D --> H3[Update SHA-256 DMN]
+    B --> EQ{Equivalent?}
     C --> EQ
     D --> EQ
-    EQ -->|no| EM[engineMismatches++]
-    B --> GT{expectedType present?}
-    GT -->|yes| GC[Compare type/subtype to label]
-    GC -->|different| GM[groundTruthMismatches++]
-    B --> HB[SHA-256 BitSet]
-    C --> HC[SHA-256 CEL]
-    D --> HD[SHA-256 DMN]
-    EM --> REP[VerificationReport]
-    GM --> REP
-    HB --> REP
-    HC --> REP
-    HD --> REP
+    EQ -->|no| EM[engineMismatches++ + sample]
+    EQ -->|yes| GT{expectedType present?}
+    EM --> GT
+    GT -->|no| NEXT{Another record?}
+    GT -->|yes| GTC[groundTruthChecked++]
+    GTC --> GC{type/subtype match label?}
+    GC -->|yes| NEXT
+    GC -->|no| GM[groundTruthMismatches++ + sample]
+    GM --> NEXT
+    NEXT -->|yes| X
+    NEXT -->|no / EOF| REP[Build VerificationReport]
+    REP --> P{checked > 0 AND mismatches = 0?}
+    P -->|yes| OK[PASS / exit 0]
+    P -->|no| FAIL[FAIL / exit 2]
 ```
 
-`PASS` requires a non-empty dataset, zero engine mismatches and zero generator-label mismatches. `FAIL` returns exit code `2`.
+</details>
 
-The generator-label check is performed directly against the BitSet result; CEL and DMN are covered by the separate differential comparison. Therefore a PASS means all engines agree and the BitSet result agrees with the generator labels.
+`PASS` requires a non-empty dataset, zero engine mismatches and zero generator-label mismatches. `FAIL` returns exit code `2`. The generator-label check is performed directly against BitSet; CEL and DMN are covered by differential comparison.
 
 ## `benchmark`
 
-Benchmark also creates engines once. `DatasetReader.first` loads a warmup prefix of `min(max, batch, 5000)`. Warmup runs all engines but is not included in measured results.
+Benchmark creates the engines once. `DatasetReader.first` reads the warmup prefix `min(max, batch, 5000)` and warmup iterations run outside measured results.
 
-Measured runs use `BatchAccumulator`:
+Each measured run streams the dataset again. `BatchAccumulator.accept` stops accepting new records after `max`; otherwise it increments `seen`, appends the record to the batch, and calls `flush` when the batch reaches `batchSize`. If EOF occurs with a partial batch, `Main.benchmark()` explicitly calls a final `acc.flush()`, so the tail is not lost.
+
+Inside `flush()` engines execute **sequentially**, not in parallel, in fixed order `HASHMAP_BITSET → CEL → DMN_KIE`. Each engine gets its own timer around the already parsed batch; classification, `resultHash()` and XOR checksum are accumulated into `MutableTiming`. Only after the full measured run are three `RunResult` objects created. After all measured runs, median/min/max summaries are computed and `BenchmarkReport` is written.
+
+![Complete benchmark flow](diagrams/benchmark-flow.svg)
+
+[Open SVG](diagrams/benchmark-flow.svg) · [Editable draw.io](diagrams/benchmark-flow.drawio)
+
+<details>
+<summary>Mermaid source for benchmark</summary>
 
 ```mermaid
 flowchart TD
-    F[DatasetReader.forEach] --> A[BatchAccumulator.accept]
-    A --> Q{batch full?}
-    Q -->|no| A
-    Q -->|yes| FL[flush]
-    FL --> B[HASHMAP_BITSET]
-    FL --> C[CEL]
-    FL --> D[DMN_KIE]
-    B --> T1[elapsedNs + count + checksum]
-    C --> T2[elapsedNs + count + checksum]
-    D --> T3[elapsedNs + count + checksum]
-    T1 --> S[RunResult]
-    T2 --> S
-    T3 --> S
-    S --> M[median / min / max]
-    M --> R[BenchmarkReport]
+    S[benchmark] --> W[DatasetReader.first min(max,batch,5000)]
+    W --> WI[Warmup × warmupIterations]
+    WI --> RUN[Start measured run]
+    RUN --> F[DatasetReader.forEach]
+    F --> A[BatchAccumulator.accept]
+    A --> MAX{seen >= max?}
+    MAX -->|yes| MORE{Another record?}
+    MAX -->|no| ADD[seen++ and add record to batch]
+    ADD --> Q{batch.size >= batchSize?}
+    Q -->|no| MORE
+    Q -->|yes| B[timer HASHMAP_BITSET]
+    B --> BT[accumulate timing]
+    BT --> C[timer CEL]
+    C --> CT[accumulate timing]
+    CT --> D[timer DMN_KIE]
+    D --> DT[accumulate timing and clear batch]
+    DT --> MORE
+    MORE -->|yes| A
+    MORE -->|no / EOF| E{batch empty?}
+    E -->|no| B
+    E -->|yes| RR[Create 3 RunResult from MutableTiming]
+    RR --> NR{More measured runs?}
+    NR -->|yes| RUN
+    NR -->|no| SUM[median / min / max]
+    SUM --> REP[BenchmarkReport]
 ```
 
-Inside `flush()`, each engine timer covers iteration over an already parsed batch, including `engine.classify(record.context())`, `resultHash()` and XOR checksum bookkeeping. JSONL parsing happens outside that timer. Engine order is fixed as `HASHMAP_BITSET → CEL → DMN_KIE`.
+</details>
 
-Each measured run stores count, elapsed nanoseconds, assets/s, ns/asset and checksum. Summary reports median throughput and ns/asset plus min/max throughput.
+The timed section includes `engine.classify(record.context())`, `resultHash()` and XOR checksum. JSONL parsing is outside the per-engine timer. `RunResult` is created after the complete run, not after each `flush()`.
 
 ## `explain` and `export-dmn`
 
-`explain` locates one asset by `assetId`, prints its 22 extracted features and all three engine results. It is a diagnostic path, not a separate classifier.
-
-`export-dmn` constructs the same `DmnTypingEngine` used by verify/benchmark and writes its `generatedDmn()` string, so the exported table corresponds to the KIE model generated from that ruleset.
+`explain` locates one asset by `assetId`, prints its 22 features and all three engine results. `export-dmn` constructs the same `DmnTypingEngine` used by verify/benchmark and writes its `generatedDmn()` string.
 
 ## Class responsibility matrix
 
@@ -227,7 +201,7 @@ Each measured run stores count, elapsed nanoseconds, assets/s, ns/asset and chec
 |:--|:--|
 | `Main` | CLI orchestration, engine lifecycle, verify, benchmark, provenance, reports |
 | `DatasetGenerator` | deterministic synthetic dataset generation |
-| `DatasetReader` | streaming JSONL reader and warmup-prefix reader |
+| `DatasetReader` | streaming JSONL and warmup-prefix reading |
 | `AssetTypingContext` | normalized classification input |
 | `DatasetRecord` | context + expected labels |
 | `FeatureExtractor` | context → 22 boolean features |
@@ -243,8 +217,8 @@ Each measured run stores count, elapsed nanoseconds, assets/s, ns/asset and chec
 | `MatchResolver` | shared priority/conflict resolution semantics |
 | `TypingResult` | final classification result |
 
-## Out of scope of this implementation
+## Out of scope
 
-The current benchmark does not contain live AD/Nmap/KSC/Zabbix/SIEM connectors, a persistence layer, ITAM API, queues, background service, asset deduplication or multithreaded production serving. Raw source samples illustrate formats; the benchmark executes on normalized synthetic JSONL.
+The benchmark does not contain live AD/Nmap/KSC/Zabbix/SIEM connectors, persistence, an ITAM API, queues, a background service, asset deduplication or multithreaded production serving. It executes on normalized synthetic JSONL.
 
 For the internals of **HashMap + BitSet, CEL and DMN/KIE**, continue with [ENGINE_IMPLEMENTATION.md](ENGINE_IMPLEMENTATION.md).
