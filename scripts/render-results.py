@@ -26,7 +26,7 @@ plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 11,
 def save(fig, name, check):
     buffer = io.BytesIO()
     fig.savefig(buffer, format="svg", metadata={"Date": None, "Creator": "ITAM benchmark figure generator"})
-    content = buffer.getvalue()
+    content = b"\n".join(line.rstrip() for line in buffer.getvalue().splitlines()) + b"\n"
     path = ROOT / "docs" / "assets" / name
     if check:
         if not path.exists() or path.read_bytes() != content:
