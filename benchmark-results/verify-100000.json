@@ -1,0 +1,12 @@
+{
+  "result" : "PASS",
+  "data" : "data/generated/normalized-100000.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "checked" : 100000,
+  "engineMismatches" : 0,
+  "groundTruthMismatches" : 0,
+  "hashBitset" : "9d366a0e408dda98edbc2dccd457aa8add5aa182a2ae07ff9281aa1f22beb16b",
+  "hashCel" : "9d366a0e408dda98edbc2dccd457aa8add5aa182a2ae07ff9281aa1f22beb16b",
+  "hashDmn" : "9d366a0e408dda98edbc2dccd457aa8add5aa182a2ae07ff9281aa1f22beb16b",
+  "samples" : [ ]
+}

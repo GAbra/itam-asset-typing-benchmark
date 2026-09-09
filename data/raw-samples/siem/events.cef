@@ -1,0 +1,3 @@
+CEF:0|Microsoft|Windows Security|10|4624|An account was successfully logged on|3|src=10.10.20.45 dhost=srv-app01.corp.example suser=ivan.petrov cat=authentication outcome=success
+CEF:0|Generic|Syslog|1|host-observation|Host observation|2|src=10.10.0.1 dhost=edge-router-01 cat=network deviceExternalId=router-01
+CEF:0|Kaspersky|Endpoint Security|12|malware-detected|Malicious object detected|8|src=10.10.30.77 dhost=ws-010021.corp.example cat=malware fileName=sample.exe

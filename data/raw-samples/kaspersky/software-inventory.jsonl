@@ -1,0 +1,2 @@
+{"dataset":"SYNTHETIC_KSC_OPEN_API","ProductID":"SYNTH-PROD-0001","bIsMsi":true,"DisplayName":"Kaspersky Endpoint Security for Windows","DisplayVersion":"12.8.0.505","Publisher":"AO Kaspersky Lab","InstallDate":"20260721","InstallDir":"C:\\Program Files (x86)\\Kaspersky Lab\\Kaspersky Endpoint Security for Windows"}
+{"dataset":"SYNTHETIC_KSC_OPEN_API","ProductID":"SYNTH-PROD-0002","bIsMsi":false,"DisplayName":"7-Zip","DisplayVersion":"25.01","Publisher":"Igor Pavlov","InstallDate":"20260605","InstallDir":"C:\\Program Files\\7-Zip"}

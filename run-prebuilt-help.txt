@@ -1,0 +1,11 @@
+PREBUILT RUNTIME QUICK START
+
+1. Download the artifact named itam-typing-demo-prebuilt from the latest successful GitHub Actions ci run.
+2. Extract itam-typing-demo-prebuilt.tar to the repository root.
+3. Run:
+   docker load -i .\itam-typing-demo-prebuilt.tar
+4. Run:
+   powershell -ExecutionPolicy Bypass -File .\run-quick-demo-prebuilt.ps1
+5. Send:
+   benchmark-results\verify-10000.json
+   benchmark-results\benchmark-10000.json

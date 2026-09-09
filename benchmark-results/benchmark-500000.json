@@ -1,0 +1,155 @@
+{
+  "result" : "OK",
+  "generatedAt" : "2026-09-09T11:50:03.748227185Z",
+  "data" : "data/generated/normalized-500000.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "warmupIterations" : 2,
+  "measuredRuns" : 5,
+  "batchSize" : 10000,
+  "engineLoadMs" : {
+    "HASHMAP_BITSET" : 6.544887,
+    "DMN_KIE" : 391.338889,
+    "CANONICAL_RULESET" : 79.195393,
+    "CEL" : 303.035526
+  },
+  "runs" : [ {
+    "run" : 1,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1698096357,
+    "assetsPerSecond" : 294447.36627510475,
+    "nsPerAsset" : 3396.192714,
+    "checksum" : 2119057570
+  }, {
+    "run" : 1,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 5231318480,
+    "assetsPerSecond" : 95578.19924586201,
+    "nsPerAsset" : 10462.63696,
+    "checksum" : 2119057570
+  }, {
+    "run" : 1,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 12218096519,
+    "assetsPerSecond" : 40922.90474399714,
+    "nsPerAsset" : 24436.193038,
+    "checksum" : 2119057570
+  }, {
+    "run" : 2,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1684247944,
+    "assetsPerSecond" : 296868.40454887325,
+    "nsPerAsset" : 3368.495888,
+    "checksum" : 2119057570
+  }, {
+    "run" : 2,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 5079073294,
+    "assetsPerSecond" : 98443.15509103972,
+    "nsPerAsset" : 10158.146588,
+    "checksum" : 2119057570
+  }, {
+    "run" : 2,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 12396588244,
+    "assetsPerSecond" : 40333.67811841311,
+    "nsPerAsset" : 24793.176488,
+    "checksum" : 2119057570
+  }, {
+    "run" : 3,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1672654518,
+    "assetsPerSecond" : 298926.0451691196,
+    "nsPerAsset" : 3345.309036,
+    "checksum" : 2119057570
+  }, {
+    "run" : 3,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 5016110018,
+    "assetsPerSecond" : 99678.83443660146,
+    "nsPerAsset" : 10032.220036,
+    "checksum" : 2119057570
+  }, {
+    "run" : 3,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 12227906626,
+    "assetsPerSecond" : 40890.07344371261,
+    "nsPerAsset" : 24455.813252,
+    "checksum" : 2119057570
+  }, {
+    "run" : 4,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1670818172,
+    "assetsPerSecond" : 299254.5857946295,
+    "nsPerAsset" : 3341.636344,
+    "checksum" : 2119057570
+  }, {
+    "run" : 4,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 4943424518,
+    "assetsPerSecond" : 101144.45930738898,
+    "nsPerAsset" : 9886.849036,
+    "checksum" : 2119057570
+  }, {
+    "run" : 4,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 12235119324,
+    "assetsPerSecond" : 40865.968427395455,
+    "nsPerAsset" : 24470.238648,
+    "checksum" : 2119057570
+  }, {
+    "run" : 5,
+    "engine" : "HASHMAP_BITSET",
+    "count" : 500000,
+    "elapsedNs" : 1674292266,
+    "assetsPerSecond" : 298633.6436914533,
+    "nsPerAsset" : 3348.584532,
+    "checksum" : 2119057570
+  }, {
+    "run" : 5,
+    "engine" : "CEL",
+    "count" : 500000,
+    "elapsedNs" : 5032417291,
+    "assetsPerSecond" : 99355.83062521514,
+    "nsPerAsset" : 10064.834582,
+    "checksum" : 2119057570
+  }, {
+    "run" : 5,
+    "engine" : "DMN_KIE",
+    "count" : 500000,
+    "elapsedNs" : 11990010497,
+    "assetsPerSecond" : 41701.38133949959,
+    "nsPerAsset" : 23980.020994,
+    "checksum" : 2119057570
+  } ],
+  "summary" : [ {
+    "engine" : "HASHMAP_BITSET",
+    "medianAssetsPerSecond" : 298633.6436914533,
+    "medianNsPerAsset" : 3348.584532,
+    "minAssetsPerSecond" : 294447.36627510475,
+    "maxAssetsPerSecond" : 299254.5857946295
+  }, {
+    "engine" : "CEL",
+    "medianAssetsPerSecond" : 99355.83062521514,
+    "medianNsPerAsset" : 10064.834582,
+    "minAssetsPerSecond" : 95578.19924586201,
+    "maxAssetsPerSecond" : 101144.45930738898
+  }, {
+    "engine" : "DMN_KIE",
+    "medianAssetsPerSecond" : 40890.07344371261,
+    "medianNsPerAsset" : 24455.813252,
+    "minAssetsPerSecond" : 40333.67811841311,
+    "maxAssetsPerSecond" : 41701.38133949959
+  } ]
+}

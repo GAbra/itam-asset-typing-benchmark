@@ -1,0 +1,22 @@
+{
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "hostid": "10084",
+      "host": "srv-app01",
+      "name": "Application Server 01",
+      "status": "0",
+      "interfaces": [{"interfaceid":"1","main":"1","type":"1","useip":"1","ip":"10.10.0.21","dns":"srv-app01.corp.example","port":"10050"}],
+      "inventory": {"os":"Ubuntu 24.04.3 LTS Server","type":"Server","name":"SRV-APP01"}
+    },
+    {
+      "hostid": "10107",
+      "host": "edge-router-01",
+      "name": "Edge Router 01",
+      "status": "0",
+      "interfaces": [{"interfaceid":"2","main":"1","type":"2","useip":"1","ip":"10.10.0.1","dns":"","port":"161"}],
+      "inventory": {"os":"RouterOS","type":"Network device","name":"EDGE-RTR-01"}
+    }
+  ],
+  "id": 1
+}

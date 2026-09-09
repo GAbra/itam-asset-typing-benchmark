@@ -1,0 +1,14 @@
+services:
+  demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - maven-cache:/root/.m2
+    environment:
+      MAVEN_OPTS: -Dfile.encoding=UTF-8 -XX:+UseG1GC
+
+volumes:
+  maven-cache:

@@ -1,0 +1,4 @@
+FROM eclipse-temurin:21-jre
+WORKDIR /workspace
+COPY target/itam-typing-demo-1.0.0-SNAPSHOT.jar /opt/itam/itam-typing-demo.jar
+ENTRYPOINT ["java", "-jar", "/opt/itam/itam-typing-demo.jar"]
