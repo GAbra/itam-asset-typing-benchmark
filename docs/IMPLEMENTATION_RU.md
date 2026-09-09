@@ -4,10 +4,10 @@
 
 Эта страница описывает фактический путь выполнения по классам и модулям текущей реализации. Верхнеуровневая архитектура находится в [ARCHITECTURE_RU.md](ARCHITECTURE_RU.md), а внутреннее устройство трёх движков — в [ENGINE_IMPLEMENTATION_RU.md](ENGINE_IMPLEMENTATION_RU.md).
 
-Для двух наиболее ветвящихся потоков — `verify` и `benchmark` — рядом с Mermaid сохранены статические SVG и редактируемые draw.io-файлы. SVG предназначены в том числе для клиентов GitHub, где Mermaid может не отображаться.
+Для двух наиболее ветвящихся потоков — `verify` и `benchmark` — рядом с Mermaid сохранены статические SVG и редактируемые draw.io-файлы. Русская страница использует русские SVG, поэтому схема остаётся читаемой и в клиентах GitHub, где Mermaid не отображается. Draw.io остаётся общим редактируемым источником.
 
-- `verify`: [SVG](diagrams/verify-flow.svg) · [draw.io](diagrams/verify-flow.drawio)
-- `benchmark`: [SVG](diagrams/benchmark-flow.svg) · [draw.io](diagrams/benchmark-flow.drawio)
+- `verify`: [русский SVG](diagrams/verify-flow-ru.svg) · [draw.io](diagrams/verify-flow.drawio)
+- `benchmark`: [русский SVG](diagrams/benchmark-flow-ru.svg) · [draw.io](diagrams/benchmark-flow.drawio)
 
 ## Карта пакетов
 
@@ -69,7 +69,7 @@ flowchart TD
     RC --> RES
     RD --> RES
     RES --> TR[TypingResult]
-    TR --> VERIFY[verify: compare + SHA-256 + labels]
+    TR --> VERIFY[verify: сравнение + SHA-256 + эталоны]
     TR --> BENCH[benchmark: checksum + timing]
     TR --> EXPLAIN[explain: JSON]
     CMD -->|export-dmn| D
@@ -88,7 +88,7 @@ flowchart LR
     DR --> GT[expectedType / expectedSubtype]
     C --> E[TypingEngine.classify]
     E --> R[TypingResult]
-    GT --> V[Verification]
+    GT --> V[Проверка эталона]
     R --> V
 ```
 
@@ -140,11 +140,13 @@ sequenceDiagram
 
 Verification создаёт три движка один раз и потоково читает dataset через `DatasetReader.forEach`.
 
-Для каждой записи выполняются все три классификации, обновляются три SHA-256 digest, затем проверяется эквивалентность результатов. Если результаты различаются, увеличивается `engineMismatches` и сохраняется diagnostic sample. Независимо от исхода differential check поток продолжается к label-check. При наличии `expectedType` увеличивается `groundTruthChecked`, затем BitSet type/subtype сравниваются с generator label; несовпадение увеличивает `groundTruthMismatches`. После обработки записи чтение продолжается до EOF. Только после EOF строится `VerificationReport` и вычисляется PASS/FAIL.
+Для каждой записи выполняются все три классификации и обновляются три SHA-256 digest. Затем результаты сравниваются. Если они неэквивалентны, увеличивается `engineMismatches` и сохраняется diagnostic sample; после этого обработка всё равно продолжается. Если результаты эквивалентны, счётчик mismatch не меняется и поток сразу идёт дальше к проверке эталона.
 
-![Полный поток verify](diagrams/verify-flow.svg)
+Если `expectedType` отсутствует, запись не участвует в ground-truth проверке и обработка переходит к следующей записи. Если `expectedType` задан, увеличивается `groundTruthChecked`, после чего результат BitSet по `type/subtype` сравнивается с эталоном. При совпадении mismatch не увеличивается; при несовпадении увеличивается `groundTruthMismatches` и сохраняется sample. После EOF формируется `VerificationReport`, и только затем вычисляется PASS/FAIL.
 
-[Открыть SVG отдельно](diagrams/verify-flow.svg) · [Редактируемый draw.io](diagrams/verify-flow.drawio)
+![Полный поток verify на русском](diagrams/verify-flow-ru.svg)
+
+[Открыть русский SVG отдельно](diagrams/verify-flow-ru.svg) · [Редактируемый draw.io](diagrams/verify-flow.drawio)
 
 <details>
 <summary>Mermaid-источник verify</summary>
@@ -158,21 +160,21 @@ flowchart TD
     B --> H[Обновить SHA-256 BitSet]
     C --> H2[Обновить SHA-256 CEL]
     D --> H3[Обновить SHA-256 DMN]
-    B --> EQ{Equivalent?}
+    B --> EQ{Результаты эквивалентны?}
     C --> EQ
     D --> EQ
     EQ -->|нет| EM[engineMismatches++ + sample]
-    EQ -->|да| GT{expectedType есть?}
+    EQ -->|да| GT{expectedType задан?}
     EM --> GT
     GT -->|нет| NEXT{Есть следующая запись?}
     GT -->|да| GTC[groundTruthChecked++]
-    GTC --> GC{type/subtype совпали с label?}
+    GTC --> GC{type/subtype совпали с эталоном?}
     GC -->|да| NEXT
     GC -->|нет| GM[groundTruthMismatches++ + sample]
     GM --> NEXT
     NEXT -->|да| X
     NEXT -->|нет / EOF| REP[Сформировать VerificationReport]
-    REP --> P{checked > 0 И mismatches = 0?}
+    REP --> P{checked > 0 И engineMismatches = 0 И groundTruthMismatches = 0?}
     P -->|да| OK[PASS / exit 0]
     P -->|нет| FAIL[FAIL / exit 2]
 ```
@@ -185,13 +187,15 @@ flowchart TD
 
 Benchmark создаёт движки один раз. `DatasetReader.first` читает warmup-prefix `min(max, batch, 5000)`, после чего выполняются warmup iterations вне measured results.
 
-Каждый measured run заново потоково читает dataset. `BatchAccumulator.accept` прекращает добавление новых записей после `max`, иначе увеличивает `seen`, добавляет запись в batch и вызывает `flush`, когда batch достиг `batchSize`. Если EOF наступил на неполном batch, `Main.benchmark()` вызывает финальный `acc.flush()`, поэтому хвост данных не теряется.
+Каждый measured run заново потоково читает dataset. `BatchAccumulator.accept` сначала проверяет `seen >= max`. Если лимит уже достигнут, запись не добавляется в batch, а reader продолжает идти к следующей записи/EOF. Если лимит не достигнут, `seen` увеличивается и запись добавляется в batch. Если batch ещё не заполнен, читается следующая запись. Если заполнен — выполняется `flush`.
 
-Критически важно: внутри `flush()` движки выполняются **не параллельно**, а строго последовательно в фиксированном порядке `HASHMAP_BITSET → CEL → DMN_KIE`. Для каждого движка отдельно стартует таймер, классифицируется весь уже распарсенный batch, считается `resultHash`/XOR checksum и накопительные `elapsedNs`, `count`, `checksum`. Только после завершения всего measured run из накопленных `MutableTiming` создаются три `RunResult`. После всех measured runs вычисляются median/min/max и формируется `BenchmarkReport`.
+Внутри `flush()` движки выполняются **не параллельно**, а строго последовательно: `HASHMAP_BITSET → CEL → DMN_KIE`. Для каждого движка отдельно запускается timer, классифицируется уже распарсенный batch, считается `resultHash()` и XOR checksum, после чего данные добавляются в `MutableTiming`. После DMN batch очищается и чтение продолжается.
 
-![Полный поток benchmark](diagrams/benchmark-flow.svg)
+Если EOF наступает при непустом batch, выполняется финальный `acc.flush()`. Если batch уже пуст, дополнительной классификации нет. Только после завершения всего measured run создаются три `RunResult`; после всех measured runs вычисляются median/min/max и формируется `BenchmarkReport`.
 
-[Открыть SVG отдельно](diagrams/benchmark-flow.svg) · [Редактируемый draw.io](diagrams/benchmark-flow.drawio)
+![Полный поток benchmark на русском](diagrams/benchmark-flow-ru.svg)
+
+[Открыть русский SVG отдельно](diagrams/benchmark-flow-ru.svg) · [Редактируемый draw.io](diagrams/benchmark-flow.drawio)
 
 <details>
 <summary>Mermaid-источник benchmark</summary>
@@ -205,10 +209,10 @@ flowchart TD
     F --> A[BatchAccumulator.accept]
     A --> MAX{seen >= max?}
     MAX -->|да| MORE{Есть следующая запись?}
-    MAX -->|нет| ADD[seen++ и добавить record в batch]
+    MAX -->|нет| ADD[seen++ и добавить запись в batch]
     ADD --> Q{batch.size >= batchSize?}
     Q -->|нет| MORE
-    Q -->|да| B[таймер HASHMAP_BITSET]
+    Q -->|да / flush| B[таймер HASHMAP_BITSET]
     B --> BT[накопить timing]
     BT --> C[таймер CEL]
     C --> CT[накопить timing]
@@ -217,7 +221,7 @@ flowchart TD
     DT --> MORE
     MORE -->|да| A
     MORE -->|нет / EOF| E{batch пуст?}
-    E -->|нет| B
+    E -->|нет / final flush| B
     E -->|да| RR[Создать 3 RunResult из MutableTiming]
     RR --> NR{Остались measured runs?}
     NR -->|да| RUN
@@ -249,7 +253,7 @@ flowchart TD
 | `BitSetTypingEngine` | masks + candidate index + BitSet evaluation |
 | `CelRuleExpression` | canonical rule → CEL expression |
 | `CelTypingEngine` | compile/cache CEL programs + candidate evaluation |
-| `DmnModelGenerator` | canonical rules → DMN XML decision table |
+| `DmnModelGenerator` | генерация DMN XML decision table |
 | `DmnTypingEngine` | загрузка/исполнение DMN через Apache KIE |
 | `RuleMatch` | промежуточное совпадение правила |
 | `MatchResolver` | единая priority/conflict resolution semantics |
