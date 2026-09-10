@@ -9,7 +9,7 @@ import org.kie.dmn.api.core.DMNRuntime;
 import org.kie.dmn.core.api.DMNFactory;
 import org.kie.dmn.core.internal.utils.DMNRuntimeBuilder;
 import org.kie.internal.io.ResourceFactory;
-import ru.itam.typing.engine.TypingEngine;
+import ru.itam.typing.engine.FeatureMapTypingEngine;
 import ru.itam.typing.engine.common.MatchResolver;
 import ru.itam.typing.features.FeatureExtractor;
 import ru.itam.typing.model.*;
@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public final class DmnTypingEngine implements TypingEngine {
+public final class DmnTypingEngine implements FeatureMapTypingEngine {
     private final FeatureExtractor featureExtractor;
     private final DMNRuntime runtime;
     private final DMNModel model;
@@ -52,12 +52,16 @@ public final class DmnTypingEngine implements TypingEngine {
 
     @Override
     public TypingResult classify(AssetTypingContext context) {
-        Map<String, Boolean> features = featureExtractor.extract(context);
+        return classifyFeatures(context.assetId(), featureExtractor.extract(context));
+    }
+
+    @Override
+    public TypingResult classifyFeatures(String assetId, Map<String, Boolean> features) {
         DMNContext dmnContext = DMNFactory.newContext();
         features.forEach(dmnContext::set);
         DMNResult result = runtime.evaluateAll(model, dmnContext);
         if (result.hasErrors()) {
-            throw new IllegalStateException("DMN evaluation failed for " + context.assetId() + ": " + result.getMessages());
+            throw new IllegalStateException("DMN evaluation failed for " + assetId + ": " + result.getMessages());
         }
         DMNDecisionResult decision = result.getDecisionResultByName(DmnModelGenerator.DECISION_NAME);
         if (decision == null) {
@@ -71,7 +75,7 @@ public final class DmnTypingEngine implements TypingEngine {
         } else if (raw != null) {
             addMatch(raw, matches);
         }
-        return MatchResolver.resolve(context.assetId(), matches);
+        return MatchResolver.resolve(assetId, matches);
     }
 
     public String generatedDmn() {

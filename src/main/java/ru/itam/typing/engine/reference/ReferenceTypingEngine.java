@@ -1,6 +1,6 @@
 package ru.itam.typing.engine.reference;
 
-import ru.itam.typing.engine.TypingEngine;
+import ru.itam.typing.engine.FeatureMapTypingEngine;
 import ru.itam.typing.features.FeatureExtractor;
 import ru.itam.typing.model.*;
 import ru.itam.typing.rules.CanonicalRule;
@@ -12,7 +12,7 @@ import java.util.*;
  * Deliberately simple, unindexed reference implementation.
  * It does not use MatchResolver and exists to validate optimized adapters, not for performance claims.
  */
-public final class ReferenceTypingEngine implements TypingEngine {
+public final class ReferenceTypingEngine implements FeatureMapTypingEngine {
     private final FeatureExtractor featureExtractor;
     private final List<CanonicalRule> rules;
 
@@ -28,7 +28,11 @@ public final class ReferenceTypingEngine implements TypingEngine {
 
     @Override
     public TypingResult classify(AssetTypingContext context) {
-        Map<String, Boolean> features = featureExtractor.extract(context);
+        return classifyFeatures(context.assetId(), featureExtractor.extract(context));
+    }
+
+    @Override
+    public TypingResult classifyFeatures(String assetId, Map<String, Boolean> features) {
         LinkedHashMap<String, RuleMatch> matches = new LinkedHashMap<>();
         for (CanonicalRule rule : rules) {
             if (matches(features, rule)) {
@@ -36,7 +40,7 @@ public final class ReferenceTypingEngine implements TypingEngine {
                         rule.ruleId(), rule.targetType(), rule.targetSubtype(), rule.priority()));
             }
         }
-        return resolveIndependently(context.assetId(), new ArrayList<>(matches.values()));
+        return resolveIndependently(assetId, new ArrayList<>(matches.values()));
     }
 
     static boolean matches(Map<String, Boolean> features, CanonicalRule rule) {
