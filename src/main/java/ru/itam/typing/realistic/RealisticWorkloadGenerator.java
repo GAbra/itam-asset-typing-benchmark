@@ -166,7 +166,7 @@ public final class RealisticWorkloadGenerator {
                 "KLHST_WKS_DN", host.toUpperCase(Locale.ROOT),
                 "KLHST_WKS_HOSTNAME", "{SYNTH-" + host + "}",
                 "KLHST_WKS_FQDN", host + ".corp.example",
-                "KLHST_WKS_IP_LONG", ip,
+                "KLHST_WKS_IP_LONG", Long.toUnsignedString(KscIpv4Long.encodeDocumentedLittleEndian(ip)),
                 "KLHST_WKS_CTYPE", Integer.toString(ctype),
                 "KLHST_WKS_OS_NAME", maybeConflictingOs(os, r, noise, events),
                 "KLHST_WKS_STATUS", "29",
