@@ -26,8 +26,14 @@ public final class RealisticWorkloadGenerator {
     private final ObjectMapper json = new ObjectMapper().findAndRegisterModules();
 
     public GenerationSummary generate(long count, long seed, Path rawOut, Path truthOut, NoiseProfile noise) throws IOException {
+        return generate(count, seed, rawOut, truthOut, noise, ProfileDistribution.balanced());
+    }
+
+    public GenerationSummary generate(long count, long seed, Path rawOut, Path truthOut,
+                                      NoiseProfile noise, ProfileDistribution distribution) throws IOException {
         if (count <= 0) throw new IllegalArgumentException("count must be > 0");
         Objects.requireNonNull(noise, "noise");
+        Objects.requireNonNull(distribution, "distribution");
         Files.createDirectories(rawOut.toAbsolutePath().getParent());
         Files.createDirectories(truthOut.toAbsolutePath().getParent());
 
@@ -40,7 +46,7 @@ public final class RealisticWorkloadGenerator {
         try (BufferedWriter raw = Files.newBufferedWriter(rawOut, StandardCharsets.UTF_8);
              BufferedWriter truth = Files.newBufferedWriter(truthOut, StandardCharsets.UTF_8)) {
             for (long i = 0; i < count; i++) {
-                TruthProfile profile = TruthProfile.values()[root.nextInt(TruthProfile.values().length)];
+                TruthProfile profile = distribution.choose(root);
                 profiles.merge(profile, 1L, Long::sum);
                 String assetId = String.format(Locale.ROOT, "real-%09d", i + 1);
                 SplittableRandom r = root.split();
@@ -57,7 +63,8 @@ public final class RealisticWorkloadGenerator {
         profiles.forEach((k, v) -> profileCounts.put(k.name(), v));
         Map<String, Long> noiseCounts = new TreeMap<>();
         events.forEach((k, v) -> noiseCounts.put(k.name(), v));
-        return new GenerationSummary(count, seed, rawOut.toString(), truthOut.toString(), noise, profileCounts, noiseCounts);
+        return new GenerationSummary(count, seed, rawOut.toString(), truthOut.toString(), noise,
+                distribution.name(), distribution.weightsByName(), profileCounts, noiseCounts);
     }
 
     private RawAssetBundle buildBundle(String id, TruthProfile profile, SplittableRandom r,
@@ -166,7 +173,7 @@ public final class RealisticWorkloadGenerator {
                 "KLHST_WKS_DN", host.toUpperCase(Locale.ROOT),
                 "KLHST_WKS_HOSTNAME", "{SYNTH-" + host + "}",
                 "KLHST_WKS_FQDN", host + ".corp.example",
-                "KLHST_WKS_IP_LONG", Long.toUnsignedString(KscIpv4Long.encodeDocumentedLittleEndian(ip)),
+                "KLHST_WKS_IP_LONG", Long.toUnsignedString(KscIpv4Long.encodeKscParamLong(ip)),
                 "KLHST_WKS_CTYPE", Integer.toString(ctype),
                 "KLHST_WKS_OS_NAME", maybeConflictingOs(os, r, noise, events),
                 "KLHST_WKS_STATUS", "29",
@@ -327,6 +334,8 @@ public final class RealisticWorkloadGenerator {
             String rawOutput,
             String truthOutput,
             NoiseProfile noiseProfile,
+            String profileDistribution,
+            Map<String, Integer> profileWeights,
             Map<String, Long> profileCounts,
             Map<String, Long> noiseEventCounts) {}
 }

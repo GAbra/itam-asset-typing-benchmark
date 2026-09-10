@@ -34,7 +34,8 @@ public final class RealisticWorkloadCli {
             NoiseProfile noise = a.containsKey("--clean")
                     ? NoiseProfile.clean()
                     : NoiseProfile.named(a.getOrDefault("--noise", "stress"));
-            var summary = new RealisticWorkloadGenerator().generate(count, seed, raw, truth, noise);
+            ProfileDistribution distribution = ProfileDistribution.named(a.getOrDefault("--distribution", "balanced"));
+            var summary = new RealisticWorkloadGenerator().generate(count, seed, raw, truth, noise, distribution);
             JSON.writeValue(Path.of(raw + ".meta.json").toFile(), summary);
             System.out.println(JSON.writeValueAsString(summary));
         }
@@ -70,12 +71,14 @@ public final class RealisticWorkloadCli {
                 Realistic workload v2 research CLI
 
                   generate    [--count 10000] [--seed 20260910] [--raw file] [--truth file]
-                              [--noise clean|light|moderate|stress|severe] [--clean]
+                              [--noise clean|light|moderate|stress|severe]
+                              [--distribution balanced|device-heavy|identity-heavy|software-heavy] [--clean]
                   materialize --raw file --truth file [--out file]
                   all         [--count 10000] [--seed 20260910] [--raw file] [--truth file] [--out file]
-                              [--noise clean|light|moderate|stress|severe] [--clean]
+                              [--noise clean|light|moderate|stress|severe]
+                              [--distribution balanced|device-heavy|identity-heavy|software-heavy] [--clean]
 
-                Default generation uses the deterministic 'stress' scenario. Noise rates are test parameters,
+                Noise rates and named profile distributions are controlled sensitivity-analysis scenarios,
                 not claims about production prevalence. Ground truth is written separately from raw observations.
                 """);
     }

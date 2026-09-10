@@ -18,7 +18,7 @@ concurrency:
 jobs:
   build-and-verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
@@ -33,6 +33,31 @@ jobs:
           cache-dependency-path: scripts/requirements-figures.txt
       - name: Build and test
         run: mvn -B --no-transfer-progress clean verify
+      - name: Build JMH research artifact
+        run: mvn -B --no-transfer-progress -Pjmh -DskipTests package
+      - name: Smoke-test JMH research benchmark
+        run: |
+          java -jar target/itam-asset-typing-benchmark-1.0.0-jmh.jar \
+            'ru.itam.typing.bench.EngineJmhBenchmark.bitsetEngineOnly' \
+            -p ruleCount=14 -wi 1 -i 1 -f 1 -w 100ms -r 100ms
+      - name: Smoke-test realistic v2 holdout and accuracy path
+        run: |
+          java -cp target/itam-asset-typing-benchmark-1.0.0.jar ru.itam.typing.realistic.RealisticWorkloadCli all \
+            --count 2000 --seed 20260910 --noise moderate --distribution device-heavy \
+            --raw data/generated/ci-v2-raw.jsonl --truth data/generated/ci-v2-truth.jsonl \
+            --out data/generated/ci-v2-normalized.jsonl
+          java -cp target/itam-asset-typing-benchmark-1.0.0.jar ru.itam.typing.realistic.HoldoutSplitCli \
+            --raw data/generated/ci-v2-raw.jsonl --truth data/generated/ci-v2-truth.jsonl \
+            --train-raw data/generated/ci-v2-train-raw.jsonl --train-truth data/generated/ci-v2-train-truth.jsonl \
+            --holdout-raw data/generated/ci-v2-holdout-raw.jsonl --holdout-truth data/generated/ci-v2-holdout-truth.jsonl \
+            --out results/ci/v2-split.json
+          java -cp target/itam-asset-typing-benchmark-1.0.0.jar ru.itam.typing.realistic.RealisticWorkloadCli materialize \
+            --raw data/generated/ci-v2-holdout-raw.jsonl --truth data/generated/ci-v2-holdout-truth.jsonl \
+            --out data/generated/ci-v2-holdout-normalized.jsonl
+          java -cp target/itam-asset-typing-benchmark-1.0.0.jar ru.itam.typing.realistic.AccuracyEvaluationCli \
+            --data data/generated/ci-v2-holdout-normalized.jsonl --truth data/generated/ci-v2-holdout-truth.jsonl \
+            --out results/ci/v2-accuracy.json
+          python -c 'import json; r=json.load(open("results/ci/v2-accuracy.json")); assert r["result"]=="OK" and r["engineDivergences"]==0 and r["total"]>0'
       - name: Verify archived reports and generated figures
         run: |
           python scripts/validate-results.py
