@@ -1,6 +1,0 @@
-{
-  "count" : 19,
-  "rawInput" : "results/research-v2/2098d5f4820b-20260910T142222Z/distributions/software-heavy/holdout-raw.jsonl",
-  "truthInput" : "results/research-v2/2098d5f4820b-20260910T142222Z/distributions/software-heavy/holdout-truth.jsonl",
-  "normalizedOutput" : "results/research-v2/2098d5f4820b-20260910T142222Z/distributions/software-heavy/holdout-normalized.jsonl"
-}
