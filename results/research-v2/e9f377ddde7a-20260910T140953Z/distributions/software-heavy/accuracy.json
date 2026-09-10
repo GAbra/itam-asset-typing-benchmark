@@ -1,0 +1,69 @@
+{
+  "result" : "OK",
+  "data" : "results/research-v2/e9f377ddde7a-20260910T140953Z/distributions/software-heavy/holdout-normalized.jsonl",
+  "truth" : "results/research-v2/e9f377ddde7a-20260910T140953Z/distributions/software-heavy/holdout-truth.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "total" : 19,
+  "engineDivergences" : 0,
+  "typeAccuracy" : 1.0,
+  "exactTypeSubtypeAccuracy" : 0.9473684210526315,
+  "autoCoverage" : 1.0,
+  "autoErrorRate" : 0.05263157894736842,
+  "unresolvedRate" : 0.0,
+  "statusCounts" : {
+    "AUTO_TYPE_ONLY" : 1,
+    "AUTO" : 18
+  },
+  "profileCounts" : {
+    "SERVICE_ACCOUNT" : 1,
+    "SECURITY_SOFTWARE" : 5,
+    "USER_ACCOUNT" : 1,
+    "LINUX_SERVER" : 2,
+    "NETWORK_DEVICE" : 1,
+    "APPLICATION_SOFTWARE" : 6,
+    "WINDOWS_SERVER" : 3
+  },
+  "profileExactAccuracy" : {
+    "SERVICE_ACCOUNT" : 1.0,
+    "SECURITY_SOFTWARE" : 1.0,
+    "USER_ACCOUNT" : 1.0,
+    "LINUX_SERVER" : 1.0,
+    "NETWORK_DEVICE" : 0.0,
+    "APPLICATION_SOFTWARE" : 1.0,
+    "WINDOWS_SERVER" : 1.0
+  },
+  "confusion" : {
+    "ACCOUNT/USER_ACCOUNT" : {
+      "ACCOUNT/USER_ACCOUNT/AUTO" : 1
+    },
+    "SOFTWARE/APPLICATION_SOFTWARE" : {
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 6
+    },
+    "DEVICE/SERVER" : {
+      "DEVICE/SERVER/AUTO" : 5
+    },
+    "DEVICE/NETWORK_DEVICE" : {
+      "DEVICE/null/AUTO_TYPE_ONLY" : 1
+    },
+    "ACCOUNT/SERVICE_ACCOUNT" : {
+      "ACCOUNT/SERVICE_ACCOUNT/AUTO" : 1
+    },
+    "SOFTWARE/SECURITY_SOFTWARE" : {
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 5
+    }
+  },
+  "samples" : [ {
+    "profile" : "NETWORK_DEVICE",
+    "kind" : "GROUND_TRUTH_ERROR",
+    "actual" : {
+      "assetId" : "real-000000036",
+      "type" : "DEVICE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "NMAP_GENERAL_PURPOSE_DEVICE" ]
+    },
+    "expectedSubtype" : "NETWORK_DEVICE",
+    "assetId" : "real-000000036",
+    "expectedType" : "DEVICE"
+  } ]
+}

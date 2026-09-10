@@ -1,0 +1,6 @@
+{
+  "count" : 100,
+  "rawInput" : "results/research-v2/2098d5f4820b-20260910T142222Z/distributions/device-heavy/raw.jsonl",
+  "truthInput" : "results/research-v2/2098d5f4820b-20260910T142222Z/distributions/device-heavy/truth.jsonl",
+  "normalizedOutput" : "results/research-v2/2098d5f4820b-20260910T142222Z/distributions/device-heavy/normalized.jsonl"
+}

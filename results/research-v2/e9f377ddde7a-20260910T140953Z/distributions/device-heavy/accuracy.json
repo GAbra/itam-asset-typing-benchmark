@@ -1,0 +1,77 @@
+{
+  "result" : "OK",
+  "data" : "results/research-v2/e9f377ddde7a-20260910T140953Z/distributions/device-heavy/holdout-normalized.jsonl",
+  "truth" : "results/research-v2/e9f377ddde7a-20260910T140953Z/distributions/device-heavy/holdout-truth.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "total" : 19,
+  "engineDivergences" : 0,
+  "typeAccuracy" : 1.0,
+  "exactTypeSubtypeAccuracy" : 0.8947368421052632,
+  "autoCoverage" : 1.0,
+  "autoErrorRate" : 0.10526315789473684,
+  "unresolvedRate" : 0.0,
+  "statusCounts" : {
+    "AUTO" : 19
+  },
+  "profileCounts" : {
+    "LINUX_SERVER" : 3,
+    "SERVICE_ACCOUNT" : 1,
+    "WINDOWS_SERVER" : 5,
+    "USER_ACCOUNT" : 3,
+    "APPLICATION_SOFTWARE" : 2,
+    "WINDOWS_WORKSTATION" : 5
+  },
+  "profileExactAccuracy" : {
+    "LINUX_SERVER" : 1.0,
+    "SERVICE_ACCOUNT" : 1.0,
+    "WINDOWS_SERVER" : 1.0,
+    "USER_ACCOUNT" : 1.0,
+    "APPLICATION_SOFTWARE" : 1.0,
+    "WINDOWS_WORKSTATION" : 0.6
+  },
+  "confusion" : {
+    "ACCOUNT/SERVICE_ACCOUNT" : {
+      "ACCOUNT/SERVICE_ACCOUNT/AUTO" : 1
+    },
+    "DEVICE/SERVER" : {
+      "DEVICE/SERVER/AUTO" : 8
+    },
+    "DEVICE/WORKSTATION" : {
+      "DEVICE/WORKSTATION/AUTO" : 3,
+      "DEVICE/SERVER/AUTO" : 2
+    },
+    "ACCOUNT/USER_ACCOUNT" : {
+      "ACCOUNT/USER_ACCOUNT/AUTO" : 3
+    },
+    "SOFTWARE/APPLICATION_SOFTWARE" : {
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 2
+    }
+  },
+  "samples" : [ {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000000045",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000000045",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_WINDOWS_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000000070",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000000070",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_WINDOWS_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  } ]
+}

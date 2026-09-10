@@ -1,0 +1,6 @@
+{
+  "count" : 43,
+  "rawInput" : "results/research-v2/2098d5f4820b-20260910T142222Z/accuracy/moderate/holdout-raw.jsonl",
+  "truthInput" : "results/research-v2/2098d5f4820b-20260910T142222Z/accuracy/moderate/holdout-truth.jsonl",
+  "normalizedOutput" : "results/research-v2/2098d5f4820b-20260910T142222Z/accuracy/moderate/holdout-normalized.jsonl"
+}

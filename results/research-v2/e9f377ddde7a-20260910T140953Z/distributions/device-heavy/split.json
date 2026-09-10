@@ -1,0 +1,12 @@
+{
+  "rawInput" : "results/research-v2/e9f377ddde7a-20260910T140953Z/distributions/device-heavy/raw.jsonl",
+  "truthInput" : "results/research-v2/e9f377ddde7a-20260910T140953Z/distributions/device-heavy/truth.jsonl",
+  "holdoutPct" : 20,
+  "salt" : "realistic-v2-holdout-v1",
+  "trainCount" : 81,
+  "holdoutCount" : 19,
+  "trainRawSha256" : "2cdb334851b2136c47a9f748ab55b64270c6a5151cd376dfdddd32258949f8af",
+  "trainTruthSha256" : "fa02edb63965dfb034d7d8636bd1d7932b40df0b7941f1fda96c7e46349bfe5f",
+  "holdoutRawSha256" : "d46651143ec24e374bd52a7a71ee97c3a6a2140433de15b191354640fc325ed8",
+  "holdoutTruthSha256" : "5abd4a17da77dd98b9049759878fc19ff7b32b09f35239f6a28b0e35159db93f"
+}

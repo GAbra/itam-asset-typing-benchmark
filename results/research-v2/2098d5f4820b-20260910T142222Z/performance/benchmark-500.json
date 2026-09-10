@@ -1,0 +1,235 @@
+{
+  "result" : "OK",
+  "generatedAtUtc" : "2026-09-10T14:24:07.584635189Z",
+  "data" : "results/research-v2/2098d5f4820b-20260910T142222Z/performance/stress-balanced-normalized.jsonl",
+  "rules" : "results/research-v2/2098d5f4820b-20260910T142222Z/performance/rules-500.yaml",
+  "enabledRules" : 500,
+  "warmup" : 0,
+  "runs" : 3,
+  "batch" : 50,
+  "engineOrderPolicy" : "rotating Latin-order: run1 B-C-D, run2 C-D-B, run3 D-B-C, then repeat",
+  "runResults" : [ {
+    "run" : 1,
+    "mode" : "END_TO_END",
+    "engine" : "HASHMAP_BITSET",
+    "ordinalPosition" : 1,
+    "count" : 200,
+    "elapsedNs" : 21111791,
+    "assetsPerSecond" : 9473.37911785883,
+    "nsPerAsset" : 105558.955,
+    "checksum" : 441086354
+  }, {
+    "run" : 1,
+    "mode" : "END_TO_END",
+    "engine" : "CEL",
+    "ordinalPosition" : 2,
+    "count" : 200,
+    "elapsedNs" : 142073679,
+    "assetsPerSecond" : 1407.7202857539855,
+    "nsPerAsset" : 710368.395,
+    "checksum" : 441086354
+  }, {
+    "run" : 1,
+    "mode" : "END_TO_END",
+    "engine" : "DMN_KIE",
+    "ordinalPosition" : 3,
+    "count" : 200,
+    "elapsedNs" : 192884005,
+    "assetsPerSecond" : 1036.8926132573824,
+    "nsPerAsset" : 964420.025,
+    "checksum" : 441086354
+  }, {
+    "run" : 1,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "HASHMAP_BITSET",
+    "ordinalPosition" : 1,
+    "count" : 200,
+    "elapsedNs" : 7445178,
+    "assetsPerSecond" : 26863.024631513177,
+    "nsPerAsset" : 37225.89,
+    "checksum" : 441086354
+  }, {
+    "run" : 1,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "CEL",
+    "ordinalPosition" : 2,
+    "count" : 200,
+    "elapsedNs" : 65305291,
+    "assetsPerSecond" : 3062.5389909065716,
+    "nsPerAsset" : 326526.455,
+    "checksum" : 441086354
+  }, {
+    "run" : 1,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "DMN_KIE",
+    "ordinalPosition" : 3,
+    "count" : 200,
+    "elapsedNs" : 222678196,
+    "assetsPerSecond" : 898.1570876387017,
+    "nsPerAsset" : 1113390.98,
+    "checksum" : 441086354
+  }, {
+    "run" : 2,
+    "mode" : "END_TO_END",
+    "engine" : "CEL",
+    "ordinalPosition" : 1,
+    "count" : 200,
+    "elapsedNs" : 68285219,
+    "assetsPerSecond" : 2928.8915365417515,
+    "nsPerAsset" : 341426.095,
+    "checksum" : 441086354
+  }, {
+    "run" : 2,
+    "mode" : "END_TO_END",
+    "engine" : "DMN_KIE",
+    "ordinalPosition" : 2,
+    "count" : 200,
+    "elapsedNs" : 216482605,
+    "assetsPerSecond" : 923.8617578534775,
+    "nsPerAsset" : 1082413.025,
+    "checksum" : 441086354
+  }, {
+    "run" : 2,
+    "mode" : "END_TO_END",
+    "engine" : "HASHMAP_BITSET",
+    "ordinalPosition" : 3,
+    "count" : 200,
+    "elapsedNs" : 8415132,
+    "assetsPerSecond" : 23766.709779478206,
+    "nsPerAsset" : 42075.66,
+    "checksum" : 441086354
+  }, {
+    "run" : 2,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "CEL",
+    "ordinalPosition" : 1,
+    "count" : 200,
+    "elapsedNs" : 64383706,
+    "assetsPerSecond" : 3106.3760138318225,
+    "nsPerAsset" : 321918.53,
+    "checksum" : 441086354
+  }, {
+    "run" : 2,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "DMN_KIE",
+    "ordinalPosition" : 2,
+    "count" : 200,
+    "elapsedNs" : 213294592,
+    "assetsPerSecond" : 937.6702809230156,
+    "nsPerAsset" : 1066472.96,
+    "checksum" : 441086354
+  }, {
+    "run" : 2,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "HASHMAP_BITSET",
+    "ordinalPosition" : 3,
+    "count" : 200,
+    "elapsedNs" : 6392977,
+    "assetsPerSecond" : 31284.329663629323,
+    "nsPerAsset" : 31964.885,
+    "checksum" : 441086354
+  }, {
+    "run" : 3,
+    "mode" : "END_TO_END",
+    "engine" : "DMN_KIE",
+    "ordinalPosition" : 1,
+    "count" : 200,
+    "elapsedNs" : 83323538,
+    "assetsPerSecond" : 2400.2821387637186,
+    "nsPerAsset" : 416617.69,
+    "checksum" : 441086354
+  }, {
+    "run" : 3,
+    "mode" : "END_TO_END",
+    "engine" : "HASHMAP_BITSET",
+    "ordinalPosition" : 2,
+    "count" : 200,
+    "elapsedNs" : 2602517,
+    "assetsPerSecond" : 76848.68148795955,
+    "nsPerAsset" : 13012.585,
+    "checksum" : 441086354
+  }, {
+    "run" : 3,
+    "mode" : "END_TO_END",
+    "engine" : "CEL",
+    "ordinalPosition" : 3,
+    "count" : 200,
+    "elapsedNs" : 46843746,
+    "assetsPerSecond" : 4269.513373247306,
+    "nsPerAsset" : 234218.73,
+    "checksum" : 441086354
+  }, {
+    "run" : 3,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "DMN_KIE",
+    "ordinalPosition" : 1,
+    "count" : 200,
+    "elapsedNs" : 73065095,
+    "assetsPerSecond" : 2737.2851564758794,
+    "nsPerAsset" : 365325.475,
+    "checksum" : 441086354
+  }, {
+    "run" : 3,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "HASHMAP_BITSET",
+    "ordinalPosition" : 2,
+    "count" : 200,
+    "elapsedNs" : 1951783,
+    "assetsPerSecond" : 102470.40782709963,
+    "nsPerAsset" : 9758.915,
+    "checksum" : 441086354
+  }, {
+    "run" : 3,
+    "mode" : "ENGINE_ONLY",
+    "engine" : "CEL",
+    "ordinalPosition" : 3,
+    "count" : 200,
+    "elapsedNs" : 42856769,
+    "assetsPerSecond" : 4666.707375910676,
+    "nsPerAsset" : 214283.845,
+    "checksum" : 441086354
+  } ],
+  "summary" : [ {
+    "mode" : "END_TO_END",
+    "engine" : "HASHMAP_BITSET",
+    "medianAssetsPerSecond" : 23766.709779478206,
+    "medianNsPerAsset" : 42075.66,
+    "minAssetsPerSecond" : 9473.37911785883,
+    "maxAssetsPerSecond" : 76848.68148795955
+  }, {
+    "mode" : "END_TO_END",
+    "engine" : "CEL",
+    "medianAssetsPerSecond" : 2928.8915365417515,
+    "medianNsPerAsset" : 341426.095,
+    "minAssetsPerSecond" : 1407.7202857539855,
+    "maxAssetsPerSecond" : 4269.513373247306
+  }, {
+    "mode" : "END_TO_END",
+    "engine" : "DMN_KIE",
+    "medianAssetsPerSecond" : 1036.8926132573824,
+    "medianNsPerAsset" : 964420.025,
+    "minAssetsPerSecond" : 923.8617578534775,
+    "maxAssetsPerSecond" : 2400.2821387637186
+  }, {
+    "mode" : "ENGINE_ONLY",
+    "engine" : "HASHMAP_BITSET",
+    "medianAssetsPerSecond" : 31284.329663629323,
+    "medianNsPerAsset" : 31964.885,
+    "minAssetsPerSecond" : 26863.024631513177,
+    "maxAssetsPerSecond" : 102470.40782709963
+  }, {
+    "mode" : "ENGINE_ONLY",
+    "engine" : "CEL",
+    "medianAssetsPerSecond" : 3106.3760138318225,
+    "medianNsPerAsset" : 321918.53,
+    "minAssetsPerSecond" : 3062.5389909065716,
+    "maxAssetsPerSecond" : 4666.707375910676
+  }, {
+    "mode" : "ENGINE_ONLY",
+    "engine" : "DMN_KIE",
+    "medianAssetsPerSecond" : 937.6702809230156,
+    "medianNsPerAsset" : 1066472.96,
+    "minAssetsPerSecond" : 898.1570876387017,
+    "maxAssetsPerSecond" : 2737.2851564758794
+  } ]
+}
