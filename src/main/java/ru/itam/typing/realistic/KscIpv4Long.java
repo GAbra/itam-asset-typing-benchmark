@@ -1,32 +1,40 @@
 package ru.itam.typing.realistic;
 
 /**
- * Conversion helper for the KSC Open API host field {@code KLHST_WKS_IP_LONG}.
- * Kaspersky documents that field as a paramLong containing IPv4 bytes in little-endian order.
- *
- * This helper is deliberately isolated from classification logic: it models source encoding only.
+ * Conversion helper for the numeric IPv4 value used by KSC Open API host fields.
+ * The research contract stores the dotted address as one unsigned 32-bit value in network-octet order.
  */
 public final class KscIpv4Long {
     private static final long MAX_IPV4 = 0xffff_ffffL;
 
     private KscIpv4Long() {}
 
-    public static long encodeDocumentedLittleEndian(String ipv4) {
-        int[] octets = parseIpv4(ipv4);
-        return (octets[0] & 0xffL)
-                | ((octets[1] & 0xffL) << 8)
-                | ((octets[2] & 0xffL) << 16)
-                | ((octets[3] & 0xffL) << 24);
+    public static long encodeKscParamLong(String ipv4) {
+        int[] o = parseIpv4(ipv4);
+        return ((o[0] & 0xffL) << 24)
+                | ((o[1] & 0xffL) << 16)
+                | ((o[2] & 0xffL) << 8)
+                | (o[3] & 0xffL);
     }
 
-    public static String decodeDocumentedLittleEndian(long value) {
+    public static String decodeKscParamLong(long value) {
         if (value < 0 || value > MAX_IPV4) {
             throw new IllegalArgumentException("KSC IPv4 long must be an unsigned 32-bit value: " + value);
         }
-        return (value & 0xffL) + "."
-                + ((value >>> 8) & 0xffL) + "."
+        return ((value >>> 24) & 0xffL) + "."
                 + ((value >>> 16) & 0xffL) + "."
-                + ((value >>> 24) & 0xffL);
+                + ((value >>> 8) & 0xffL) + "."
+                + (value & 0xffL);
+    }
+
+    /** Compatibility alias retained for already-written research code. */
+    public static long encodeDocumentedLittleEndian(String ipv4) {
+        return encodeKscParamLong(ipv4);
+    }
+
+    /** Compatibility alias retained for already-written research code. */
+    public static String decodeDocumentedLittleEndian(long value) {
+        return decodeKscParamLong(value);
     }
 
     private static int[] parseIpv4(String ipv4) {

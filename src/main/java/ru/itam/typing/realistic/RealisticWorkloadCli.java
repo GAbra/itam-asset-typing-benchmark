@@ -28,7 +28,12 @@ public final class RealisticWorkloadCli {
         if ("generate".equals(command) || "all".equals(command)) {
             long count = Long.parseLong(a.getOrDefault("--count", "10000"));
             long seed = Long.parseLong(a.getOrDefault("--seed", Long.toString(RealisticWorkloadGenerator.DEFAULT_SEED)));
-            NoiseProfile noise = a.containsKey("--clean") ? NoiseProfile.clean() : NoiseProfile.stressDefault();
+            if (a.containsKey("--clean") && a.containsKey("--noise")) {
+                throw new IllegalArgumentException("Use either --clean or --noise, not both");
+            }
+            NoiseProfile noise = a.containsKey("--clean")
+                    ? NoiseProfile.clean()
+                    : NoiseProfile.named(a.getOrDefault("--noise", "stress"));
             var summary = new RealisticWorkloadGenerator().generate(count, seed, raw, truth, noise);
             JSON.writeValue(Path.of(raw + ".meta.json").toFile(), summary);
             System.out.println(JSON.writeValueAsString(summary));
@@ -64,11 +69,13 @@ public final class RealisticWorkloadCli {
         System.out.println("""
                 Realistic workload v2 research CLI
 
-                  generate    [--count 10000] [--seed 20260910] [--raw file] [--truth file] [--clean]
+                  generate    [--count 10000] [--seed 20260910] [--raw file] [--truth file]
+                              [--noise clean|light|moderate|stress|severe] [--clean]
                   materialize --raw file --truth file [--out file]
-                  all         [--count 10000] [--seed 20260910] [--raw file] [--truth file] [--out file] [--clean]
+                  all         [--count 10000] [--seed 20260910] [--raw file] [--truth file] [--out file]
+                              [--noise clean|light|moderate|stress|severe] [--clean]
 
-                Default generation uses a deterministic stress-noise profile. Its rates are test parameters,
+                Default generation uses the deterministic 'stress' scenario. Noise rates are test parameters,
                 not claims about production prevalence. Ground truth is written separately from raw observations.
                 """);
     }
