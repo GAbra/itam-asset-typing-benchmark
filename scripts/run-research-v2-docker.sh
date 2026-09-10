@@ -31,6 +31,7 @@ exec docker run --rm \
   -e RUNS="${RUNS:-6}" \
   -e BATCH="${BATCH:-10000}" \
   -e RUN_JMH="${RUN_JMH:-1}" \
+  -e OUT_DIR="${OUT_DIR:-}" \
   -v "$HOST_ROOT:/workspace" \
   -w /workspace \
   "$IMAGE" sh scripts/run-research-v2.sh
