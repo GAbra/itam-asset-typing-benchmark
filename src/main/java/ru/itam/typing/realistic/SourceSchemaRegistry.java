@@ -18,7 +18,7 @@ public final class SourceSchemaRegistry {
             "nmap:host", Set.of("status", "address", "hostname", "deviceType", "vendor", "osfamily", "openPorts"),
             "zabbix:host", Set.of("hostid", "host", "name", "status", "inventory.os", "interface.ip"),
             "siem:principal", Set.of("deviceVendor", "deviceProduct", "deviceEventClassId", "category", "suser", "src"),
-            "siem:host", Set.of("deviceVendor", "deviceProduct", "deviceEventClassId", "dhost", "src")
+            "siem:host", Set.of("deviceVendor", "deviceProduct", "deviceEventClassId", "category", "dhost", "src")
     );
 
     private SourceSchemaRegistry() {}
