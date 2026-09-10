@@ -1,73 +1,66 @@
 # Realistic Workload v2 — исследовательская ветка
 
-[English](REALISTIC_WORKLOAD_V2.md) · **Русский**
+[English](REALISTIC_WORKLOAD_V2.md) · **Русский** · [Протокол эксперимента](EXPERIMENT_PROTOCOL_V2_RU.md)
 
-Эта работа ведётся отдельно от `main` в ветке `research/realistic-workload-v2`. Исходный controlled microbenchmark v1 не переписывается и остаётся воспроизводимым историческим baseline.
+Работа изолирована от `main` в ветке `research/realistic-workload-v2`. Исходный controlled microbenchmark v1 не переписывается и остаётся воспроизводимым историческим baseline.
 
 ## Зачем нужен v2
 
-v1 хорошо отвечает на вопрос о стоимости исполнения одинаковой rule-based логики через custom HashMap+BitSet, CEL и DMN/KIE, но его synthetic workload слишком близок к самим правилам. Это ограничивает выводы о реальной точности типизации.
+v1 хорошо измеряет стоимость исполнения одинаковой rule-based логики через custom HashMap+BitSet, CEL и DMN/KIE, но его synthetic workload слишком близок к самим правилам. Поэтому v2 разделяет latent ground truth, raw observations источников и normalization; расширяет отрицательные и конфликтные сценарии; отдельно проверяет корректность движков и производительность.
 
-v2 разделяет три сущности, которые раньше были фактически слиты вместе:
+`RealisticWorkloadGenerator` не читает canonical rules, `FeatureExtractor` или typing engine. Ground truth записывается в отдельный JSONL sidecar. Raw observations сначала имеют source-shaped вид AD/Nmap/KSC/Zabbix/SIEM и только затем преобразуются `ObservationNormalizer` в `AssetTypingContext`.
 
-1. **latent ground truth** — истинный тип/подтип актива;
-2. **raw source observations** — отдельные наблюдения AD, Nmap, KSC, Zabbix и SIEM;
-3. **normalization** — преобразование source-shaped полей в `AssetTypingContext` перед запуском движка.
+## Что реализовано
 
-`RealisticWorkloadGenerator` не импортирует canonical rules, `FeatureExtractor` или какой-либо typing engine. Ground truth пишется в отдельный JSONL sidecar и присоединяется только после нормализации.
+- независимый `REFERENCE_LINEAR`, не использующий BitSet candidate index, CEL, KIE или `MatchResolver`;
+- differential/property gates для BitSet/CEL/DMN/reference, включая edge cases и scaled rulesets;
+- реальные source-specific parsers checked-in fixtures: AD JSON, KSC JSON/typed `pChunk`, Nmap XML, Zabbix JSON-RPC, CEF;
+- `SourceSchemaRegistry` и field-shape validation, включая numeric KSC IPv4 field;
+- correlated latent hostname/IP и controlled missing/stale/rename/OS/KSC/Nmap/service-account/software-inventory noise;
+- пять именованных noise regimes: `clean`, `light`, `moderate`, `stress`, `severe`;
+- четыре явных profile-distribution scenarios: `balanced`, `device-heavy`, `identity-heavy`, `software-heavy`;
+- deterministic 80/20 holdout по hash от `assetId`, без использования type/subtype при распределении строк;
+- accuracy report: type/exact accuracy, auto coverage/error, unresolved rate, status distribution, profile accuracy, confusion matrix;
+- проверяемое покрытие всех `NOT_CLASSIFIED`, `AUTO_TYPE_ONLY`, `AUTO`, `TYPE_CONFLICT`, `SUBTYPE_CONFLICT`;
+- controlled ruleset scaling `14 / 50 / 100 / 500`;
+- application benchmark с отдельными `END_TO_END` и `ENGINE_ONLY` режимами и counterbalanced engine order;
+- отдельный forked JMH track для независимой проверки application-level timing;
+- frozen experiment runner, environment/provenance capture, SHA-256 manifests и автоматический validator.
 
-## Controlled noise
+Noise rates и profile distributions — **сценарии sensitivity analysis, а не заявленная статистика production**. До появления размеченного внешнего корпуса они нужны для проверки устойчивости выводов к изменению состава и качества входных данных.
 
-По умолчанию включён детерминированный stress-profile: пропуски необязательных источников, stale observations, конфликтующий OS, переименование host, false/missed service-account hints, ambiguous Nmap device type, неполный software inventory и ошибочный KSC CTYPE.
-
-Проценты в `NoiseProfile.stressDefault()` — **параметры стресс-теста, а не заявленная частота таких проблем в production**. Позже они должны калиброваться по реальной размеченной выборке или по согласованному сценарию эксплуатации.
-
-## Корреляция между источниками
-
-В отличие от v1, один latent device сначала получает общий hostname/IP, после чего source observations строятся вокруг этих идентификаторов. Noise может намеренно нарушить корреляцию, например оставить старое имя в Zabbix или ошибочный device type в Nmap. Это позволяет отличить нормальный multi-source case от controlled inconsistency.
-
-## Запуск
-
-После `mvn clean package`:
+## Быстрый запуск генератора
 
 ```bash
+mvn clean package
 java -cp target/itam-asset-typing-benchmark-1.0.0.jar \
   ru.itam.typing.realistic.RealisticWorkloadCli all \
-  --count 10000 \
-  --seed 20260910 \
+  --count 10000 --seed 20260910 \
+  --noise stress --distribution balanced \
   --raw data/generated/realistic-v2-raw.jsonl \
   --truth data/generated/realistic-v2-truth.jsonl \
   --out data/generated/realistic-v2-normalized.jsonl
 ```
 
-После этого существующие `verify` и `benchmark` можно запускать на `realistic-v2-normalized.jsonl`. Для чистого контрольного набора без noise используется `--clean`.
+Для полного воспроизводимого исследования используется [отдельный протокол](EXPERIMENT_PROTOCOL_V2_RU.md) и `scripts/run-research-v2-docker.sh`.
 
-## Что уже улучшено
+## Текущий research gate
 
-- ground truth физически отделён от raw observations;
-- генерация raw observations не зависит от ruleset и FeatureExtractor;
-- поля источников сохраняются source-shaped до отдельного normalization step;
-- cross-source hostname/IP в нормальном случае коррелированы;
-- введены детерминированные missing/stale/conflicting cases;
-- тест требует, чтобы stress workload создавал больше feature-state diversity и выявлял ошибки текущего ruleset, а не давал искусственные 100%.
+| Направление | Состояние ветки | Что ещё требуется для максимального claim |
+|---|---:|---|
+| Подлинность CEL runtime | 10/10 | реальный `dev.cel` runtime уже используется |
+| Подлинность KIE/DMN runtime | 10/10 | реальный Apache KIE DMN runtime уже используется |
+| Корректность custom BitSet | 9.5/10 | независимый reference + differential/property tests есть; финально подтвердить full run |
+| Реалистичность source fields | ~9/10 | parsers/fixtures/schema gates есть; расширять только по проверяемым vendor/source данным |
+| Связи между источниками | ~9/10 | shared latent identity + controlled breakage; внешний corpus остаётся сильнейшим подтверждением |
+| Разнообразие данных | ~9/10 | noise/distribution/status/ruleset matrices реализованы; оценить фактические отчёты |
+| Ошибки и конфликты | ~9/10 | все outcome classes покрыты, есть несколько noise regimes |
+| Независимость ground truth | 9.5/10 | separate truth + rule-independent generation + label-independent holdout |
+| Performance methodology | 9.5/10 | engine-only/end-to-end + counterbalanced application benchmark + forked JMH |
+| Production accuracy | пока не оценивается | нужен независимый размеченный real-world / anonymized production-like corpus |
 
-## Что ещё необходимо до сильного research claim
+Баллы здесь являются readiness-оценкой методики, а не результатами будущего эксперимента. После запуска пользователя они должны подтверждаться реальными report artifacts, а не самим фактом наличия кода.
 
-Следующие этапы этой же ветки: независимый reference evaluator для проверки custom BitSet; отдельные engine-only и end-to-end benchmarks; ruleset scaling; явное покрытие `NOT_CLASSIFIED`, `AUTO_TYPE_ONLY`, `TYPE_CONFLICT`, `SUBTYPE_CONFLICT`; несколько noise regimes; калибровка source distributions; blind holdout; и, если требуется утверждение о production accuracy, размеченный реальный или обезличенный корпус.
+## Что остаётся внешним ограничением
 
-## Целевой scorecard
-
-| Направление | v1 оценка | Цель v2 | Условие для цели |
-|---|---:|---:|---|
-| Подлинность CEL runtime | 10/10 | 10/10 | реальный `dev.cel` runtime |
-| Подлинность KIE/DMN runtime | 10/10 | 10/10 | реальный Apache KIE DMN runtime |
-| Корректность custom BitSet | 8/10 | 9.5–10/10 | независимый reference evaluator + property/exhaustive tests |
-| Реалистичность source fields | 8/10 | 9+/10 | source-shaped fixtures + проверяемые vendor schemas |
-| Связи между источниками | 4/10 | 9+/10 | shared latent identity + controlled rename/stale/conflict |
-| Разнообразие данных | 3/10 | 9+/10 | измеряемая feature/status/source diversity |
-| Ошибки и конфликты | 2/10 | 9+/10 | controlled noise matrix + coverage всех outcome classes |
-| Независимость ground truth | 2/10 | 9.5/10 | separate truth sidecar + no rule dependency + blind holdout |
-| Performance benchmark | 8/10 | 9+/10 | engine-only/end-to-end split + counterbalanced order/JMH track |
-| Production accuracy claim | 2/10 | 8–10/10* | *10/10 нельзя честно заявлять без внешней размеченной production-like выборки |
-
-Цель ветки — не получить красивые баллы декларативно, а сделать каждый балл проверяемым тестом, артефактом или внешней валидацией.
+Синтетический стенд можно сделать строгим, разнообразным и воспроизводимым, но нельзя математически превратить его в доказательство production accuracy конкретной ITAM-инфраструктуры. Для этого нужен внешний размеченный корпус. Поэтому итог исследования должен разделять три вывода: **semantic correctness движков**, **robustness на controlled source-quality scenarios** и **performance/scaling**. Production accuracy публикуется только при наличии независимых labels.
