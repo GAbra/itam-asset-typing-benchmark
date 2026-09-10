@@ -8,5 +8,31 @@ target/
 /itam-asset-typing-benchmark-prebuilt.tar
 /itam-asset-typing-benchmark-prebuilt.zip
 /itam-typing-demo-prebuilt.tar
-/results/
+
+# Test/research outputs: keep bulky generated corpora and logs out of Git,
+# but expose compact, reviewable reports so experiment results can be committed.
+/results/*
+
+# CI JSON reports
+!/results/ci/
+/results/ci/**
+!/results/ci/**/
+!/results/ci/**/*.json
+
+# Realistic Workload v2 reviewable artifacts
+!/results/research-v2/
+/results/research-v2/**
+!/results/research-v2/**/
+!/results/research-v2/**/accuracy.json
+!/results/research-v2/**/split.json
+!/results/research-v2/**/*.meta.json
+!/results/research-v2/**/benchmark-*.json
+!/results/research-v2/**/jmh.json
+!/results/research-v2/**/rules-*.yaml
+!/results/research-v2/**/SHA256SUMS.txt
+!/results/research-v2/**/provenance/*.txt
+!/results/research-v2/**/provenance/*.env
+
+# Intentionally still ignored under results/research-v2:
+# *.jsonl corpora, *.log files, review-pack archives and other large intermediates.
 __pycache__/
