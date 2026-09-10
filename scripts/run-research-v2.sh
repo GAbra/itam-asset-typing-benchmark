@@ -122,5 +122,6 @@ fi
 
 find "$OUT_DIR" -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > "$OUT_DIR/SHA256SUMS.txt"
 python3 scripts/validate-research-v2.py "$OUT_DIR"
-
+REVIEW_PACK=$(sh scripts/package-research-v2-review.sh "$OUT_DIR")
+echo "REVIEW_PACK: $REVIEW_PACK"
 echo "DONE: $OUT_DIR"
