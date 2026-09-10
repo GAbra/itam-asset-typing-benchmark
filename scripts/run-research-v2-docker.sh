@@ -34,4 +34,4 @@ exec docker run --rm \
   -e OUT_DIR="${OUT_DIR:-}" \
   -v "$HOST_ROOT:/workspace" \
   -w /workspace \
-  "$IMAGE" sh scripts/run-research-v2.sh
+  "$IMAGE" sh -c 'git config --global --add safe.directory /workspace && exec sh scripts/run-research-v2.sh'
