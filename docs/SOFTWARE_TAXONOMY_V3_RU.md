@@ -35,7 +35,7 @@
 
 ## Репрезентативный каталог
 
-`data/software-catalog-v3.yaml` — каталог для покрытия реалистичных семейств ПО, которые могут встречаться в российской корпоративной и IT-инфраструктуре. В нём намеренно есть и российские, и международные продукты.
+`data/software-catalog-v3.yaml` — каталог для покрытия реалистичных семейств ПО, которые могут встречаться в российской корпоративной и IT-инфраструктуре. В нём намеренно есть и российские, и международные продукты. В финальном каталоге **74 записи продуктов/семейств**.
 
 Примеры:
 
@@ -88,8 +88,10 @@ v3 не должен определять подтип только по `Displa
 - Visual Studio → `IDE`, а Visual C++ Redistributable → `RUNTIME_PLATFORM`;
 - Microsoft SQL Server → `DATABASE_SERVER`, а SQL Server Management Studio → `DATABASE_TOOL`;
 - 1С:Предприятие → `BUSINESS_SOFTWARE`, а 1C:EDT → `IDE`;
-- Kaspersky Endpoint Security → `SECURITY_SOFTWARE`, а Kaspersky Network Agent → `COMPONENT_AGENT`;
+- Kaspersky Endpoint Security → `SECURITY_SOFTWARE`, а Kaspersky Security Center Network Agent → `COMPONENT_AGENT`;
 - Edge → `BROWSER`, а WebView2 Runtime → `COMPONENT_AGENT`.
+
+Признаки агента/компонента проверяются раньше широкого семейства родительского продукта. Одного `Publisher` недостаточно, чтобы автоматически придумать security/business подтип.
 
 ## Независимость эталона
 
@@ -109,11 +111,37 @@ BitSet, CEL и DMN получают одинаковые признаки и о�
 
 Новых весов для AD/KSC/Nmap или отдельных производителей не добавляется. Ранее откалиброванный допустимый разрыв приоритетов остаётся фиксированным: `80`.
 
+## Финальный подтверждающий прогон
+
+После исправления regression для component/agent был выполнен новый прогон на независимом seed:
+
+```text
+SOFTWARE_COUNT=200000
+SEED=20260918
+CONFLICT_WINDOW=80
+STRICT_GATE=1
+```
+
+На детерминированном holdout (`39 878` записей) все заранее зафиксированные критерии пройдены:
+
+| Сценарий | Точность подтипа | FULL AUTO coverage | Ошибка FULL AUTO | Точность COMPONENT_AGENT |
+|:--|--:|--:|--:|--:|
+| Clean | 100,00% | 100,00% | 0,00% | 100,00% |
+| Light | 99,62% | 99,62% | 0,00% | 99,88% |
+| Stress | 97,94% | 97,94% | 0,00% | 98,38% |
+| Severe | 92,44% | 92,44% | 0,00% | 93,13% |
+
+Итоговый отчёт содержит `failures=[]` и ноль неправильных FULL AUTO во всех четырёх сценариях. Компактные артефакты сохранены в:
+
+`results/software-taxonomy-v3/94b4ce6efe9e-20260911T124257Z/`
+
 ## Запуск
+
+Для нового независимого повторения нужно взять новый seed, а не переиспользовать confirmation seed:
 
 ```bash
 export SOFTWARE_COUNT=200000
-export SEED=20260916
+export SEED=<new-seed>
 export CONFLICT_WINDOW=80
 export STRICT_GATE=1
 sh scripts/run-software-taxonomy-v3-docker.sh
@@ -124,3 +152,5 @@ sh scripts/run-software-taxonomy-v3-docker.sh
 ## Ограничение результата
 
 `PASS` означает, что движки согласованы и новая логика выдержала заданные контролируемые сценарии на синтетическом RU-oriented наборе. Это **не** доказательство точности на реальной инфраструктуре. Для production-accuracy по-прежнему нужен независимо размеченный реальный или корректно обезличенный production-like корпус.
+
+См. также [итоговую исследовательскую сводку](RESEARCH_SUMMARY_RU.md).
