@@ -27,7 +27,7 @@ public final class SoftwareEvidenceClassifier {
         // Components/agents must be recognized before their parent vendor/product family.
         // Executable/service identities remain useful when DisplayName is missing or generalized.
         if (containsAny(evidence,
-                "kaspersky network agent", "klnagent.exe", "klnagent",
+                "kaspersky security center network agent", "kaspersky network agent", "klnagent.exe", "klnagent",
                 "microsoft edge webview2", "webview2 runtime", "msedgewebview2.exe", "msedgewebview2",
                 "1c server agent", "1с сервер агент", "1cv8 server agent",
                 "1c:enterprise server agent", "1с:предприятие server agent",
