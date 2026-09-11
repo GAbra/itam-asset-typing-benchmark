@@ -1,0 +1,12 @@
+{
+  "rawInput" : "results/software-taxonomy-v3/94b4ce6efe9e-20260911T124257Z/cases/light/raw.jsonl",
+  "truthInput" : "results/software-taxonomy-v3/94b4ce6efe9e-20260911T124257Z/cases/light/truth.jsonl",
+  "holdoutPct" : 20,
+  "salt" : "realistic-v2-holdout-v1",
+  "trainCount" : 160122,
+  "holdoutCount" : 39878,
+  "trainRawSha256" : "b1ff82afbfd2c185aa96dba6e199eef210093b2962f6ad6cd311a95210532e41",
+  "trainTruthSha256" : "d021986d920ff4f435f222da616a9134e6e72e8c9245f2d923816ea789986328",
+  "holdoutRawSha256" : "c4717df71fd3764705805117cdb2e0274b4ad26722b4d36ae2828e6c19766488",
+  "holdoutTruthSha256" : "98ae9cdff68660d7e91b9fb74c4ea2ce373caa060708befe7e7cf63d92c3532e"
+}

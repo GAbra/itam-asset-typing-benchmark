@@ -1,0 +1,33 @@
+{
+  "catalogVersion" : "3.0.0",
+  "purpose" : "Representative RU-oriented enterprise software workload for ITAM research; coverage examples, not market-share estimates. Package identifiers and paths are controlled test evidence, not guaranteed vendor-exact installer metadata.",
+  "count" : 200000,
+  "seed" : 20260918,
+  "noise" : "light",
+  "catalogProducts" : 74,
+  "domesticSelections" : 59540,
+  "subtypeCounts" : {
+    "DEV_TOOL" : 19050,
+    "COMPONENT_AGENT" : 8186,
+    "CRYPTO_SOFTWARE" : 5345,
+    "BUSINESS_SOFTWARE" : 13308,
+    "DATABASE_SERVER" : 10849,
+    "BROWSER" : 10738,
+    "SECURITY_SOFTWARE" : 7911,
+    "IDE" : 18797,
+    "OFFICE_SOFTWARE" : 13516,
+    "UTILITY" : 13377,
+    "OPERATING_SYSTEM" : 21940,
+    "APPLICATION_SOFTWARE" : 8305,
+    "COMMUNICATION" : 10923,
+    "DESIGN_MODELING" : 10829,
+    "RUNTIME_PLATFORM" : 13346,
+    "DATABASE_TOOL" : 13580
+  },
+  "noiseEventCounts" : {
+    "MISSING_DISPLAY_NAME" : 4072,
+    "MISSING_SUPPORTING_EVIDENCE" : 8119,
+    "MISSING_PUBLISHER" : 5935,
+    "GENERIC_DISPLAY_NAME" : 3881
+  }
+}
