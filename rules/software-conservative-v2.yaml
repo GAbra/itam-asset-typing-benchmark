@@ -1,0 +1,136 @@
+rulesetVersion: "2.0.0-software-conservative"
+rules:
+  - ruleId: AD_SERVICE_ACCOUNT
+    targetType: ACCOUNT
+    targetSubtype: SERVICE_ACCOUNT
+    priority: 300
+    required: [SRC_AD, OBJ_AD_USER, ACCOUNT_SERVICE_HINT]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: AD_USER_ACCOUNT
+    targetType: ACCOUNT
+    targetSubtype: USER_ACCOUNT
+    priority: 200
+    required: [SRC_AD, OBJ_AD_USER]
+    any: []
+    forbidden: [ACCOUNT_SERVICE_HINT]
+    enabled: true
+
+  - ruleId: SIEM_PRINCIPAL_ACCOUNT
+    targetType: ACCOUNT
+    targetSubtype: null
+    priority: 70
+    required: [SRC_SIEM, OBJ_SIEM_PRINCIPAL]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: AD_WINDOWS_SERVER
+    targetType: DEVICE
+    targetSubtype: SERVER
+    priority: 320
+    required: [SRC_AD, OBJ_AD_COMPUTER, OS_WINDOWS, OS_SERVER]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: AD_WINDOWS_WORKSTATION
+    targetType: DEVICE
+    targetSubtype: WORKSTATION
+    priority: 260
+    required: [SRC_AD, OBJ_AD_COMPUTER, OS_WINDOWS]
+    any: []
+    forbidden: [OS_SERVER]
+    enabled: true
+
+  - ruleId: KSC_SERVER
+    targetType: DEVICE
+    targetSubtype: SERVER
+    priority: 300
+    required: [SRC_KSC, OBJ_KSC_HOST, KSC_SERVER]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: KSC_WORKSTATION
+    targetType: DEVICE
+    targetSubtype: WORKSTATION
+    priority: 250
+    required: [SRC_KSC, OBJ_KSC_HOST, KSC_WORKSTATION]
+    any: []
+    forbidden: [KSC_SERVER]
+    enabled: true
+
+  - ruleId: NMAP_NETWORK_DEVICE
+    targetType: DEVICE
+    targetSubtype: NETWORK_DEVICE
+    priority: 330
+    required: [SRC_NMAP, OBJ_NMAP_HOST, NMAP_NETWORK_DEVICE]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: NMAP_GENERAL_PURPOSE_DEVICE
+    targetType: DEVICE
+    targetSubtype: null
+    priority: 100
+    required: [SRC_NMAP, OBJ_NMAP_HOST, NMAP_GENERAL_PURPOSE]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: ZABBIX_SERVER
+    targetType: DEVICE
+    targetSubtype: SERVER
+    priority: 220
+    required: [SRC_ZABBIX, OBJ_ZABBIX_HOST, OS_SERVER]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: ZABBIX_HOST_DEVICE
+    targetType: DEVICE
+    targetSubtype: null
+    priority: 80
+    required: [SRC_ZABBIX, OBJ_ZABBIX_HOST]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: SIEM_HOST_DEVICE
+    targetType: DEVICE
+    targetSubtype: null
+    priority: 60
+    required: [SRC_SIEM, OBJ_SIEM_HOST]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: KSC_SECURITY_SOFTWARE_STRONG
+    targetType: SOFTWARE
+    targetSubtype: SECURITY_SOFTWARE
+    priority: 310
+    required: [SRC_KSC, OBJ_KSC_SOFTWARE, SECURITY_SOFTWARE_STRONG_HINT]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: KSC_APPLICATION_SOFTWARE_CONFIDENT
+    targetType: SOFTWARE
+    targetSubtype: APPLICATION_SOFTWARE
+    priority: 180
+    required: [SRC_KSC, OBJ_KSC_SOFTWARE, APPLICATION_SOFTWARE_HINT]
+    any: []
+    forbidden: []
+    enabled: true
+
+  - ruleId: KSC_SOFTWARE_TYPE_ONLY
+    targetType: SOFTWARE
+    targetSubtype: null
+    priority: 90
+    required: [SRC_KSC, OBJ_KSC_SOFTWARE]
+    any: []
+    forbidden: []
+    enabled: true
