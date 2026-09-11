@@ -33,7 +33,9 @@ Operating systems are software assets. Device role (`SERVER`, `WORKSTATION`, etc
 
 ## Representative catalog
 
-`data/software-catalog-v3.yaml` is a coverage-oriented catalog of product families that may occur in Russian enterprise and IT environments. It intentionally mixes Russian/domestic and international products. Examples include:
+`data/software-catalog-v3.yaml` is a coverage-oriented catalog of product families that may occur in Russian enterprise and IT environments. It intentionally mixes Russian/domestic and international products. The final catalog contains **74 product/family entries**.
+
+Examples include:
 
 - Astra Linux, RED OS, ALT, Windows, Ubuntu, Debian;
 - 1C:Enterprise family, 1C:EDT, ConsultantPlus;
@@ -84,8 +86,10 @@ Examples of deliberate separations:
 - Visual Studio → `IDE`; Visual C++ Redistributable → `RUNTIME_PLATFORM`.
 - Microsoft SQL Server → `DATABASE_SERVER`; SQL Server Management Studio → `DATABASE_TOOL`.
 - 1C:Enterprise → `BUSINESS_SOFTWARE`; 1C:EDT → `IDE`.
-- Kaspersky Endpoint Security → `SECURITY_SOFTWARE`; Kaspersky Network Agent → `COMPONENT_AGENT`.
+- Kaspersky Endpoint Security → `SECURITY_SOFTWARE`; Kaspersky Security Center Network Agent → `COMPONENT_AGENT`.
 - Edge browser → `BROWSER`; WebView2 Runtime → `COMPONENT_AGENT`.
+
+Component/agent evidence is evaluated before broader parent-product families. A vendor name alone is intentionally insufficient to invent a security/business subtype.
 
 ## Independence and leakage controls
 
@@ -105,11 +109,37 @@ These rates are stress-test parameters, not estimates of production data quality
 
 No new per-source weights are introduced. The previously calibrated conservative conflict-priority window remains fixed at `80`.
 
+## Final confirmation result
+
+The final confirmation run used a fresh seed after the component/agent regression fix:
+
+```text
+SOFTWARE_COUNT=200000
+SEED=20260918
+CONFLICT_WINDOW=80
+STRICT_GATE=1
+```
+
+On the deterministic holdout (`39,878` records), all frozen acceptance criteria passed:
+
+| Scenario | Exact subtype accuracy | FULL AUTO coverage | FULL AUTO error rate | COMPONENT_AGENT accuracy |
+|:--|--:|--:|--:|--:|
+| Clean | 100.00% | 100.00% | 0.00% | 100.00% |
+| Light | 99.62% | 99.62% | 0.00% | 99.88% |
+| Stress | 97.94% | 97.94% | 0.00% | 98.38% |
+| Severe | 92.44% | 92.44% | 0.00% | 93.13% |
+
+The result report contains `failures=[]` and zero wrong FULL AUTO decisions in all four scenarios. The committed compact artifacts are under:
+
+`results/software-taxonomy-v3/94b4ce6efe9e-20260911T124257Z/`
+
 ## Run
+
+For a new independent replication, choose a new seed rather than reusing the confirmation seed:
 
 ```bash
 export SOFTWARE_COUNT=200000
-export SEED=20260916
+export SEED=<new-seed>
 export CONFLICT_WINDOW=80
 export STRICT_GATE=1
 sh scripts/run-software-taxonomy-v3-docker.sh
@@ -120,3 +150,5 @@ The run produces paired accuracy reports plus `software-taxonomy-summary.json`, 
 ## Scope limitation
 
 A PASS demonstrates deterministic engine agreement and decision quality on this controlled RU-oriented synthetic workload. It does **not** establish real-world production accuracy. That still requires an independently labelled real or properly anonymized production-like corpus.
+
+See also the [final research summary](RESEARCH_SUMMARY.md).
