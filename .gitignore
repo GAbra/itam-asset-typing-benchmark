@@ -72,6 +72,20 @@ target/
 !/results/software-ambiguity-v2/**/provenance/*.txt
 !/results/software-ambiguity-v2/**/provenance/*.env
 
+# Software decision v2 reviewable artifacts
+!/results/software-decision-v2/
+/results/software-decision-v2/**
+!/results/software-decision-v2/**/
+!/results/software-decision-v2/**/baseline.json
+!/results/software-decision-v2/**/candidate.json
+!/results/software-decision-v2/**/injection.json
+!/results/software-decision-v2/**/split.json
+!/results/software-decision-v2/**/*.meta.json
+!/results/software-decision-v2/**/software-decision-summary.json
+!/results/software-decision-v2/**/SHA256SUMS.txt
+!/results/software-decision-v2/**/provenance/*.txt
+!/results/software-decision-v2/**/provenance/*.env
+
 # Intentionally still ignored under research result trees:
 # *.jsonl corpora, *.log files, review-pack archives and other large intermediates.
 __pycache__/
