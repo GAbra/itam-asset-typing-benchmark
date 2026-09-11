@@ -1,0 +1,126 @@
+# Software Taxonomy v3 — набор ПО, ориентированный на российский корпоративный IT
+
+## Зачем нужен v3
+
+Эксперимент `software-ambiguity-v2` показал, что исходное деление ПО только на `SECURITY_SOFTWARE` и `APPLICATION_SOFTWARE` слишком грубое для автоматической типизации ITAM. При усложнении карточек ПО старая логика продолжала ставить `AUTO` даже тогда, когда доля ошибочных подтипов становилась высокой.
+
+Поэтому v3 расширяет дерево подтипов и проверяет классификацию по нескольким атрибутам, а не только по названию продукта.
+
+Это по-прежнему исследовательский набор. Он **не** утверждает реальную точность в продуктиве, доли рынка или частоту использования конкретных продуктов в российских организациях.
+
+## Подтипы ПО
+
+Для `SOFTWARE` используются:
+
+- `OPERATING_SYSTEM` — операционные системы;
+- `OFFICE_SOFTWARE` — офисные пакеты;
+- `BUSINESS_SOFTWARE` — бизнес-системы;
+- `BROWSER` — браузеры;
+- `IDE` — среды разработки;
+- `DATABASE_TOOL` — клиентские и административные инструменты СУБД;
+- `DATABASE_SERVER` — серверы баз данных;
+- `DESIGN_MODELING` — проектирование, схемы и дизайн;
+- `SECURITY_SOFTWARE` — средства защиты;
+- `CRYPTO_SOFTWARE` — криптографическое ПО и ЭП;
+- `RUNTIME_PLATFORM` — runtime/SDK/платформенные среды;
+- `DEV_TOOL` — инструменты разработки, сборки и отладки;
+- `UTILITY` — утилиты;
+- `COMMUNICATION` — коммуникационные клиенты;
+- `COMPONENT_AGENT` — агенты, runtime-компоненты и служебные модули;
+- `APPLICATION_SOFTWARE` — прочее распознанное прикладное ПО.
+
+Если доказательств для подтипа недостаточно, алгоритм оставляет только `SOFTWARE` и возвращает `AUTO_TYPE_ONLY`, а не угадывает подтип.
+
+ОС здесь рассматривается как программный актив. Роль устройства (`SERVER`, `WORKSTATION` и т. п.) остаётся отдельной классификацией сущности «Устройство».
+
+## Репрезентативный каталог
+
+`data/software-catalog-v3.yaml` — каталог для покрытия реалистичных семейств ПО, которые могут встречаться в российской корпоративной и IT-инфраструктуре. В нём намеренно есть и российские, и международные продукты.
+
+Примеры:
+
+- Astra Linux, РЕД ОС, ALT, Windows, Ubuntu, Debian;
+- 1С:Предприятие, 1С:ERP, 1С:Бухгалтерия, 1С:ЗУП, 1С:Документооборот, 1C:EDT, КонсультантПлюс;
+- Microsoft Office / Microsoft 365 Apps, МойОфис, Р7-Офис, LibreOffice;
+- Яндекс Браузер, Chrome, Edge, Firefox;
+- IntelliJ IDEA, PyCharm, WebStorm, Rider, Visual Studio, VS Code;
+- DBeaver, DataGrip, pgAdmin, SQL Server Management Studio, Oracle SQL Developer;
+- PostgreSQL, Postgres Pro, Microsoft SQL Server, MySQL, MariaDB;
+- Figma, draw.io, AutoCAD, nanoCAD;
+- Kaspersky, Dr.Web, ESET, КриптоПро;
+- JDK, .NET, Python, Node.js, Git, Maven, Gradle, Docker Desktop, Postman, WinDbg, GDB;
+- распространённые утилиты, коммуникационные клиенты и агенты/компоненты.
+
+Состав каталога **не является моделью популярности**. Продукты включены для проверки разных классов, похожих названий и сочетаний атрибутов. Значения package ID и путей установки в тестовом каталоге — контролируемые исследовательские признаки; они не заявляются как точный контракт конкретного установщика производителя.
+
+Для актуализации названий и семейств использовались официальные источники, например:
+
+- 1С: https://v8.1c.ru/platforma/
+- Astra Linux: https://astralinux.ru/
+- РЕД ОС: https://redos.red-soft.ru/
+- BaseALT: https://www.basealt.ru/
+- Яндекс Браузер: https://browser.yandex.ru/
+- Kaspersky Endpoint Security: https://www.kaspersky.ru/small-to-medium-business-security/endpoint-windows
+- Postgres Pro: https://postgrespro.ru/products
+- DBeaver: https://dbeaver.com/docs/dbeaver/
+- Figma Desktop: https://www.figma.com/downloads/
+
+Эти ссылки подтверждают существование и семейство продукта, но не его долю использования.
+
+## Какие атрибуты используются
+
+v3 не должен определять подтип только по `DisplayName`. Классификатор может использовать нормализованные данные инвентаризации:
+
+- `DisplayName`;
+- `Publisher`;
+- `ProductFamily`;
+- `PackageId`;
+- непрозрачный `ProductID`;
+- `InstallDir` / `InstallLocation`;
+- имена исполняемых файлов;
+- имена служб;
+- платформу / семейство ОС;
+- архитектуру;
+- версию и другие данные инвентаризации.
+
+Принципиальные различия, которые тестируются отдельно:
+
+- Visual Studio → `IDE`, а Visual C++ Redistributable → `RUNTIME_PLATFORM`;
+- Microsoft SQL Server → `DATABASE_SERVER`, а SQL Server Management Studio → `DATABASE_TOOL`;
+- 1С:Предприятие → `BUSINESS_SOFTWARE`, а 1C:EDT → `IDE`;
+- Kaspersky Endpoint Security → `SECURITY_SOFTWARE`, а Kaspersky Network Agent → `COMPONENT_AGENT`;
+- Edge → `BROWSER`, а WebView2 Runtime → `COMPONENT_AGENT`.
+
+## Независимость эталона
+
+Генератор читает каталог и отдельно формирует ground truth. Он не читает правила типизации и не вызывает `FeatureExtractor`.
+
+Классификатор, наоборот, не загружает размеченный каталог. Он получает только нормализованные атрибуты карточки. `ProductID` генерируется как непрозрачное значение, поэтому идентификатор записи каталога нельзя использовать как прямую подсказку ответа.
+
+BitSet, CEL и DMN получают одинаковые признаки и одинаковый набор правил; независимый Reference evaluator остаётся контрольной реализацией.
+
+## Шум и неполные данные
+
+Одни и те же продукты используются в `clean`, `light`, `stress` и `severe`. Меняется только качество входных атрибутов. Тест может удалить или обобщить `DisplayName`, удалить `Publisher`, а также убрать дополнительные признаки: семейство продукта, package ID, путь, исполняемые файлы и службы.
+
+Проценты этих искажений — параметры нагрузочного эксперимента, а не оценка качества реальных данных заказчика.
+
+## Разрешение противоречий
+
+Новых весов для AD/KSC/Nmap или отдельных производителей не добавляется. Ранее откалиброванный допустимый разрыв приоритетов остаётся фиксированным: `80`.
+
+## Запуск
+
+```bash
+export SOFTWARE_COUNT=200000
+export SEED=20260916
+export CONFLICT_WINDOW=80
+export STRICT_GATE=1
+sh scripts/run-software-taxonomy-v3-docker.sh
+```
+
+На выходе формируются отчёты по точности, `software-taxonomy-summary.json`, provenance и SHA-256. Большие JSONL и логи в Git не добавляются.
+
+## Ограничение результата
+
+`PASS` означает, что движки согласованы и новая логика выдержала заданные контролируемые сценарии на синтетическом RU-oriented наборе. Это **не** доказательство точности на реальной инфраструктуре. Для production-accuracy по-прежнему нужен независимо размеченный реальный или корректно обезличенный production-like корпус.

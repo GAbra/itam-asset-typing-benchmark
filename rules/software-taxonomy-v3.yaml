@@ -1,0 +1,32 @@
+rulesetVersion: "3.0.0-software-taxonomy"
+rules:
+  - {ruleId: AD_SERVICE_ACCOUNT, targetType: ACCOUNT, targetSubtype: SERVICE_ACCOUNT, priority: 300, required: [SRC_AD, OBJ_AD_USER, ACCOUNT_SERVICE_HINT], any: [], forbidden: [], enabled: true}
+  - {ruleId: AD_USER_ACCOUNT, targetType: ACCOUNT, targetSubtype: USER_ACCOUNT, priority: 200, required: [SRC_AD, OBJ_AD_USER], any: [], forbidden: [ACCOUNT_SERVICE_HINT], enabled: true}
+  - {ruleId: SIEM_PRINCIPAL_ACCOUNT, targetType: ACCOUNT, targetSubtype: null, priority: 70, required: [SRC_SIEM, OBJ_SIEM_PRINCIPAL], any: [], forbidden: [], enabled: true}
+  - {ruleId: AD_WINDOWS_SERVER, targetType: DEVICE, targetSubtype: SERVER, priority: 320, required: [SRC_AD, OBJ_AD_COMPUTER, OS_WINDOWS, OS_SERVER], any: [], forbidden: [], enabled: true}
+  - {ruleId: AD_WINDOWS_WORKSTATION, targetType: DEVICE, targetSubtype: WORKSTATION, priority: 260, required: [SRC_AD, OBJ_AD_COMPUTER, OS_WINDOWS], any: [], forbidden: [OS_SERVER], enabled: true}
+  - {ruleId: KSC_SERVER, targetType: DEVICE, targetSubtype: SERVER, priority: 300, required: [SRC_KSC, OBJ_KSC_HOST, KSC_SERVER], any: [], forbidden: [], enabled: true}
+  - {ruleId: KSC_WORKSTATION, targetType: DEVICE, targetSubtype: WORKSTATION, priority: 250, required: [SRC_KSC, OBJ_KSC_HOST, KSC_WORKSTATION], any: [], forbidden: [KSC_SERVER], enabled: true}
+  - {ruleId: NMAP_NETWORK_DEVICE, targetType: DEVICE, targetSubtype: NETWORK_DEVICE, priority: 330, required: [SRC_NMAP, OBJ_NMAP_HOST, NMAP_NETWORK_DEVICE], any: [], forbidden: [], enabled: true}
+  - {ruleId: NMAP_GENERAL_PURPOSE_DEVICE, targetType: DEVICE, targetSubtype: null, priority: 100, required: [SRC_NMAP, OBJ_NMAP_HOST, NMAP_GENERAL_PURPOSE], any: [], forbidden: [], enabled: true}
+  - {ruleId: ZABBIX_SERVER, targetType: DEVICE, targetSubtype: SERVER, priority: 220, required: [SRC_ZABBIX, OBJ_ZABBIX_HOST, OS_SERVER], any: [], forbidden: [], enabled: true}
+  - {ruleId: ZABBIX_HOST_DEVICE, targetType: DEVICE, targetSubtype: null, priority: 80, required: [SRC_ZABBIX, OBJ_ZABBIX_HOST], any: [], forbidden: [], enabled: true}
+  - {ruleId: SIEM_HOST_DEVICE, targetType: DEVICE, targetSubtype: null, priority: 60, required: [SRC_SIEM, OBJ_SIEM_HOST], any: [], forbidden: [], enabled: true}
+
+  - {ruleId: SW_OPERATING_SYSTEM, targetType: SOFTWARE, targetSubtype: OPERATING_SYSTEM, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_OPERATING_SYSTEM], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_OFFICE, targetType: SOFTWARE, targetSubtype: OFFICE_SOFTWARE, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_OFFICE_SOFTWARE], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_BUSINESS, targetType: SOFTWARE, targetSubtype: BUSINESS_SOFTWARE, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_BUSINESS_SOFTWARE], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_BROWSER, targetType: SOFTWARE, targetSubtype: BROWSER, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_BROWSER], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_IDE, targetType: SOFTWARE, targetSubtype: IDE, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_IDE], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_DATABASE_TOOL, targetType: SOFTWARE, targetSubtype: DATABASE_TOOL, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_DATABASE_TOOL], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_DATABASE_SERVER, targetType: SOFTWARE, targetSubtype: DATABASE_SERVER, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_DATABASE_SERVER], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_DESIGN_MODELING, targetType: SOFTWARE, targetSubtype: DESIGN_MODELING, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_DESIGN_MODELING], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_SECURITY, targetType: SOFTWARE, targetSubtype: SECURITY_SOFTWARE, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_SECURITY_SOFTWARE], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_CRYPTO, targetType: SOFTWARE, targetSubtype: CRYPTO_SOFTWARE, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_CRYPTO_SOFTWARE], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_RUNTIME, targetType: SOFTWARE, targetSubtype: RUNTIME_PLATFORM, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_RUNTIME_PLATFORM], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_DEV_TOOL, targetType: SOFTWARE, targetSubtype: DEV_TOOL, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_DEV_TOOL], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_UTILITY, targetType: SOFTWARE, targetSubtype: UTILITY, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_UTILITY], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_COMMUNICATION, targetType: SOFTWARE, targetSubtype: COMMUNICATION, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_COMMUNICATION], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_COMPONENT_AGENT, targetType: SOFTWARE, targetSubtype: COMPONENT_AGENT, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_COMPONENT_AGENT], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_APPLICATION_OTHER, targetType: SOFTWARE, targetSubtype: APPLICATION_SOFTWARE, priority: 300, required: [SRC_KSC, OBJ_KSC_SOFTWARE, SOFTWARE_CATEGORY_APPLICATION_SOFTWARE], any: [], forbidden: [], enabled: true}
+  - {ruleId: SW_TYPE_ONLY, targetType: SOFTWARE, targetSubtype: null, priority: 90, required: [SRC_KSC, OBJ_KSC_SOFTWARE], any: [], forbidden: [], enabled: true}

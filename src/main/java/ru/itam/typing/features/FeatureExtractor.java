@@ -1,5 +1,6 @@
 package ru.itam.typing.features;
 
+import ru.itam.typing.model.AssetSubtype;
 import ru.itam.typing.model.AssetTypingContext;
 
 import java.util.LinkedHashMap;
@@ -14,10 +15,15 @@ public final class FeatureExtractor {
             "OBJ_KSC_SOFTWARE", "OBJ_ZABBIX_HOST", "OBJ_SIEM_PRINCIPAL", "OBJ_SIEM_HOST",
             "ACCOUNT_SERVICE_HINT", "OS_WINDOWS", "OS_LINUX", "OS_SERVER",
             "KSC_WORKSTATION", "KSC_SERVER", "NMAP_NETWORK_DEVICE", "NMAP_GENERAL_PURPOSE",
-            "SECURITY_SOFTWARE_HINT",
-            "SOFTWARE_IDENTITY_COMPLETE", "SOFTWARE_IDENTITY_MISSING",
-            "SECURITY_SOFTWARE_NAME_HINT", "SECURITY_SOFTWARE_PUBLISHER_HINT",
-            "SECURITY_SOFTWARE_STRONG_HINT", "SOFTWARE_COMPONENT_HINT", "APPLICATION_SOFTWARE_HINT"
+            "SECURITY_SOFTWARE_HINT", "SOFTWARE_AMBIGUOUS_HINT",
+            "SOFTWARE_CATEGORY_OPERATING_SYSTEM", "SOFTWARE_CATEGORY_OFFICE_SOFTWARE",
+            "SOFTWARE_CATEGORY_BUSINESS_SOFTWARE", "SOFTWARE_CATEGORY_BROWSER",
+            "SOFTWARE_CATEGORY_IDE", "SOFTWARE_CATEGORY_DATABASE_TOOL",
+            "SOFTWARE_CATEGORY_DATABASE_SERVER", "SOFTWARE_CATEGORY_DESIGN_MODELING",
+            "SOFTWARE_CATEGORY_SECURITY_SOFTWARE", "SOFTWARE_CATEGORY_CRYPTO_SOFTWARE",
+            "SOFTWARE_CATEGORY_RUNTIME_PLATFORM", "SOFTWARE_CATEGORY_DEV_TOOL",
+            "SOFTWARE_CATEGORY_UTILITY", "SOFTWARE_CATEGORY_COMMUNICATION",
+            "SOFTWARE_CATEGORY_COMPONENT_AGENT", "SOFTWARE_CATEGORY_APPLICATION_SOFTWARE"
     );
 
     public Map<String, Boolean> extract(AssetTypingContext ctx) {
@@ -78,7 +84,7 @@ public final class FeatureExtractor {
         String displayName = lower(ctx.attributes().get("ksc.DisplayName"));
         String publisher = lower(ctx.attributes().get("ksc.Publisher"));
 
-        // Preserve the legacy feature exactly so the canonical rules keep their historical semantics.
+        // Keep the historical feature unchanged for canonical-rules.yaml and archived baselines.
         if (displayName.contains("kaspersky") || displayName.contains("endpoint security")
                 || displayName.contains("defender") || displayName.contains("eset")
                 || displayName.contains("sophos") || publisher.contains("kaspersky lab")
@@ -87,34 +93,11 @@ public final class FeatureExtractor {
         }
 
         if (softwareObject) {
-            boolean identityComplete = !displayName.isBlank() && !publisher.isBlank();
-            if (identityComplete) set(f, "SOFTWARE_IDENTITY_COMPLETE");
-            else set(f, "SOFTWARE_IDENTITY_MISSING");
-
-            boolean securityNameHint = containsAny(displayName,
-                    "kaspersky", "endpoint security", "defender", "eset", "sophos",
-                    "antivirus", "anti-virus", "antimalware", "anti-malware",
-                    "endpoint protection", "threat protection", "host protection");
-            boolean securityPublisherHint = containsAny(publisher,
-                    "kaspersky", "eset", "sophos", "crowdstrike", "sentinelone",
-                    "bitdefender", "trellix", "mcafee", "trend micro");
-            boolean componentHint = containsAny(displayName,
-                    " agent", "agent ", "component", "runtime", " module", "module ",
-                    " service", "service ", "updater", "update service", " core", "core ",
-                    " driver", "driver ", " plugin", "plugin ");
-
-            if (securityNameHint) set(f, "SECURITY_SOFTWARE_NAME_HINT");
-            if (securityPublisherHint) set(f, "SECURITY_SOFTWARE_PUBLISHER_HINT");
-            if (componentHint) set(f, "SOFTWARE_COMPONENT_HINT");
-
-            // Strong subtype evidence requires two independent signals: product name and publisher.
-            if (identityComplete && securityNameHint && securityPublisherHint) {
-                set(f, "SECURITY_SOFTWARE_STRONG_HINT");
-            }
-
-            // Application subtype is automatic only when identity is complete and no security/component ambiguity exists.
-            if (identityComplete && !securityNameHint && !securityPublisherHint && !componentHint) {
-                set(f, "APPLICATION_SOFTWARE_HINT");
+            AssetSubtype category = SoftwareEvidenceClassifier.classify(ctx.attributes());
+            if (category == null) {
+                set(f, "SOFTWARE_AMBIGUOUS_HINT");
+            } else {
+                set(f, SoftwareEvidenceClassifier.feature(category));
             }
         }
         return f;
@@ -122,13 +105,6 @@ public final class FeatureExtractor {
 
     private static void set(Map<String, Boolean> features, String key) {
         if (features.containsKey(key)) features.put(key, true);
-    }
-
-    private static boolean containsAny(String value, String... needles) {
-        for (String needle : needles) {
-            if (value.contains(needle)) return true;
-        }
-        return false;
     }
 
     private static String lower(String value) {
