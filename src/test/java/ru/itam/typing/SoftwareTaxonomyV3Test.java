@@ -58,6 +58,10 @@ class SoftwareTaxonomyV3Test {
     @Test
     void componentIdentityWinsWhenDisplayNameIsMissingOrGeneric() {
         assertEquals(AssetSubtype.COMPONENT_AGENT, SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.DisplayName", "Kaspersky Security Center Network Agent",
+                "ksc.Publisher", "AO Kaspersky Lab")));
+
+        assertEquals(AssetSubtype.COMPONENT_AGENT, SoftwareEvidenceClassifier.classify(Map.of(
                 "ksc.DisplayName", "Enterprise Software Component",
                 "ksc.Publisher", "AO Kaspersky Lab",
                 "ksc.Executables", "klnagent.exe")));
