@@ -9,6 +9,13 @@ target/
 /itam-asset-typing-benchmark-prebuilt.zip
 /itam-typing-demo-prebuilt.tar
 
+# Real-world validation data must remain outside the public repository.
+# These patterns reduce accidental commits; they are not a security boundary.
+/data/real/
+/data/private/
+/.local/real-world/
+/results/real-world/
+
 # Test/research outputs: keep bulky generated corpora and logs out of Git,
 # but expose compact, reviewable reports so experiment results can be committed.
 /results/*
