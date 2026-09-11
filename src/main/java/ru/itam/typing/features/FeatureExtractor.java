@@ -14,7 +14,10 @@ public final class FeatureExtractor {
             "OBJ_KSC_SOFTWARE", "OBJ_ZABBIX_HOST", "OBJ_SIEM_PRINCIPAL", "OBJ_SIEM_HOST",
             "ACCOUNT_SERVICE_HINT", "OS_WINDOWS", "OS_LINUX", "OS_SERVER",
             "KSC_WORKSTATION", "KSC_SERVER", "NMAP_NETWORK_DEVICE", "NMAP_GENERAL_PURPOSE",
-            "SECURITY_SOFTWARE_HINT"
+            "SECURITY_SOFTWARE_HINT",
+            "SOFTWARE_IDENTITY_COMPLETE", "SOFTWARE_IDENTITY_MISSING",
+            "SECURITY_SOFTWARE_NAME_HINT", "SECURITY_SOFTWARE_PUBLISHER_HINT",
+            "SECURITY_SOFTWARE_STRONG_HINT", "SOFTWARE_COMPONENT_HINT", "APPLICATION_SOFTWARE_HINT"
     );
 
     public Map<String, Boolean> extract(AssetTypingContext ctx) {
@@ -25,13 +28,17 @@ public final class FeatureExtractor {
             set(f, "SRC_" + source.toUpperCase(Locale.ROOT).replace('-', '_'));
         }
 
+        boolean softwareObject = false;
         for (String kind : ctx.sourceObjectKinds()) {
             switch (kind) {
                 case "ad:user" -> set(f, "OBJ_AD_USER");
                 case "ad:computer" -> set(f, "OBJ_AD_COMPUTER");
                 case "nmap:host" -> set(f, "OBJ_NMAP_HOST");
                 case "ksc:host" -> set(f, "OBJ_KSC_HOST");
-                case "ksc:software_inventory_application" -> set(f, "OBJ_KSC_SOFTWARE");
+                case "ksc:software_inventory_application" -> {
+                    set(f, "OBJ_KSC_SOFTWARE");
+                    softwareObject = true;
+                }
                 case "zabbix:host" -> set(f, "OBJ_ZABBIX_HOST");
                 case "siem:principal" -> set(f, "OBJ_SIEM_PRINCIPAL");
                 case "siem:host" -> set(f, "OBJ_SIEM_HOST");
@@ -70,17 +77,58 @@ public final class FeatureExtractor {
 
         String displayName = lower(ctx.attributes().get("ksc.DisplayName"));
         String publisher = lower(ctx.attributes().get("ksc.Publisher"));
+
+        // Preserve the legacy feature exactly so the canonical rules keep their historical semantics.
         if (displayName.contains("kaspersky") || displayName.contains("endpoint security")
                 || displayName.contains("defender") || displayName.contains("eset")
                 || displayName.contains("sophos") || publisher.contains("kaspersky lab")
                 || publisher.contains("eset") || publisher.contains("sophos")) {
             set(f, "SECURITY_SOFTWARE_HINT");
         }
+
+        if (softwareObject) {
+            boolean identityComplete = !displayName.isBlank() && !publisher.isBlank();
+            if (identityComplete) set(f, "SOFTWARE_IDENTITY_COMPLETE");
+            else set(f, "SOFTWARE_IDENTITY_MISSING");
+
+            boolean securityNameHint = containsAny(displayName,
+                    "kaspersky", "endpoint security", "defender", "eset", "sophos",
+                    "antivirus", "anti-virus", "antimalware", "anti-malware",
+                    "endpoint protection", "threat protection", "host protection");
+            boolean securityPublisherHint = containsAny(publisher,
+                    "kaspersky", "eset", "sophos", "crowdstrike", "sentinelone",
+                    "bitdefender", "trellix", "mcafee", "trend micro");
+            boolean componentHint = containsAny(displayName,
+                    " agent", "agent ", "component", "runtime", " module", "module ",
+                    " service", "service ", "updater", "update service", " core", "core ",
+                    " driver", "driver ", " plugin", "plugin ");
+
+            if (securityNameHint) set(f, "SECURITY_SOFTWARE_NAME_HINT");
+            if (securityPublisherHint) set(f, "SECURITY_SOFTWARE_PUBLISHER_HINT");
+            if (componentHint) set(f, "SOFTWARE_COMPONENT_HINT");
+
+            // Strong subtype evidence requires two independent signals: product name and publisher.
+            if (identityComplete && securityNameHint && securityPublisherHint) {
+                set(f, "SECURITY_SOFTWARE_STRONG_HINT");
+            }
+
+            // Application subtype is automatic only when identity is complete and no security/component ambiguity exists.
+            if (identityComplete && !securityNameHint && !securityPublisherHint && !componentHint) {
+                set(f, "APPLICATION_SOFTWARE_HINT");
+            }
+        }
         return f;
     }
 
     private static void set(Map<String, Boolean> features, String key) {
         if (features.containsKey(key)) features.put(key, true);
+    }
+
+    private static boolean containsAny(String value, String... needles) {
+        for (String needle : needles) {
+            if (value.contains(needle)) return true;
+        }
+        return false;
     }
 
     private static String lower(String value) {
