@@ -1,0 +1,266 @@
+{
+  "result": "PASS",
+  "policy": {
+    "baselineConflictPriorityWindow": 0,
+    "conservativeConflictPriorityWindow": 80,
+    "seedIsolation": "use a seed different from the exploratory 20260910 corpus"
+  },
+  "gateCriteria": {
+    "engineDivergences": 0,
+    "cleanOutputUnchanged": true,
+    "wrongFullAutoNeverIncreases": true,
+    "stressAndSevereCaptureAtLeastOneWrongFullAuto": true,
+    "stressAndSevereMinimumFullAutoCoverage": 0.7
+  },
+  "cases": {
+    "accuracy/clean": {
+      "total": 40019,
+      "baseline": {
+        "exactTypeSubtypeAccuracy": 1.0,
+        "fullAutoCount": 40019,
+        "fullAutoWrong": 0,
+        "fullAutoCoverage": 1.0,
+        "fullAutoErrorRate": 0.0,
+        "wrongFullAutoPerTotal": 0.0,
+        "subtypeAbstentionRate": 0.0
+      },
+      "conservative": {
+        "exactTypeSubtypeAccuracy": 1.0,
+        "fullAutoCount": 40019,
+        "fullAutoWrong": 0,
+        "fullAutoCoverage": 1.0,
+        "fullAutoErrorRate": 0.0,
+        "wrongFullAutoPerTotal": 0.0,
+        "subtypeAbstentionRate": 0.0
+      },
+      "delta": {
+        "capturedWrongFullAutos": 0,
+        "correctFullAutosLost": 0,
+        "removedFullAutos": 0,
+        "abstentionPrecision": 0.0,
+        "relativeWrongFullAutoReduction": 0.0,
+        "fullAutoCoverageDelta": 0.0,
+        "fullAutoErrorRateDelta": 0.0,
+        "wrongFullAutoPerTotalDelta": 0.0
+      }
+    },
+    "accuracy/light": {
+      "total": 40019,
+      "baseline": {
+        "exactTypeSubtypeAccuracy": 0.9764861690696919,
+        "fullAutoCount": 39815,
+        "fullAutoWrong": 737,
+        "fullAutoCoverage": 0.9949024213498588,
+        "fullAutoErrorRate": 0.018510611578550797,
+        "wrongFullAutoPerTotal": 0.018416252280166922,
+        "subtypeAbstentionRate": 0.005097578650141183
+      },
+      "conservative": {
+        "exactTypeSubtypeAccuracy": 0.9752867387990705,
+        "fullAutoCount": 39263,
+        "fullAutoWrong": 233,
+        "fullAutoCoverage": 0.9811089732377121,
+        "fullAutoErrorRate": 0.005934340218526348,
+        "wrongFullAutoPerTotal": 0.0058222344386416455,
+        "subtypeAbstentionRate": 0.01889102676228791
+      },
+      "delta": {
+        "capturedWrongFullAutos": 504,
+        "correctFullAutosLost": 48,
+        "removedFullAutos": 552,
+        "abstentionPrecision": 0.9130434782608695,
+        "relativeWrongFullAutoReduction": 0.683853459972863,
+        "fullAutoCoverageDelta": -0.013793448112146778,
+        "fullAutoErrorRateDelta": -0.01257627136002445,
+        "wrongFullAutoPerTotalDelta": -0.012594017841525276
+      }
+    },
+    "accuracy/moderate": {
+      "total": 40019,
+      "baseline": {
+        "exactTypeSubtypeAccuracy": 0.9554961393338164,
+        "fullAutoCount": 39643,
+        "fullAutoWrong": 1405,
+        "fullAutoCoverage": 0.9906044628801319,
+        "fullAutoErrorRate": 0.035441313724995586,
+        "wrongFullAutoPerTotal": 0.035108323546315504,
+        "subtypeAbstentionRate": 0.009395537119868062
+      },
+      "conservative": {
+        "exactTypeSubtypeAccuracy": 0.9530722906619356,
+        "fullAutoCount": 38552,
+        "fullAutoWrong": 411,
+        "fullAutoCoverage": 0.9633424123541318,
+        "fullAutoErrorRate": 0.010660925503216435,
+        "wrongFullAutoPerTotal": 0.010270121692196207,
+        "subtypeAbstentionRate": 0.03665758764586821
+      },
+      "delta": {
+        "capturedWrongFullAutos": 994,
+        "correctFullAutosLost": 97,
+        "removedFullAutos": 1091,
+        "abstentionPrecision": 0.9110907424381302,
+        "relativeWrongFullAutoReduction": 0.7074733096085409,
+        "fullAutoCoverageDelta": -0.02726205052600017,
+        "fullAutoErrorRateDelta": -0.02478038822177915,
+        "wrongFullAutoPerTotalDelta": -0.024838201854119297
+      }
+    },
+    "accuracy/severe": {
+      "total": 40019,
+      "baseline": {
+        "exactTypeSubtypeAccuracy": 0.8492466078612659,
+        "fullAutoCount": 38857,
+        "fullAutoWrong": 4871,
+        "fullAutoCoverage": 0.9709637921987057,
+        "fullAutoErrorRate": 0.12535707851867103,
+        "wrongFullAutoPerTotal": 0.12171718433743972,
+        "subtypeAbstentionRate": 0.029036207801294386
+      },
+      "conservative": {
+        "exactTypeSubtypeAccuracy": 0.8398260826107599,
+        "fullAutoCount": 35124,
+        "fullAutoWrong": 1515,
+        "fullAutoCoverage": 0.8776831005272495,
+        "fullAutoErrorRate": 0.04313290058079945,
+        "wrongFullAutoPerTotal": 0.03785701791648967,
+        "subtypeAbstentionRate": 0.12231689947275044
+      },
+      "delta": {
+        "capturedWrongFullAutos": 3356,
+        "correctFullAutosLost": 377,
+        "removedFullAutos": 3733,
+        "abstentionPrecision": 0.8990088400750067,
+        "relativeWrongFullAutoReduction": 0.6889755696982139,
+        "fullAutoCoverageDelta": -0.09328069167145614,
+        "fullAutoErrorRateDelta": -0.08222417793787158,
+        "wrongFullAutoPerTotalDelta": -0.08386016642095005
+      }
+    },
+    "accuracy/stress": {
+      "total": 40019,
+      "baseline": {
+        "exactTypeSubtypeAccuracy": 0.931207676353732,
+        "fullAutoCount": 39472,
+        "fullAutoWrong": 2206,
+        "fullAutoCoverage": 0.986331492541043,
+        "fullAutoErrorRate": 0.05588771787596271,
+        "wrongFullAutoPerTotal": 0.05512381618731103,
+        "subtypeAbstentionRate": 0.013668507458956996
+      },
+      "conservative": {
+        "exactTypeSubtypeAccuracy": 0.9275344211499538,
+        "fullAutoCount": 37773,
+        "fullAutoWrong": 654,
+        "fullAutoCoverage": 0.9438766585871711,
+        "fullAutoErrorRate": 0.017313954411881504,
+        "wrongFullAutoPerTotal": 0.01634223743721732,
+        "subtypeAbstentionRate": 0.0561233414128289
+      },
+      "delta": {
+        "capturedWrongFullAutos": 1552,
+        "correctFullAutosLost": 147,
+        "removedFullAutos": 1699,
+        "abstentionPrecision": 0.9134785167745733,
+        "relativeWrongFullAutoReduction": 0.7035358114233907,
+        "fullAutoCoverageDelta": -0.04245483395387195,
+        "fullAutoErrorRateDelta": -0.0385737634640812,
+        "wrongFullAutoPerTotalDelta": -0.038781578750093706
+      }
+    },
+    "distributions/device-heavy": {
+      "total": 20101,
+      "baseline": {
+        "exactTypeSubtypeAccuracy": 0.8987115068902045,
+        "fullAutoCount": 19833,
+        "fullAutoWrong": 1768,
+        "fullAutoCoverage": 0.9866673299835829,
+        "fullAutoErrorRate": 0.0891443553673171,
+        "wrongFullAutoPerTotal": 0.08795582309337843,
+        "subtypeAbstentionRate": 0.013332670016417093
+      },
+      "conservative": {
+        "exactTypeSubtypeAccuracy": 0.8931396447937914,
+        "fullAutoCount": 18145,
+        "fullAutoWrong": 192,
+        "fullAutoCoverage": 0.9026914083876424,
+        "fullAutoErrorRate": 0.010581427390465694,
+        "wrongFullAutoPerTotal": 0.009551763593851053,
+        "subtypeAbstentionRate": 0.0973085916123576
+      },
+      "delta": {
+        "capturedWrongFullAutos": 1576,
+        "correctFullAutosLost": 112,
+        "removedFullAutos": 1688,
+        "abstentionPrecision": 0.933649289099526,
+        "relativeWrongFullAutoReduction": 0.8914027149321267,
+        "fullAutoCoverageDelta": -0.08397592159594047,
+        "fullAutoErrorRateDelta": -0.07856292797685141,
+        "wrongFullAutoPerTotalDelta": -0.07840405949952738
+      }
+    },
+    "distributions/identity-heavy": {
+      "total": 20101,
+      "baseline": {
+        "exactTypeSubtypeAccuracy": 0.9283617730461171,
+        "fullAutoCount": 19958,
+        "fullAutoWrong": 1297,
+        "fullAutoCoverage": 0.9928859260733297,
+        "fullAutoErrorRate": 0.06498647159033971,
+        "wrongFullAutoPerTotal": 0.06452415302721258,
+        "subtypeAbstentionRate": 0.0071140739266703145
+      },
+      "conservative": {
+        "exactTypeSubtypeAccuracy": 0.9257748370727824,
+        "fullAutoCount": 19097,
+        "fullAutoWrong": 488,
+        "fullAutoCoverage": 0.9500522362071538,
+        "fullAutoErrorRate": 0.025553751898203907,
+        "wrongFullAutoPerTotal": 0.024277399134371425,
+        "subtypeAbstentionRate": 0.04994776379284613
+      },
+      "delta": {
+        "capturedWrongFullAutos": 809,
+        "correctFullAutosLost": 52,
+        "removedFullAutos": 861,
+        "abstentionPrecision": 0.9396051103368177,
+        "relativeWrongFullAutoReduction": 0.6237471087124132,
+        "fullAutoCoverageDelta": -0.04283368986617586,
+        "fullAutoErrorRateDelta": -0.039432719692135805,
+        "wrongFullAutoPerTotalDelta": -0.04024675389284116
+      }
+    },
+    "distributions/software-heavy": {
+      "total": 20101,
+      "baseline": {
+        "exactTypeSubtypeAccuracy": 0.9546788716979254,
+        "fullAutoCount": 19987,
+        "fullAutoWrong": 797,
+        "fullAutoCoverage": 0.994328640366151,
+        "fullAutoErrorRate": 0.03987591934757592,
+        "wrongFullAutoPerTotal": 0.03964976866822546,
+        "subtypeAbstentionRate": 0.005671359633849063
+      },
+      "conservative": {
+        "exactTypeSubtypeAccuracy": 0.9524401771056167,
+        "fullAutoCount": 19294,
+        "fullAutoWrong": 149,
+        "fullAutoCoverage": 0.9598527436445948,
+        "fullAutoErrorRate": 0.007722608064683321,
+        "wrongFullAutoPerTotal": 0.0074125665389781605,
+        "subtypeAbstentionRate": 0.040147256355405204
+      },
+      "delta": {
+        "capturedWrongFullAutos": 648,
+        "correctFullAutosLost": 45,
+        "removedFullAutos": 693,
+        "abstentionPrecision": 0.935064935064935,
+        "relativeWrongFullAutoReduction": 0.8130489335006273,
+        "fullAutoCoverageDelta": -0.034475896721556154,
+        "fullAutoErrorRateDelta": -0.0321533112828926,
+        "wrongFullAutoPerTotalDelta": -0.0322372021292473
+      }
+    }
+  },
+  "failures": []
+}
