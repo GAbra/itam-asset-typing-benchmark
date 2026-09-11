@@ -59,6 +59,19 @@ target/
 !/results/conflict-window-sweep-v2/**/provenance/*.txt
 !/results/conflict-window-sweep-v2/**/provenance/*.env
 
+# Software ambiguity v2 reviewable artifacts
+!/results/software-ambiguity-v2/
+/results/software-ambiguity-v2/**
+!/results/software-ambiguity-v2/**/
+!/results/software-ambiguity-v2/**/accuracy.json
+!/results/software-ambiguity-v2/**/injection.json
+!/results/software-ambiguity-v2/**/split.json
+!/results/software-ambiguity-v2/**/*.meta.json
+!/results/software-ambiguity-v2/**/software-summary.json
+!/results/software-ambiguity-v2/**/SHA256SUMS.txt
+!/results/software-ambiguity-v2/**/provenance/*.txt
+!/results/software-ambiguity-v2/**/provenance/*.env
+
 # Intentionally still ignored under research result trees:
 # *.jsonl corpora, *.log files, review-pack archives and other large intermediates.
 __pycache__/

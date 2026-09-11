@@ -96,6 +96,13 @@ public final class ProfileDistribution {
                 RealisticWorkloadGenerator.TruthProfile.APPLICATION_SOFTWARE, 35));
     }
 
+    /** Isolates the two software subtypes so software-quality metrics are not diluted by devices/accounts. */
+    public static ProfileDistribution softwareOnly() {
+        return new ProfileDistribution("software-only", Map.of(
+                RealisticWorkloadGenerator.TruthProfile.SECURITY_SOFTWARE, 1,
+                RealisticWorkloadGenerator.TruthProfile.APPLICATION_SOFTWARE, 1));
+    }
+
     public static ProfileDistribution named(String value) {
         String n = value == null ? "balanced" : value.trim().toLowerCase(Locale.ROOT);
         return switch (n) {
@@ -103,8 +110,9 @@ public final class ProfileDistribution {
             case "device-heavy", "device" -> deviceHeavy();
             case "identity-heavy", "identity" -> identityHeavy();
             case "software-heavy", "software" -> softwareHeavy();
+            case "software-only" -> softwareOnly();
             default -> throw new IllegalArgumentException("Unknown distribution '" + value
-                    + "'. Expected balanced|device-heavy|identity-heavy|software-heavy");
+                    + "'. Expected balanced|device-heavy|identity-heavy|software-heavy|software-only");
         };
     }
 }
