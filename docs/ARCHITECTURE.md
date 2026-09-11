@@ -2,63 +2,121 @@
 
 **English** · [Русский](ARCHITECTURE_RU.md)
 
-This page shows the high-level architecture. For the actual class/module execution path, continue with [detailed software implementation](IMPLEMENTATION.md). Internals of HashMap + BitSet, CEL and DMN/KIE are documented separately in [detailed engine implementation](ENGINE_IMPLEMENTATION.md).
+This repository now contains two deliberately separated execution layers:
 
-## Data flow
+1. **Controlled baseline** — the original deterministic benchmark path using `rules/canonical-rules.yaml` (14 rules) and the historical classification semantics.
+2. **Realistic research track** — source-shaped AD/Nmap/KSC/Zabbix/SIEM observations, deterministic noise, independent ground truth, conservative conflict handling, rule-count scaling and Software Taxonomy v3.
 
-The seeded generator emits normalized `DatasetRecord` JSONL. Each record contains an `AssetTypingContext` with asset ID, sources, source object kinds, attributes and system parameters, plus expected type/subtype labels. Raw source samples are illustrative; there are no source adapters or live integrations.
+The baseline is retained for reproducible performance comparison. The research track extends the workload and decision policy without rewriting the archived baseline artifacts.
 
-Each engine independently invokes `FeatureExtractor` inside `classify`. The extractor emits the same 22 boolean features. No deduplication or cross-asset comparison occurs.
+## High-level data flow
 
 ```mermaid
 flowchart LR
-    G[Seeded synthetic generator] --> C[DatasetRecord / AssetTypingContext]
-    C --> F[22-feature extraction]
+    BGEN[Baseline seeded generator] --> N[Normalized AssetTypingContext]
+    SRC[Source-shaped synthetic observations] --> MAT[ObservationNormalizer / materializer]
+    MAT --> N
+    N --> F[FeatureExtractor]
     F --> B[HashMap + BitSet]
-    F --> E[Compiled CEL]
-    F --> D[Generated DMN / KIE]
-    R[Canonical YAML rules] --> B & E & D
-    B & E & D --> M[Shared MatchResolver]
+    F --> C[CEL]
+    F --> D[DMN / KIE]
+    R[Selected YAML RuleSet] --> B & C & D
+    B & C & D --> M[MatchResolver + ResolutionPolicy]
     M --> O[Type / subtype / status / rule IDs]
+    GT[Independent research ground truth] --> V[Accuracy / differential gates]
+    O --> V
 ```
 
-## Implementation documentation levels
+There is no asset-to-asset matching or deduplication in this repository. Classification is performed independently for each normalized asset.
 
-To keep this page readable, implementation details are split into two documents:
+## Input models
 
-- [Detailed software implementation](IMPLEMENTATION.md) — package/class map, rule loading, data model, `generate`, `verify`, `benchmark`, `explain`, `export-dmn`, engine lifecycle and exact runtime flow;
-- [Detailed engine implementation](ENGINE_IMPLEMENTATION.md) — separate preparation/execution diagrams for HashMap + BitSet, CEL and DMN/KIE, candidate indexes, masks/programs/DMN rows and the shared `MatchResolver`.
+### Baseline
 
-In other words, this page answers **“what architectural blocks exist”**, `IMPLEMENTATION.md` answers **“which classes call which components”**, and `ENGINE_IMPLEMENTATION.md` answers **“how each engine computes matched rules”**.
+The baseline generator writes `DatasetRecord` JSONL. Each record contains an `AssetTypingContext` plus expected type/subtype labels.
 
-## Canonical rules
+### Realistic research track
 
-All implementations receive the same `rules/canonical-rules.yaml` with version 1.0.0 and 14 rules. A rule defines ID, target type/subtype, priority, required features, any-of features, forbidden features and enabled state.
+The research generator writes source-shaped `RawAssetBundle` observations and a separate `GroundTruthLabel`. `ObservationNormalizer` / `RealisticDatasetMaterializer` converts the observations into the same `AssetTypingContext` consumed by the engines. The label is kept outside the classifier input.
 
-A condition matches when all required features are true, no forbidden feature is true, and at least one any-of feature is true if the any-of list is nonempty. Disabled rules do not participate.
+Checked-in source fixtures and adapters validate the shape of synthetic AD/Nmap/KSC/Zabbix/SIEM observations. They are **not live production connectors**.
+
+## Feature extraction
+
+`FeatureExtractor` is shared by BitSet, CEL and DMN.
+
+The original baseline feature semantics are retained for backwards compatibility. The canonical 14-rule ruleset still consumes the original baseline feature set. The current extractor also exposes additional research-only software features, including `SOFTWARE_AMBIGUOUS_HINT` and `SOFTWARE_CATEGORY_*` features produced by `SoftwareEvidenceClassifier` for KSC software inventory records.
+
+This means the current feature map is a **superset** of the original baseline features. A rule set only evaluates the features it references.
+
+## Rule sets
+
+The repository intentionally keeps multiple rule sets for different experiments:
+
+- `rules/canonical-rules.yaml` — original baseline semantics, 14 rules;
+- generated scaled rule sets — controlled rule-count experiments;
+- `rules/software-taxonomy-v3.yaml` — research software taxonomy with 16 software subtypes and a type-only fallback.
+
+Every engine receives the same selected `RuleSet` for a given run.
 
 ## Engine adapters
 
 | Adapter | Preparation | Per-asset execution |
 |:--|:--|:--|
-| HashMap + BitSet | Feature IDs, masks and a required-feature candidate index | Extract features, select candidates, compare masks |
-| CEL | Generate and compile expressions; cache programs and a required-feature candidate index | Extract features, evaluate candidate programs |
-| DMN / KIE | Generate and load a DMN `COLLECT` decision table | Extract features, evaluate table, map returned IDs to rules |
+| HashMap + BitSet | Feature IDs, masks and required-feature candidate index | Convert true features to a BitSet, select candidates, evaluate masks |
+| CEL | Compile rule expressions and build an application-level candidate index | Evaluate compiled candidate programs |
+| DMN / KIE | Generate and load a DMN `COLLECT` decision table | Evaluate the decision table and map returned rule IDs to `RuleMatch` |
+| Reference linear evaluator | No performance index; direct rule scan | Independent research correctness oracle |
 
-Rules without a required feature remain eligible in indexed adapters. DMN any-of conditions can expand into multiple rows. Duplicate matches from that expansion are deduplicated by rule ID.
+The reference evaluator is used by the research acceptance path and is not a fourth performance competitor.
 
-## Shared resolution
+## Resolution policy
 
-`MatchResolver` deduplicates rule IDs and retains the maximum priority. Different types at that priority produce `TYPE_CONFLICT`; different subtypes produce `SUBTYPE_CONFLICT`. A type without a subtype produces `AUTO_TYPE_ONLY`, and a complete result produces `AUTO`. No matches produce `NOT_CLASSIFIED`.
+All production adapters convert matches into the same `RuleMatch` representation and use `MatchResolver`.
 
-This shared code keeps output semantics consistent but is also a shared failure surface. Differential agreement is therefore complemented by expected-output tests and generator-label verification.
+Two policies are available:
 
-## CLI and measurements
+- `LEGACY_MAX_PRIORITY` (`conflictPriorityWindow=0`) — preserves the historical baseline semantics;
+- `CONSERVATIVE_NEAR_PRIORITY` — also considers strong contradictory matches within a configured priority window.
 
-`generate`, `verify`, `benchmark`, `explain` and `export-dmn` are implemented in `ru.itam.typing.cli.Main`.
+The research track calibrated and then independently confirmed `conflictPriorityWindow=80`. The default engine constructors remain legacy-compatible; research runners explicitly select the conservative policy when required.
 
-Verification compares outputs and labels, emits ordered SHA-256 result digests and returns a nonzero exit on mismatch or invalid/empty input. Records without expected types still contribute to engine agreement but not to label coverage; reports expose `groundTruthChecked`.
+With either policy, the final statuses remain:
 
-Benchmarking streams parsed batches, records elapsed classification/checksum time per engine and summarizes measured passes. JSON parsing, file I/O, engine construction, report serialization and input hashing are outside the per-engine timed sections.
+- `NOT_CLASSIFIED` — no matching rule;
+- `TYPE_CONFLICT` — incompatible asset types;
+- `SUBTYPE_CONFLICT` — incompatible subtypes of the same type;
+- `AUTO_TYPE_ONLY` — type known, subtype deliberately unresolved;
+- `AUTO` — complete automatic type/subtype result.
 
-The controlled baseline v2 adds explicit host/container/JVM provenance around this same execution model; it does not change the classification semantics. See [methodology](METHODOLOGY.md) for exact timing boundaries and limitations, [results](../benchmark-results/README.md) for archived vs controlled baselines, and [detailed software implementation](IMPLEMENTATION.md) for the class/module execution flow.
+## Correctness model
+
+Baseline verification compares BitSet, CEL and DMN results and checks the seeded generator labels.
+
+The realistic research path adds stronger controls:
+
+- ground truth stored separately from observations;
+- deterministic label-independent 80/20 holdout;
+- an independent linear reference evaluator;
+- source-shape validation;
+- explicit missing/stale/conflicting evidence scenarios;
+- frozen acceptance gates and SHA-256 artifact manifests.
+
+See [Final research summary](RESEARCH_SUMMARY.md), [Experiment Protocol v2](EXPERIMENT_PROTOCOL_V2.md), [Conflict-window calibration](CONFLICT_WINDOW_CALIBRATION.md), [Robustness v2](ROBUSTNESS_V2.md) and [Software Taxonomy v3](SOFTWARE_TAXONOMY_V3.md).
+
+## Runtime and measurement scope
+
+The stable baseline CLI (`generate`, `verify`, `benchmark`, `explain`, `export-dmn`) remains in `ru.itam.typing.cli.Main`.
+
+Research-specific CLIs and runners live under `ru.itam.typing.realistic` and `scripts/`. The research track adds END_TO_END, ENGINE_ONLY and JMH measurements, but throughput is never used as a correctness gate.
+
+The project still does not implement a live ITAM service, database persistence, queues, background scheduling, asset deduplication or live AD/Nmap/KSC/Zabbix/SIEM ingestion.
+
+## Documentation map
+
+- [Detailed software implementation](IMPLEMENTATION.md) — current baseline and research execution paths;
+- [Detailed engine implementation](ENGINE_IMPLEMENTATION.md) — BitSet, CEL, DMN, reference evaluator and resolution policy;
+- [Baseline methodology](METHODOLOGY.md) — archived and controlled baseline measurement details;
+- [Final research summary](RESEARCH_SUMMARY.md) — completed realistic-workload findings and scope limitations.
+
+Editable baseline flow diagrams remain under `docs/diagrams/`.
