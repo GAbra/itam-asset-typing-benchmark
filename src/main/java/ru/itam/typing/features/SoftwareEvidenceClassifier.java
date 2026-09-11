@@ -24,10 +24,15 @@ public final class SoftwareEvidenceClassifier {
         String platform = lower(attributes.get("ksc.Platform"));
         String evidence = String.join(" | ", name, family, productId, packageId, install, executables, services, platform);
 
-        // Specific components before their parent product families.
+        // Components/agents must be recognized before their parent vendor/product family.
+        // Executable/service identities remain useful when DisplayName is missing or generalized.
         if (containsAny(evidence,
-                "kaspersky network agent", "klnagent", "microsoft edge webview2", "webview2 runtime",
-                "1c server agent", "1с сервер агент", "1cv8 server agent", "update service component"))
+                "kaspersky network agent", "klnagent.exe", "klnagent",
+                "microsoft edge webview2", "webview2 runtime", "msedgewebview2.exe", "msedgewebview2",
+                "1c server agent", "1с сервер агент", "1cv8 server agent",
+                "1c:enterprise server agent", "1с:предприятие server agent",
+                "1c:enterprise 8.3 server agent", "ragent.exe", "rmngr.exe",
+                "update service component"))
             return AssetSubtype.COMPONENT_AGENT;
 
         if (containsAny(evidence,
@@ -79,10 +84,13 @@ public final class SoftwareEvidenceClassifier {
                 || publisher.contains("крипто-про") || publisher.contains("cryptopro"))
             return AssetSubtype.CRYPTO_SOFTWARE;
 
+        // A parent-vendor publisher alone is not enough to call something endpoint security.
+        // This prevents degraded Network Agent records from becoming SECURITY_SOFTWARE merely
+        // because the publisher is Kaspersky/Doctor Web/ESET. Explicit product/family/package,
+        // executable, service or path evidence is still sufficient through the evidence string.
         if (containsAny(evidence,
                 "kaspersky endpoint security", "dr.web", "doctor web", "eset endpoint security",
-                "endpoint protection platform", "kaspersky security center")
-                || containsAny(publisher, "ao kaspersky lab", "kaspersky lab", "doctor web", "eset"))
+                "endpoint protection platform", "kaspersky security center"))
             return AssetSubtype.SECURITY_SOFTWARE;
 
         // Runtimes before generic developer tools.

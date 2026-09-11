@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 import ru.itam.typing.engine.bitset.BitSetTypingEngine;
 import ru.itam.typing.engine.common.ResolutionPolicy;
 import ru.itam.typing.features.FeatureExtractor;
+import ru.itam.typing.features.SoftwareEvidenceClassifier;
 import ru.itam.typing.model.AssetSubtype;
 import ru.itam.typing.model.AssetTypingContext;
 import ru.itam.typing.model.TypingStatus;
@@ -52,6 +53,55 @@ class SoftwareTaxonomyV3Test {
                 "Kaspersky Network Agent", "klnagent.exe", AssetSubtype.COMPONENT_AGENT);
         assertCategory(extractor, "Kaspersky Endpoint Security for Windows", "AO Kaspersky Lab",
                 "Kaspersky Endpoint Security", "avp.exe", AssetSubtype.SECURITY_SOFTWARE);
+    }
+
+    @Test
+    void componentIdentityWinsWhenDisplayNameIsMissingOrGeneric() {
+        assertEquals(AssetSubtype.COMPONENT_AGENT, SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.DisplayName", "Enterprise Software Component",
+                "ksc.Publisher", "AO Kaspersky Lab",
+                "ksc.Executables", "klnagent.exe")));
+
+        assertEquals(AssetSubtype.COMPONENT_AGENT, SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.Publisher", "Фирма 1С",
+                "ksc.ProductFamily", "1C:Enterprise Server Agent")));
+
+        assertEquals(AssetSubtype.COMPONENT_AGENT, SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.Publisher", "Фирма 1С",
+                "ksc.Executables", "ragent.exe;rmngr.exe")));
+
+        assertEquals(AssetSubtype.COMPONENT_AGENT, SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.Publisher", "Microsoft Corporation",
+                "ksc.Executables", "msedgewebview2.exe")));
+    }
+
+    @Test
+    void parentVendorAloneDoesNotInventSecurityOrBusinessSubtype() {
+        assertNull(SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.DisplayName", "Enterprise Software Component",
+                "ksc.Publisher", "AO Kaspersky Lab")));
+        assertNull(SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.DisplayName", "Enterprise Software Component",
+                "ksc.Publisher", "Doctor Web")));
+        assertNull(SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.DisplayName", "Enterprise Software Component",
+                "ksc.Publisher", "ESET, spol. s r.o.")));
+        assertNull(SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.DisplayName", "Enterprise Software Component",
+                "ksc.Publisher", "Фирма 1С")));
+    }
+
+    @Test
+    void explicitParentProductsRemainClassified() {
+        assertEquals(AssetSubtype.SECURITY_SOFTWARE, SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.ProductFamily", "Kaspersky Endpoint Security",
+                "ksc.Publisher", "AO Kaspersky Lab")));
+        assertEquals(AssetSubtype.SECURITY_SOFTWARE, SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.DisplayName", "Dr.Web Security Space",
+                "ksc.Publisher", "Doctor Web")));
+        assertEquals(AssetSubtype.BUSINESS_SOFTWARE, SoftwareEvidenceClassifier.classify(Map.of(
+                "ksc.ProductFamily", "1С:Предприятие",
+                "ksc.Publisher", "Фирма 1С")));
     }
 
     @Test
