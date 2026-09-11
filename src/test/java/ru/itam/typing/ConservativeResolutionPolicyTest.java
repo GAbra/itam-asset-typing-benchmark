@@ -114,6 +114,7 @@ class ConservativeResolutionPolicyTest {
 
     private static Map<String, Boolean> map(String... enabled) {
         Map<String, Boolean> out = new LinkedHashMap<>();
+        FeatureExtractor.KNOWN_FEATURES.stream().sorted().forEach(feature -> out.put(feature, false));
         for (String feature : enabled) out.put(feature, true);
         return out;
     }
