@@ -1,0 +1,6 @@
+{
+  "count" : 40019,
+  "rawInput" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/cases/control/holdout-raw.jsonl",
+  "truthInput" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/cases/control/holdout-truth.jsonl",
+  "normalizedOutput" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/cases/control/holdout-normalized.jsonl"
+}

@@ -1,0 +1,15 @@
+{
+  "total" : 200000,
+  "softwareAssets" : 200000,
+  "securitySoftwareAssets" : 100182,
+  "applicationSoftwareAssets" : 99818,
+  "seed" : 20260914,
+  "profile" : {
+    "neutralSecurityRecordPct" : 0,
+    "securityComponentRecordPct" : 0,
+    "securityPublisherAliasPct" : 0,
+    "deceptiveApplicationRecordPct" : 0,
+    "missingSoftwareIdentityPct" : 0
+  },
+  "eventCounts" : { }
+}

@@ -1,0 +1,132 @@
+{
+  "result": "PASS",
+  "purpose": "Measure the current fixed rules against controlled KSC software-inventory ambiguity; no rule tuning is performed in this stage.",
+  "conflictPriorityWindow": 80,
+  "cases": {
+    "control": {
+      "total": 40019,
+      "exactTypeSubtypeAccuracy": 1.0,
+      "fullAutoCoverage": 1.0,
+      "fullAutoErrorRate": 0.0,
+      "wrongFullAutoPerTotal": 0.0,
+      "securitySoftwareExactAccuracy": 1.0,
+      "applicationSoftwareExactAccuracy": 1.0,
+      "statusCounts": {
+        "AUTO": 40019
+      },
+      "injectionEvents": {},
+      "ambiguityProfile": {
+        "neutralSecurityRecordPct": 0,
+        "securityComponentRecordPct": 0,
+        "securityPublisherAliasPct": 0,
+        "deceptiveApplicationRecordPct": 0,
+        "missingSoftwareIdentityPct": 0
+      }
+    },
+    "software-light": {
+      "total": 40019,
+      "exactTypeSubtypeAccuracy": 0.9315075339213873,
+      "fullAutoCoverage": 1.0,
+      "fullAutoErrorRate": 0.06849246607861266,
+      "wrongFullAutoPerTotal": 0.06849246607861266,
+      "securitySoftwareExactAccuracy": 0.9026882253744668,
+      "applicationSoftwareExactAccuracy": 0.9607695019388629,
+      "statusCounts": {
+        "AUTO": 40019
+      },
+      "injectionEvents": {
+        "SECURITY_PUBLISHER_ALIAS": 7704,
+        "MISSING_SOFTWARE_IDENTITY": 2007,
+        "SECURITY_COMPONENT_RECORD": 3862,
+        "NEUTRAL_SECURITY_RECORD": 3760,
+        "DECEPTIVE_APPLICATION_RECORD": 3984
+      },
+      "ambiguityProfile": {
+        "neutralSecurityRecordPct": 4,
+        "securityComponentRecordPct": 4,
+        "securityPublisherAliasPct": 8,
+        "deceptiveApplicationRecordPct": 4,
+        "missingSoftwareIdentityPct": 2
+      }
+    },
+    "software-stress": {
+      "total": 40019,
+      "exactTypeSubtypeAccuracy": 0.8032434593568055,
+      "fullAutoCoverage": 1.0,
+      "fullAutoErrorRate": 0.19675654064319448,
+      "wrongFullAutoPerTotal": 0.19675654064319448,
+      "securitySoftwareExactAccuracy": 0.7275567900009919,
+      "applicationSoftwareExactAccuracy": 0.8800926625371406,
+      "statusCounts": {
+        "AUTO": 40019
+      },
+      "injectionEvents": {
+        "NEUTRAL_SECURITY_RECORD": 9845,
+        "SECURITY_COMPONENT_RECORD": 11253,
+        "MISSING_SOFTWARE_IDENTITY": 6107,
+        "SECURITY_PUBLISHER_ALIAS": 18492,
+        "DECEPTIVE_APPLICATION_RECORD": 11952
+      },
+      "ambiguityProfile": {
+        "neutralSecurityRecordPct": 12,
+        "securityComponentRecordPct": 12,
+        "securityPublisherAliasPct": 20,
+        "deceptiveApplicationRecordPct": 12,
+        "missingSoftwareIdentityPct": 6
+      }
+    },
+    "software-severe": {
+      "total": 40019,
+      "exactTypeSubtypeAccuracy": 0.6401209425522877,
+      "fullAutoCoverage": 1.0,
+      "fullAutoErrorRate": 0.3598790574477123,
+      "wrongFullAutoPerTotal": 0.3598790574477123,
+      "securitySoftwareExactAccuracy": 0.5293125681975994,
+      "applicationSoftwareExactAccuracy": 0.7526313138943446,
+      "statusCounts": {
+        "AUTO": 40019
+      },
+      "injectionEvents": {
+        "MISSING_SOFTWARE_IDENTITY": 11938,
+        "SECURITY_PUBLISHER_ALIAS": 30688,
+        "DECEPTIVE_APPLICATION_RECORD": 24911,
+        "NEUTRAL_SECURITY_RECORD": 17516,
+        "SECURITY_COMPONENT_RECORD": 17619
+      },
+      "ambiguityProfile": {
+        "neutralSecurityRecordPct": 25,
+        "securityComponentRecordPct": 20,
+        "securityPublisherAliasPct": 35,
+        "deceptiveApplicationRecordPct": 25,
+        "missingSoftwareIdentityPct": 12
+      }
+    },
+    "combined-stress": {
+      "total": 40019,
+      "exactTypeSubtypeAccuracy": 0.7990204652789925,
+      "fullAutoCoverage": 1.0,
+      "fullAutoErrorRate": 0.20097953472100752,
+      "wrongFullAutoPerTotal": 0.20097953472100752,
+      "securitySoftwareExactAccuracy": 0.7191746850510862,
+      "applicationSoftwareExactAccuracy": 0.8800926625371406,
+      "statusCounts": {
+        "AUTO": 40019
+      },
+      "injectionEvents": {
+        "MISSING_SOFTWARE_IDENTITY": 6107,
+        "SECURITY_PUBLISHER_ALIAS": 18492,
+        "DECEPTIVE_APPLICATION_RECORD": 11952,
+        "NEUTRAL_SECURITY_RECORD": 9845,
+        "SECURITY_COMPONENT_RECORD": 11253
+      },
+      "ambiguityProfile": {
+        "neutralSecurityRecordPct": 12,
+        "securityComponentRecordPct": 12,
+        "securityPublisherAliasPct": 20,
+        "deceptiveApplicationRecordPct": 12,
+        "missingSoftwareIdentityPct": 6
+      }
+    }
+  },
+  "failures": []
+}

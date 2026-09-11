@@ -1,0 +1,41 @@
+{
+  "result" : "OK",
+  "data" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/cases/control/holdout-normalized.jsonl",
+  "truth" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/cases/control/holdout-truth.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "resolutionPolicy" : "CONSERVATIVE_NEAR_PRIORITY",
+  "conflictPriorityWindow" : 80,
+  "total" : 40019,
+  "engineDivergences" : 0,
+  "typeAccuracy" : 1.0,
+  "exactTypeSubtypeAccuracy" : 1.0,
+  "autoCoverage" : 1.0,
+  "autoErrorRate" : 0.0,
+  "unresolvedRate" : 0.0,
+  "fullAutoCount" : 40019,
+  "fullAutoWrong" : 0,
+  "fullAutoCoverage" : 1.0,
+  "fullAutoErrorRate" : 0.0,
+  "wrongFullAutoPerTotal" : 0.0,
+  "subtypeAbstentionRate" : 0.0,
+  "statusCounts" : {
+    "AUTO" : 40019
+  },
+  "profileCounts" : {
+    "APPLICATION_SOFTWARE" : 19857,
+    "SECURITY_SOFTWARE" : 20162
+  },
+  "profileExactAccuracy" : {
+    "APPLICATION_SOFTWARE" : 1.0,
+    "SECURITY_SOFTWARE" : 1.0
+  },
+  "confusion" : {
+    "SOFTWARE/APPLICATION_SOFTWARE" : {
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 19857
+    },
+    "SOFTWARE/SECURITY_SOFTWARE" : {
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 20162
+    }
+  },
+  "samples" : [ ]
+}

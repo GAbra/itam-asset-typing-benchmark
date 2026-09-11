@@ -1,0 +1,303 @@
+{
+  "result" : "OK",
+  "data" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/cases/software-severe/holdout-normalized.jsonl",
+  "truth" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/cases/software-severe/holdout-truth.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "resolutionPolicy" : "CONSERVATIVE_NEAR_PRIORITY",
+  "conflictPriorityWindow" : 80,
+  "total" : 40019,
+  "engineDivergences" : 0,
+  "typeAccuracy" : 1.0,
+  "exactTypeSubtypeAccuracy" : 0.6401209425522877,
+  "autoCoverage" : 1.0,
+  "autoErrorRate" : 0.3598790574477123,
+  "unresolvedRate" : 0.0,
+  "fullAutoCount" : 40019,
+  "fullAutoWrong" : 14402,
+  "fullAutoCoverage" : 1.0,
+  "fullAutoErrorRate" : 0.3598790574477123,
+  "wrongFullAutoPerTotal" : 0.3598790574477123,
+  "subtypeAbstentionRate" : 0.0,
+  "statusCounts" : {
+    "AUTO" : 40019
+  },
+  "profileCounts" : {
+    "APPLICATION_SOFTWARE" : 19857,
+    "SECURITY_SOFTWARE" : 20162
+  },
+  "profileExactAccuracy" : {
+    "APPLICATION_SOFTWARE" : 0.7526313138943446,
+    "SECURITY_SOFTWARE" : 0.5293125681975994
+  },
+  "confusion" : {
+    "SOFTWARE/APPLICATION_SOFTWARE" : {
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 4912,
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 14945
+    },
+    "SOFTWARE/SECURITY_SOFTWARE" : {
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 10672,
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 9490
+    }
+  },
+  "samples" : [ {
+    "assetId" : "real-000000002",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000002",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000013",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000013",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000045",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000045",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000060",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000060",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000081",
+    "expectedSubtype" : "APPLICATION_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000081",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_SECURITY_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "APPLICATION_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000082",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000082",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000088",
+    "expectedSubtype" : "APPLICATION_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000088",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_SECURITY_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "APPLICATION_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000105",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000105",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000118",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000118",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000123",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000123",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000141",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000141",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000155",
+    "expectedSubtype" : "APPLICATION_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000155",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_SECURITY_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "APPLICATION_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000199",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000199",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000200",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000200",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000251",
+    "expectedSubtype" : "APPLICATION_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000251",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_SECURITY_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "APPLICATION_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000298",
+    "expectedSubtype" : "APPLICATION_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000298",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_SECURITY_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "APPLICATION_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000305",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000305",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000327",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000327",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000330",
+    "expectedSubtype" : "APPLICATION_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000330",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_SECURITY_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "APPLICATION_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  }, {
+    "assetId" : "real-000000370",
+    "expectedSubtype" : "SECURITY_SOFTWARE",
+    "actual" : {
+      "assetId" : "real-000000370",
+      "type" : "SOFTWARE",
+      "subtype" : "APPLICATION_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_APPLICATION_SOFTWARE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SECURITY_SOFTWARE",
+    "expectedType" : "SOFTWARE"
+  } ]
+}

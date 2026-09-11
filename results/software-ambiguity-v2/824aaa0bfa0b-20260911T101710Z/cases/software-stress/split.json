@@ -1,0 +1,12 @@
+{
+  "rawInput" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/cases/software-stress/raw.jsonl",
+  "truthInput" : "results/software-ambiguity-v2/824aaa0bfa0b-20260911T101710Z/base/clean-truth.jsonl",
+  "holdoutPct" : 20,
+  "salt" : "realistic-v2-holdout-v1",
+  "trainCount" : 159981,
+  "holdoutCount" : 40019,
+  "trainRawSha256" : "6b38157efd30a2c3d0d535965150226d95391c91004e1b1382e4967c796573d9",
+  "trainTruthSha256" : "966fba1fdf12992c955a0e5899d4fce307ef767acb0b13b86deee7b4a56ea0df",
+  "holdoutRawSha256" : "c583ff817c804a4bb4f17972b4fdd23505c8401e1aad5af79a0629386e392c20",
+  "holdoutTruthSha256" : "b40cc2c36273ca73a036f6a9ac802bbeee8a96a94f6c1a49a9383127f82e6ef1"
+}
