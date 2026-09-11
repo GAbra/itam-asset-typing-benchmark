@@ -1,20 +1,26 @@
 cff-version: 1.2.0
-message: "If you use this benchmark, cite this repository and the exact commit used."
+message: "If you use this benchmark, cite this repository, release, and the exact commit used."
 title: "ITAM Asset Typing Benchmark"
 type: software
-version: 1.0.0
+version: 2.0.0
+date-released: 2026-09-11
 authors:
   - name: "GAbra"
 repository-code: "https://github.com/GAbra/itam-asset-typing-benchmark"
-url: "https://github.com/GAbra/itam-asset-typing-benchmark"
+url: "https://github.com/GAbra/itam-asset-typing-benchmark/releases/tag/v2.0.0"
 license: MIT
 abstract: >-
-  A reproducible synthetic IT asset classification experiment comparing
-  HashMap + BitSet, compiled CEL and DMN / Apache KIE with a canonical ruleset,
-  differential verification and batched JVM measurements.
+  A reproducible synthetic IT asset typing research benchmark comparing
+  HashMap + BitSet, compiled CEL and DMN / Apache KIE. Version 2.0.0 freezes
+  the realistic multi-source synthetic validation track, conservative conflict
+  handling, robustness experiments, rule-scaling measurements and Software
+  Taxonomy v3 before external validation on independently labelled real-world
+  or appropriately anonymized production-like data.
 keywords:
   - ITAM
   - asset classification
+  - asset typing
   - benchmark
   - CEL
   - DMN
+  - robustness
