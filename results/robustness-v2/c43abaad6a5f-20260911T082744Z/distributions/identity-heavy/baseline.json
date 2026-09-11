@@ -1,0 +1,337 @@
+{
+  "result" : "OK",
+  "data" : "results/robustness-v2/c43abaad6a5f-20260911T082744Z/distributions/identity-heavy/holdout-normalized.jsonl",
+  "truth" : "results/robustness-v2/c43abaad6a5f-20260911T082744Z/distributions/identity-heavy/holdout-truth.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "resolutionPolicy" : "LEGACY_MAX_PRIORITY",
+  "conflictPriorityWindow" : 0,
+  "total" : 20101,
+  "engineDivergences" : 0,
+  "typeAccuracy" : 1.0,
+  "exactTypeSubtypeAccuracy" : 0.9274662952091935,
+  "autoCoverage" : 1.0,
+  "autoErrorRate" : 0.07253370479080642,
+  "unresolvedRate" : 0.0,
+  "fullAutoCount" : 19970,
+  "fullAutoWrong" : 1327,
+  "fullAutoCoverage" : 0.9934829112979454,
+  "fullAutoErrorRate" : 0.06644967451176766,
+  "wrongFullAutoPerTotal" : 0.0660166160887518,
+  "subtypeAbstentionRate" : 0.006517088702054624,
+  "statusCounts" : {
+    "AUTO_TYPE_ONLY" : 131,
+    "AUTO" : 19970
+  },
+  "profileCounts" : {
+    "LINUX_SERVER" : 1572,
+    "WINDOWS_SERVER" : 2060,
+    "SERVICE_ACCOUNT" : 2953,
+    "APPLICATION_SOFTWARE" : 1008,
+    "NETWORK_DEVICE" : 1384,
+    "SECURITY_SOFTWARE" : 1000,
+    "USER_ACCOUNT" : 7160,
+    "WINDOWS_WORKSTATION" : 2964
+  },
+  "profileExactAccuracy" : {
+    "LINUX_SERVER" : 0.9096692111959288,
+    "WINDOWS_SERVER" : 0.9436893203883495,
+    "SERVICE_ACCOUNT" : 0.9207585506264816,
+    "APPLICATION_SOFTWARE" : 1.0,
+    "NETWORK_DEVICE" : 0.8995664739884393,
+    "SECURITY_SOFTWARE" : 1.0,
+    "USER_ACCOUNT" : 0.9681564245810056,
+    "WINDOWS_WORKSTATION" : 0.7979082321187584
+  },
+  "confusion" : {
+    "DEVICE/SERVER" : {
+      "DEVICE/WORKSTATION/AUTO" : 50,
+      "DEVICE/NETWORK_DEVICE/AUTO" : 208,
+      "DEVICE/SERVER/AUTO" : 3374
+    },
+    "ACCOUNT/USER_ACCOUNT" : {
+      "ACCOUNT/SERVICE_ACCOUNT/AUTO" : 228,
+      "ACCOUNT/USER_ACCOUNT/AUTO" : 6932
+    },
+    "SOFTWARE/APPLICATION_SOFTWARE" : {
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 1008
+    },
+    "ACCOUNT/SERVICE_ACCOUNT" : {
+      "ACCOUNT/SERVICE_ACCOUNT/AUTO" : 2719,
+      "ACCOUNT/USER_ACCOUNT/AUTO" : 234
+    },
+    "SOFTWARE/SECURITY_SOFTWARE" : {
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 1000
+    },
+    "DEVICE/NETWORK_DEVICE" : {
+      "DEVICE/null/AUTO_TYPE_ONLY" : 131,
+      "DEVICE/NETWORK_DEVICE/AUTO" : 1245,
+      "DEVICE/SERVER/AUTO" : 8
+    },
+    "DEVICE/WORKSTATION" : {
+      "DEVICE/WORKSTATION/AUTO" : 2365,
+      "DEVICE/NETWORK_DEVICE/AUTO" : 154,
+      "DEVICE/SERVER/AUTO" : 445
+    }
+  },
+  "samples" : [ {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000000075",
+    "expectedSubtype" : "NETWORK_DEVICE",
+    "actual" : {
+      "assetId" : "real-000000075",
+      "type" : "DEVICE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "NMAP_GENERAL_PURPOSE_DEVICE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "NETWORK_DEVICE"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000000106",
+    "expectedSubtype" : "NETWORK_DEVICE",
+    "actual" : {
+      "assetId" : "real-000000106",
+      "type" : "DEVICE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "NMAP_GENERAL_PURPOSE_DEVICE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "NETWORK_DEVICE"
+  }, {
+    "expectedType" : "ACCOUNT",
+    "assetId" : "real-000000298",
+    "expectedSubtype" : "SERVICE_ACCOUNT",
+    "actual" : {
+      "assetId" : "real-000000298",
+      "type" : "ACCOUNT",
+      "subtype" : "USER_ACCOUNT",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_USER_ACCOUNT" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SERVICE_ACCOUNT"
+  }, {
+    "expectedType" : "ACCOUNT",
+    "assetId" : "real-000000327",
+    "expectedSubtype" : "USER_ACCOUNT",
+    "actual" : {
+      "assetId" : "real-000000327",
+      "type" : "ACCOUNT",
+      "subtype" : "SERVICE_ACCOUNT",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_SERVICE_ACCOUNT" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "USER_ACCOUNT"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000000385",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000000385",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000000433",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000000433",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_WINDOWS_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000000523",
+    "expectedSubtype" : "NETWORK_DEVICE",
+    "actual" : {
+      "assetId" : "real-000000523",
+      "type" : "DEVICE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "NMAP_GENERAL_PURPOSE_DEVICE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "NETWORK_DEVICE"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000000749",
+    "expectedSubtype" : "SERVER",
+    "actual" : {
+      "assetId" : "real-000000749",
+      "type" : "DEVICE",
+      "subtype" : "NETWORK_DEVICE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "NMAP_NETWORK_DEVICE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_SERVER"
+  }, {
+    "expectedType" : "ACCOUNT",
+    "assetId" : "real-000000893",
+    "expectedSubtype" : "SERVICE_ACCOUNT",
+    "actual" : {
+      "assetId" : "real-000000893",
+      "type" : "ACCOUNT",
+      "subtype" : "USER_ACCOUNT",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_USER_ACCOUNT" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SERVICE_ACCOUNT"
+  }, {
+    "expectedType" : "ACCOUNT",
+    "assetId" : "real-000001002",
+    "expectedSubtype" : "SERVICE_ACCOUNT",
+    "actual" : {
+      "assetId" : "real-000001002",
+      "type" : "ACCOUNT",
+      "subtype" : "USER_ACCOUNT",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_USER_ACCOUNT" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SERVICE_ACCOUNT"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000001042",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000001042",
+      "type" : "DEVICE",
+      "subtype" : "NETWORK_DEVICE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "NMAP_NETWORK_DEVICE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "ACCOUNT",
+    "assetId" : "real-000001098",
+    "expectedSubtype" : "USER_ACCOUNT",
+    "actual" : {
+      "assetId" : "real-000001098",
+      "type" : "ACCOUNT",
+      "subtype" : "SERVICE_ACCOUNT",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_SERVICE_ACCOUNT" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "USER_ACCOUNT"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000001131",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000001131",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_WINDOWS_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000001250",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000001250",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "KSC_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000001349",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000001349",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_WINDOWS_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000001361",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000001361",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_WINDOWS_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000001400",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000001400",
+      "type" : "DEVICE",
+      "subtype" : "SERVER",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_WINDOWS_SERVER" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "ACCOUNT",
+    "assetId" : "real-000001461",
+    "expectedSubtype" : "SERVICE_ACCOUNT",
+    "actual" : {
+      "assetId" : "real-000001461",
+      "type" : "ACCOUNT",
+      "subtype" : "USER_ACCOUNT",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_USER_ACCOUNT" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SERVICE_ACCOUNT"
+  }, {
+    "expectedType" : "DEVICE",
+    "assetId" : "real-000001497",
+    "expectedSubtype" : "WORKSTATION",
+    "actual" : {
+      "assetId" : "real-000001497",
+      "type" : "DEVICE",
+      "subtype" : "NETWORK_DEVICE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "NMAP_NETWORK_DEVICE" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "WINDOWS_WORKSTATION"
+  }, {
+    "expectedType" : "ACCOUNT",
+    "assetId" : "real-000001546",
+    "expectedSubtype" : "SERVICE_ACCOUNT",
+    "actual" : {
+      "assetId" : "real-000001546",
+      "type" : "ACCOUNT",
+      "subtype" : "USER_ACCOUNT",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "AD_USER_ACCOUNT" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "SERVICE_ACCOUNT"
+  } ]
+}

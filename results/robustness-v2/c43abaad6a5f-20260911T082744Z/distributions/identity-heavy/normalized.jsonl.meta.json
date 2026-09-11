@@ -1,0 +1,6 @@
+{
+  "count" : 100000,
+  "rawInput" : "results/robustness-v2/c43abaad6a5f-20260911T082744Z/distributions/identity-heavy/raw.jsonl",
+  "truthInput" : "results/robustness-v2/c43abaad6a5f-20260911T082744Z/distributions/identity-heavy/truth.jsonl",
+  "normalizedOutput" : "results/robustness-v2/c43abaad6a5f-20260911T082744Z/distributions/identity-heavy/normalized.jsonl"
+}
