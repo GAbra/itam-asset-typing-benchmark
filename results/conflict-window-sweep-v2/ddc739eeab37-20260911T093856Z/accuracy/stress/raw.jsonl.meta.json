@@ -1,0 +1,49 @@
+{
+  "count" : 200000,
+  "seed" : 20260912,
+  "rawOutput" : "results/conflict-window-sweep-v2/ddc739eeab37-20260911T093856Z/accuracy/stress/raw.jsonl",
+  "truthOutput" : "results/conflict-window-sweep-v2/ddc739eeab37-20260911T093856Z/accuracy/stress/truth.jsonl",
+  "noiseProfile" : {
+    "missingOptionalSourcePct" : 12,
+    "staleObservationPct" : 15,
+    "conflictingOsPct" : 4,
+    "renamePct" : 8,
+    "falseServiceHintPct" : 3,
+    "missedServiceHintPct" : 8,
+    "ambiguousNmapPct" : 6,
+    "incompleteInventoryPct" : 10,
+    "kscTypeFlipPct" : 3
+  },
+  "profileDistribution" : "balanced",
+  "profileWeights" : {
+    "USER_ACCOUNT" : 1,
+    "SECURITY_SOFTWARE" : 1,
+    "NETWORK_DEVICE" : 1,
+    "APPLICATION_SOFTWARE" : 1,
+    "SERVICE_ACCOUNT" : 1,
+    "WINDOWS_SERVER" : 1,
+    "LINUX_SERVER" : 1,
+    "WINDOWS_WORKSTATION" : 1
+  },
+  "profileCounts" : {
+    "APPLICATION_SOFTWARE" : 24940,
+    "LINUX_SERVER" : 25220,
+    "NETWORK_DEVICE" : 24958,
+    "SECURITY_SOFTWARE" : 24943,
+    "SERVICE_ACCOUNT" : 24894,
+    "USER_ACCOUNT" : 25077,
+    "WINDOWS_SERVER" : 24974,
+    "WINDOWS_WORKSTATION" : 24994
+  },
+  "noiseEventCounts" : {
+    "AMBIGUOUS_NMAP" : 7469,
+    "CONFLICTING_OS" : 9018,
+    "FALSE_SERVICE_HINT" : 705,
+    "INCOMPLETE_INVENTORY" : 4956,
+    "KSC_TYPE_FLIP" : 2167,
+    "MISSED_SERVICE_HINT" : 2030,
+    "MISSING_OPTIONAL_SOURCE" : 32996,
+    "RENAMED_HOST" : 8053,
+    "STALE_OBSERVATION" : 86269
+  }
+}

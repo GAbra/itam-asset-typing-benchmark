@@ -9,8 +9,9 @@ import org.kie.dmn.api.core.DMNRuntime;
 import org.kie.dmn.core.api.DMNFactory;
 import org.kie.dmn.core.internal.utils.DMNRuntimeBuilder;
 import org.kie.internal.io.ResourceFactory;
-import ru.itam.typing.engine.TypingEngine;
+import ru.itam.typing.engine.FeatureMapTypingEngine;
 import ru.itam.typing.engine.common.MatchResolver;
+import ru.itam.typing.engine.common.ResolutionPolicy;
 import ru.itam.typing.features.FeatureExtractor;
 import ru.itam.typing.model.*;
 import ru.itam.typing.rules.RuleSet;
@@ -20,15 +21,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-public final class DmnTypingEngine implements TypingEngine {
+public final class DmnTypingEngine implements FeatureMapTypingEngine {
     private final FeatureExtractor featureExtractor;
+    private final ResolutionPolicy resolutionPolicy;
     private final DMNRuntime runtime;
     private final DMNModel model;
     private final String generatedDmn;
 
     public DmnTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor) {
+        this(ruleSet, featureExtractor, ResolutionPolicy.LEGACY_MAX_PRIORITY);
+    }
+
+    public DmnTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor, ResolutionPolicy resolutionPolicy) {
         this.featureExtractor = featureExtractor;
+        this.resolutionPolicy = Objects.requireNonNull(resolutionPolicy, "resolutionPolicy");
         this.generatedDmn = new DmnModelGenerator().generate(ruleSet);
         Resource resource = ResourceFactory.newByteArrayResource(generatedDmn.getBytes(StandardCharsets.UTF_8));
         resource.setSourcePath("generated/itam-typing.dmn");
@@ -52,12 +60,16 @@ public final class DmnTypingEngine implements TypingEngine {
 
     @Override
     public TypingResult classify(AssetTypingContext context) {
-        Map<String, Boolean> features = featureExtractor.extract(context);
+        return classifyFeatures(context.assetId(), featureExtractor.extract(context));
+    }
+
+    @Override
+    public TypingResult classifyFeatures(String assetId, Map<String, Boolean> features) {
         DMNContext dmnContext = DMNFactory.newContext();
         features.forEach(dmnContext::set);
         DMNResult result = runtime.evaluateAll(model, dmnContext);
         if (result.hasErrors()) {
-            throw new IllegalStateException("DMN evaluation failed for " + context.assetId() + ": " + result.getMessages());
+            throw new IllegalStateException("DMN evaluation failed for " + assetId + ": " + result.getMessages());
         }
         DMNDecisionResult decision = result.getDecisionResultByName(DmnModelGenerator.DECISION_NAME);
         if (decision == null) {
@@ -71,7 +83,7 @@ public final class DmnTypingEngine implements TypingEngine {
         } else if (raw != null) {
             addMatch(raw, matches);
         }
-        return MatchResolver.resolve(context.assetId(), matches);
+        return MatchResolver.resolve(assetId, matches, resolutionPolicy);
     }
 
     public String generatedDmn() {

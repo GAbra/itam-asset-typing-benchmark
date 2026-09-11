@@ -1,0 +1,26 @@
+{
+  "pChunk": {
+    "KLCSP_ITERATOR_ARRAY": [
+      {
+        "KLHST_WKS_DN": {"type":"string","value":"SRV-APP01"},
+        "KLHST_WKS_HOSTNAME": {"type":"string","value":"{SYNTH-HOST-000001}"},
+        "KLHST_WKS_FQDN": {"type":"string","value":"srv-app01.corp.example"},
+        "KLHST_WKS_IP_LONG": {"type":"long","value":168427541},
+        "KLHST_WKS_CTYPE": {"type":"long","value":2},
+        "KLHST_WKS_OS_NAME": {"type":"string","value":"Microsoft Windows Server 2022 Datacenter"},
+        "KLHST_WKS_STATUS": {"type":"long","value":29},
+        "KLHST_WKS_RTP_STATE": {"type":"long","value":7}
+      },
+      {
+        "KLHST_WKS_DN": {"type":"string","value":"WS-TEST01"},
+        "KLHST_WKS_HOSTNAME": {"type":"string","value":"{SYNTH-HOST-TEST01}"},
+        "KLHST_WKS_FQDN": {"type":"string","value":"ws-test01.corp.example"},
+        "KLHST_WKS_IP_LONG": {"type":"long","value":174286280},
+        "KLHST_WKS_CTYPE": {"type":"long","value":1},
+        "KLHST_WKS_OS_NAME": {"type":"string","value":"Microsoft Windows 11 Enterprise"},
+        "KLHST_WKS_STATUS": {"type":"long","value":29},
+        "KLHST_WKS_RTP_STATE": {"type":"long","value":7}
+      }
+    ]
+  }
+}

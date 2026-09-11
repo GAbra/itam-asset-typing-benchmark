@@ -2,7 +2,9 @@
 
 **English** · [Русский](PROJECT_STATE_RU.md)
 
-Implemented:
+## Stable baseline
+
+Implemented and preserved:
 
 - three execution engines from one canonical ruleset;
 - shared feature extraction and result resolution;
@@ -13,15 +15,34 @@ Implemented:
 - Docker, PowerShell and shell entry points;
 - CI correctness/packaging checks;
 - archived original benchmark results retained unchanged;
-- controlled baseline v2 with explicit runtime/environment provenance through 1M assets;
-- English/Russian documentation entry points.
+- controlled baseline v2 with explicit runtime/environment provenance through 1M assets.
 
 The archived baseline covers 10K, 100K, 500K and 1M assets with zero reported mismatches, but its original hardware/runtime provenance is incomplete.
 
-The controlled baseline v2 covers 100K, 500K and 1M assets with zero engine and generator-label mismatches and records exact image/JAR fingerprints, host/container metadata, JVM settings, input/rule hashes and exact commands.
+The controlled baseline v2 covers 100K, 500K and 1M assets with zero engine and generator-label mismatches and records image/JAR fingerprints, host/container metadata, JVM settings, input/rule hashes and exact commands.
 
-Read [methodology](METHODOLOGY.md) before interpreting absolute performance or comparing the two result sets. They are separate experiments, not a before/after optimization series.
+## Research track
 
-The Maven project version is `1.0.0`. The repository contains CI logic for a versioned GitHub Release and GHCR image, but publication depends on creating the matching `v1.0.0` tag.
+`research/realistic-workload-v2` is complete at the synthetic-prototype level. It adds:
 
-For current build status use [GitHub Actions](https://github.com/GAbra/itam-asset-typing-benchmark/actions/workflows/ci.yml). See the [README roadmap](../README.md#research-roadmap) for unimplemented experiments.
+- source-shaped AD/Nmap/KSC/Zabbix/SIEM observations;
+- independently stored ground truth and deterministic holdout;
+- missing/stale/conflicting evidence scenarios;
+- independent reference evaluation;
+- rule-count scaling plus END_TO_END, ENGINE_ONLY and JMH measurements;
+- conservative conflict handling with calibrated `conflictPriorityWindow=80`;
+- fresh-seed robustness confirmation;
+- Software Taxonomy v3 with 16 software subtypes and a 74-product/family RU-oriented coverage catalog;
+- final fresh-seed Software Taxonomy v3 confirmation with all frozen gates passing.
+
+Further synthetic tuning is not required for the current prototype. The next meaningful validation step is an independently labelled real or properly anonymized production-like corpus.
+
+See [Final research summary](RESEARCH_SUMMARY.md).
+
+## Scope
+
+The repository demonstrates reproducibility, engine agreement and controlled decision behavior. Synthetic accuracy numbers must not be presented as production accuracy.
+
+The Maven project version remains `1.0.0`. Release/GHCR publication still depends on an explicit release/tag decision.
+
+For current build status use [GitHub Actions](https://github.com/GAbra/itam-asset-typing-benchmark/actions/workflows/ci.yml). See the [README roadmap](../README.md#research-roadmap) for remaining external-validation work.

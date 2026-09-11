@@ -1,0 +1,6 @@
+{
+  "count" : 1000000,
+  "rawInput" : "results/research-v2/be60e16b641f-20260910T192405Z/performance/stress-balanced-raw.jsonl",
+  "truthInput" : "results/research-v2/be60e16b641f-20260910T192405Z/performance/stress-balanced-truth.jsonl",
+  "normalizedOutput" : "results/research-v2/be60e16b641f-20260910T192405Z/performance/stress-balanced-normalized.jsonl"
+}

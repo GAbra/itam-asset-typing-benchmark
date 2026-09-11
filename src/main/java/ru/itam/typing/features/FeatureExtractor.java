@@ -1,5 +1,6 @@
 package ru.itam.typing.features;
 
+import ru.itam.typing.model.AssetSubtype;
 import ru.itam.typing.model.AssetTypingContext;
 
 import java.util.LinkedHashMap;
@@ -14,7 +15,15 @@ public final class FeatureExtractor {
             "OBJ_KSC_SOFTWARE", "OBJ_ZABBIX_HOST", "OBJ_SIEM_PRINCIPAL", "OBJ_SIEM_HOST",
             "ACCOUNT_SERVICE_HINT", "OS_WINDOWS", "OS_LINUX", "OS_SERVER",
             "KSC_WORKSTATION", "KSC_SERVER", "NMAP_NETWORK_DEVICE", "NMAP_GENERAL_PURPOSE",
-            "SECURITY_SOFTWARE_HINT"
+            "SECURITY_SOFTWARE_HINT", "SOFTWARE_AMBIGUOUS_HINT",
+            "SOFTWARE_CATEGORY_OPERATING_SYSTEM", "SOFTWARE_CATEGORY_OFFICE_SOFTWARE",
+            "SOFTWARE_CATEGORY_BUSINESS_SOFTWARE", "SOFTWARE_CATEGORY_BROWSER",
+            "SOFTWARE_CATEGORY_IDE", "SOFTWARE_CATEGORY_DATABASE_TOOL",
+            "SOFTWARE_CATEGORY_DATABASE_SERVER", "SOFTWARE_CATEGORY_DESIGN_MODELING",
+            "SOFTWARE_CATEGORY_SECURITY_SOFTWARE", "SOFTWARE_CATEGORY_CRYPTO_SOFTWARE",
+            "SOFTWARE_CATEGORY_RUNTIME_PLATFORM", "SOFTWARE_CATEGORY_DEV_TOOL",
+            "SOFTWARE_CATEGORY_UTILITY", "SOFTWARE_CATEGORY_COMMUNICATION",
+            "SOFTWARE_CATEGORY_COMPONENT_AGENT", "SOFTWARE_CATEGORY_APPLICATION_SOFTWARE"
     );
 
     public Map<String, Boolean> extract(AssetTypingContext ctx) {
@@ -25,13 +34,17 @@ public final class FeatureExtractor {
             set(f, "SRC_" + source.toUpperCase(Locale.ROOT).replace('-', '_'));
         }
 
+        boolean softwareObject = false;
         for (String kind : ctx.sourceObjectKinds()) {
             switch (kind) {
                 case "ad:user" -> set(f, "OBJ_AD_USER");
                 case "ad:computer" -> set(f, "OBJ_AD_COMPUTER");
                 case "nmap:host" -> set(f, "OBJ_NMAP_HOST");
                 case "ksc:host" -> set(f, "OBJ_KSC_HOST");
-                case "ksc:software_inventory_application" -> set(f, "OBJ_KSC_SOFTWARE");
+                case "ksc:software_inventory_application" -> {
+                    set(f, "OBJ_KSC_SOFTWARE");
+                    softwareObject = true;
+                }
                 case "zabbix:host" -> set(f, "OBJ_ZABBIX_HOST");
                 case "siem:principal" -> set(f, "OBJ_SIEM_PRINCIPAL");
                 case "siem:host" -> set(f, "OBJ_SIEM_HOST");
@@ -70,11 +83,22 @@ public final class FeatureExtractor {
 
         String displayName = lower(ctx.attributes().get("ksc.DisplayName"));
         String publisher = lower(ctx.attributes().get("ksc.Publisher"));
+
+        // Keep the historical feature unchanged for canonical-rules.yaml and archived baselines.
         if (displayName.contains("kaspersky") || displayName.contains("endpoint security")
                 || displayName.contains("defender") || displayName.contains("eset")
                 || displayName.contains("sophos") || publisher.contains("kaspersky lab")
                 || publisher.contains("eset") || publisher.contains("sophos")) {
             set(f, "SECURITY_SOFTWARE_HINT");
+        }
+
+        if (softwareObject) {
+            AssetSubtype category = SoftwareEvidenceClassifier.classify(ctx.attributes());
+            if (category == null) {
+                set(f, "SOFTWARE_AMBIGUOUS_HINT");
+            } else {
+                set(f, SoftwareEvidenceClassifier.feature(category));
+            }
         }
         return f;
     }

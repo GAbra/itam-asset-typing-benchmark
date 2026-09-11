@@ -1,0 +1,111 @@
+{
+  "result" : "OK",
+  "data" : "results/software-taxonomy-v3/a78e2034b5e2-20260911T111235Z/cases/clean/holdout-normalized.jsonl",
+  "truth" : "results/software-taxonomy-v3/a78e2034b5e2-20260911T111235Z/cases/clean/holdout-truth.jsonl",
+  "rules" : "rules/software-taxonomy-v3.yaml",
+  "resolutionPolicy" : "CONSERVATIVE_NEAR_PRIORITY",
+  "conflictPriorityWindow" : 80,
+  "total" : 39878,
+  "engineDivergences" : 0,
+  "typeAccuracy" : 1.0,
+  "exactTypeSubtypeAccuracy" : 1.0,
+  "autoCoverage" : 1.0,
+  "autoErrorRate" : 0.0,
+  "unresolvedRate" : 0.0,
+  "fullAutoCount" : 39878,
+  "fullAutoWrong" : 0,
+  "fullAutoCoverage" : 1.0,
+  "fullAutoErrorRate" : 0.0,
+  "wrongFullAutoPerTotal" : 0.0,
+  "subtypeAbstentionRate" : 0.0,
+  "statusCounts" : {
+    "AUTO" : 39878
+  },
+  "profileCounts" : {
+    "COMMUNICATION" : 2205,
+    "APPLICATION_SOFTWARE" : 1603,
+    "OPERATING_SYSTEM" : 4376,
+    "UTILITY" : 2669,
+    "OFFICE_SOFTWARE" : 2615,
+    "IDE" : 3746,
+    "SECURITY_SOFTWARE" : 1597,
+    "BROWSER" : 2138,
+    "DATABASE_SERVER" : 2198,
+    "BUSINESS_SOFTWARE" : 2788,
+    "CRYPTO_SOFTWARE" : 1071,
+    "COMPONENT_AGENT" : 1537,
+    "DEV_TOOL" : 3755,
+    "DATABASE_TOOL" : 2784,
+    "RUNTIME_PLATFORM" : 2617,
+    "DESIGN_MODELING" : 2179
+  },
+  "profileExactAccuracy" : {
+    "COMMUNICATION" : 1.0,
+    "APPLICATION_SOFTWARE" : 1.0,
+    "OPERATING_SYSTEM" : 1.0,
+    "UTILITY" : 1.0,
+    "OFFICE_SOFTWARE" : 1.0,
+    "IDE" : 1.0,
+    "SECURITY_SOFTWARE" : 1.0,
+    "BROWSER" : 1.0,
+    "DATABASE_SERVER" : 1.0,
+    "BUSINESS_SOFTWARE" : 1.0,
+    "CRYPTO_SOFTWARE" : 1.0,
+    "COMPONENT_AGENT" : 1.0,
+    "DEV_TOOL" : 1.0,
+    "DATABASE_TOOL" : 1.0,
+    "RUNTIME_PLATFORM" : 1.0,
+    "DESIGN_MODELING" : 1.0
+  },
+  "confusion" : {
+    "SOFTWARE/OPERATING_SYSTEM" : {
+      "SOFTWARE/OPERATING_SYSTEM/AUTO" : 4376
+    },
+    "SOFTWARE/DATABASE_TOOL" : {
+      "SOFTWARE/DATABASE_TOOL/AUTO" : 2784
+    },
+    "SOFTWARE/DESIGN_MODELING" : {
+      "SOFTWARE/DESIGN_MODELING/AUTO" : 2179
+    },
+    "SOFTWARE/COMMUNICATION" : {
+      "SOFTWARE/COMMUNICATION/AUTO" : 2205
+    },
+    "SOFTWARE/DEV_TOOL" : {
+      "SOFTWARE/DEV_TOOL/AUTO" : 3755
+    },
+    "SOFTWARE/UTILITY" : {
+      "SOFTWARE/UTILITY/AUTO" : 2669
+    },
+    "SOFTWARE/SECURITY_SOFTWARE" : {
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 1597
+    },
+    "SOFTWARE/RUNTIME_PLATFORM" : {
+      "SOFTWARE/RUNTIME_PLATFORM/AUTO" : 2617
+    },
+    "SOFTWARE/OFFICE_SOFTWARE" : {
+      "SOFTWARE/OFFICE_SOFTWARE/AUTO" : 2615
+    },
+    "SOFTWARE/IDE" : {
+      "SOFTWARE/IDE/AUTO" : 3746
+    },
+    "SOFTWARE/DATABASE_SERVER" : {
+      "SOFTWARE/DATABASE_SERVER/AUTO" : 2198
+    },
+    "SOFTWARE/BROWSER" : {
+      "SOFTWARE/BROWSER/AUTO" : 2138
+    },
+    "SOFTWARE/BUSINESS_SOFTWARE" : {
+      "SOFTWARE/BUSINESS_SOFTWARE/AUTO" : 2788
+    },
+    "SOFTWARE/APPLICATION_SOFTWARE" : {
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 1603
+    },
+    "SOFTWARE/CRYPTO_SOFTWARE" : {
+      "SOFTWARE/CRYPTO_SOFTWARE/AUTO" : 1071
+    },
+    "SOFTWARE/COMPONENT_AGENT" : {
+      "SOFTWARE/COMPONENT_AGENT/AUTO" : 1537
+    }
+  },
+  "samples" : [ ]
+}

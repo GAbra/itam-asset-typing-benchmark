@@ -1,0 +1,68 @@
+{
+  "result" : "OK",
+  "data" : "results/conflict-window-sweep-v2/ddc739eeab37-20260911T093856Z/accuracy/clean/holdout-normalized.jsonl",
+  "truth" : "results/conflict-window-sweep-v2/ddc739eeab37-20260911T093856Z/accuracy/clean/holdout-truth.jsonl",
+  "rules" : "rules/canonical-rules.yaml",
+  "resolutionPolicy" : "LEGACY_MAX_PRIORITY",
+  "conflictPriorityWindow" : 0,
+  "total" : 40019,
+  "engineDivergences" : 0,
+  "typeAccuracy" : 1.0,
+  "exactTypeSubtypeAccuracy" : 1.0,
+  "autoCoverage" : 1.0,
+  "autoErrorRate" : 0.0,
+  "unresolvedRate" : 0.0,
+  "fullAutoCount" : 40019,
+  "fullAutoWrong" : 0,
+  "fullAutoCoverage" : 1.0,
+  "fullAutoErrorRate" : 0.0,
+  "wrongFullAutoPerTotal" : 0.0,
+  "subtypeAbstentionRate" : 0.0,
+  "statusCounts" : {
+    "AUTO" : 40019
+  },
+  "profileCounts" : {
+    "WINDOWS_WORKSTATION" : 5019,
+    "USER_ACCOUNT" : 5040,
+    "SECURITY_SOFTWARE" : 5034,
+    "NETWORK_DEVICE" : 4920,
+    "APPLICATION_SOFTWARE" : 4878,
+    "SERVICE_ACCOUNT" : 4935,
+    "WINDOWS_SERVER" : 5087,
+    "LINUX_SERVER" : 5106
+  },
+  "profileExactAccuracy" : {
+    "WINDOWS_WORKSTATION" : 1.0,
+    "USER_ACCOUNT" : 1.0,
+    "SECURITY_SOFTWARE" : 1.0,
+    "NETWORK_DEVICE" : 1.0,
+    "APPLICATION_SOFTWARE" : 1.0,
+    "SERVICE_ACCOUNT" : 1.0,
+    "WINDOWS_SERVER" : 1.0,
+    "LINUX_SERVER" : 1.0
+  },
+  "confusion" : {
+    "DEVICE/WORKSTATION" : {
+      "DEVICE/WORKSTATION/AUTO" : 5019
+    },
+    "DEVICE/NETWORK_DEVICE" : {
+      "DEVICE/NETWORK_DEVICE/AUTO" : 4920
+    },
+    "SOFTWARE/SECURITY_SOFTWARE" : {
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 5034
+    },
+    "ACCOUNT/SERVICE_ACCOUNT" : {
+      "ACCOUNT/SERVICE_ACCOUNT/AUTO" : 4935
+    },
+    "SOFTWARE/APPLICATION_SOFTWARE" : {
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 4878
+    },
+    "ACCOUNT/USER_ACCOUNT" : {
+      "ACCOUNT/USER_ACCOUNT/AUTO" : 5040
+    },
+    "DEVICE/SERVER" : {
+      "DEVICE/SERVER/AUTO" : 10193
+    }
+  },
+  "samples" : [ ]
+}

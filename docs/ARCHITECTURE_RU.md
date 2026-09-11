@@ -2,63 +2,121 @@
 
 [English](ARCHITECTURE.md) · **Русский**
 
-Эта страница показывает верхнеуровневую архитектуру. Для перехода от блоков к фактическим классам и runtime-потоку используйте [подробную программную реализацию](IMPLEMENTATION_RU.md). Внутреннее устройство HashMap + BitSet, CEL и DMN/KIE описано отдельно в [подробной реализации движков](ENGINE_IMPLEMENTATION_RU.md).
+В репозитории теперь намеренно разделены два уровня исполнения:
 
-## Поток данных
+1. **Контролируемый baseline** — исходный детерминированный benchmark на `rules/canonical-rules.yaml` (14 правил) и исторической семантике типизации.
+2. **Realistic research track** — source-shaped наблюдения AD/Nmap/KSC/Zabbix/SIEM, детерминированный шум, независимый ground truth, консервативная обработка противоречий, масштабирование правил и Software Taxonomy v3.
 
-Генератор с фиксированным seed создаёт нормализованный JSONL из `DatasetRecord`. Каждая запись содержит `AssetTypingContext` с asset ID, источниками, типами объектов источников, атрибутами и системными параметрами, а также ожидаемыми type/subtype. Raw samples нужны только для иллюстрации форматов; реальных source adapters и live integrations в проекте нет.
+Baseline сохраняется для воспроизводимого сравнения производительности. Исследовательский контур расширяет workload и decision policy, не переписывая архивные baseline-артефакты.
 
-Каждый движок независимо вызывает `FeatureExtractor` внутри `classify`. Extractor формирует один и тот же набор из 22 булевых признаков. Дедупликации и сравнения активов между собой нет.
+## Верхнеуровневый поток данных
 
 ```mermaid
 flowchart LR
-    G[Синтетический генератор с фиксированным seed] --> C[DatasetRecord / AssetTypingContext]
-    C --> F[Извлечение 22 признаков]
+    BGEN[Baseline-генератор с seed] --> N[Нормализованный AssetTypingContext]
+    SRC[Синтетические source-shaped наблюдения] --> MAT[ObservationNormalizer / materializer]
+    MAT --> N
+    N --> F[FeatureExtractor]
     F --> B[HashMap + BitSet]
-    F --> E[Compiled CEL]
-    F --> D[Generated DMN / KIE]
-    R[Канонические YAML-правила] --> B & E & D
-    B & E & D --> M[Общий MatchResolver]
+    F --> C[CEL]
+    F --> D[DMN / KIE]
+    R[Выбранный YAML RuleSet] --> B & C & D
+    B & C & D --> M[MatchResolver + ResolutionPolicy]
     M --> O[Тип / подтип / статус / rule IDs]
+    GT[Независимый research ground truth] --> V[Accuracy / differential gates]
+    O --> V
 ```
 
-## Уровни документации реализации
+Сравнения активов между собой и дедупликации в этом репозитории нет. Каждый нормализованный актив классифицируется независимо.
 
-Чтобы не перегружать верхнеуровневую схему, подробности разделены на два документа:
+## Входные модели
 
-- [Подробная программная реализация](IMPLEMENTATION_RU.md) — карта пакетов и классов, загрузка правил, data model, `generate`, `verify`, `benchmark`, `explain`, `export-dmn`, lifecycle движков и точный runtime-поток;
-- [Подробная реализация движков](ENGINE_IMPLEMENTATION_RU.md) — отдельные схемы подготовки и исполнения HashMap + BitSet, CEL и DMN/KIE, candidate indexes, masks/programs/DMN rows и общий `MatchResolver`.
+### Baseline
 
-Таким образом, эта страница отвечает на вопрос **«из каких архитектурных блоков состоит решение»**, `IMPLEMENTATION_RU.md` — **«какие классы вызывают друг друга»**, а `ENGINE_IMPLEMENTATION_RU.md` — **«как именно каждый движок вычисляет совпавшие правила»**.
+Baseline-генератор пишет JSONL `DatasetRecord`. Каждая запись содержит `AssetTypingContext` и ожидаемые type/subtype.
 
-## Канонические правила
+### Realistic research track
 
-Все реализации получают один и тот же `rules/canonical-rules.yaml` версии 1.0.0 с 14 правилами. Правило содержит ID, целевой type/subtype, priority, required features, any-of features, forbidden features и enabled state.
+Research-генератор формирует source-shaped `RawAssetBundle` и отдельный `GroundTruthLabel`. `ObservationNormalizer` / `RealisticDatasetMaterializer` превращает наблюдения в тот же `AssetTypingContext`, который получают движки. Эталонная метка не передаётся классификатору.
 
-Условие совпадает, когда истинны все required features, ни один forbidden feature не истинный и, если список any-of непустой, истинный хотя бы один его элемент. Отключённые правила не участвуют.
+Checked-in fixtures и adapters проверяют форму синтетических наблюдений AD/Nmap/KSC/Zabbix/SIEM. Это **не live production connectors**.
+
+## Извлечение признаков
+
+`FeatureExtractor` общий для BitSet, CEL и DMN.
+
+Исходные baseline-признаки сохранены для обратной совместимости. Канонический ruleset из 14 правил по-прежнему использует исходный набор baseline-признаков. Текущий extractor дополнительно формирует research-only признаки ПО, включая `SOFTWARE_AMBIGUOUS_HINT` и `SOFTWARE_CATEGORY_*`, которые создаёт `SoftwareEvidenceClassifier` для записей инвентаризации ПО KSC.
+
+Таким образом, текущая feature map — **надмножество** исходных baseline-признаков. Конкретный ruleset использует только те признаки, на которые ссылаются его правила.
+
+## Наборы правил
+
+В репозитории намеренно несколько ruleset для разных экспериментов:
+
+- `rules/canonical-rules.yaml` — исходная baseline-семантика, 14 правил;
+- сгенерированные scaled rulesets — контролируемые эксперименты по росту количества правил;
+- `rules/software-taxonomy-v3.yaml` — research taxonomy ПО с 16 подтипами и fallback только до типа.
+
+В рамках одного запуска все движки получают один и тот же выбранный `RuleSet`.
 
 ## Адаптеры движков
 
 | Адаптер | Подготовка | Выполнение на одном активе |
 |:--|:--|:--|
-| HashMap + BitSet | ID признаков, bit masks и индекс кандидатов по required feature | Извлечь признаки, выбрать кандидатов, сравнить masks |
-| CEL | Сгенерировать и скомпилировать выражения; закэшировать programs и индекс кандидатов | Извлечь признаки, выполнить candidate programs |
-| DMN / KIE | Сгенерировать и загрузить DMN decision table с hit policy `COLLECT` | Извлечь признаки, выполнить таблицу, сопоставить возвращённые ID с правилами |
+| HashMap + BitSet | ID признаков, masks и индекс кандидатов по required feature | Собрать BitSet истинных признаков, выбрать кандидатов, проверить masks |
+| CEL | Скомпилировать выражения и построить application-level candidate index | Выполнить скомпилированные candidate programs |
+| DMN / KIE | Сгенерировать и загрузить DMN-таблицу `COLLECT` | Выполнить decision table и преобразовать rule IDs в `RuleMatch` |
+| Reference linear evaluator | Без performance-index, прямой проход по правилам | Независимый research correctness oracle |
 
-Правила без required feature остаются кандидатами в индексированных адаптерах. Any-of в DMN может разворачиваться в несколько строк. Совпадения-дубликаты, появившиеся из такого expansion, дедуплицируются по rule ID.
+Reference evaluator используется в research acceptance и не является четвёртым конкурентом по производительности.
 
-## Общий resolver
+## Политика разрешения результата
 
-`MatchResolver` дедуплицирует rule IDs и оставляет максимальный priority. Разные типы на максимальном priority дают `TYPE_CONFLICT`; разные подтипы — `SUBTYPE_CONFLICT`. Тип без подтипа даёт `AUTO_TYPE_ONLY`, полный type/subtype — `AUTO`, отсутствие совпадений — `NOT_CLASSIFIED`.
+Все рабочие адаптеры преобразуют совпадения в единый `RuleMatch` и используют `MatchResolver`.
 
-Общий resolver обеспечивает одинаковую семантику результата, но одновременно является общей точкой отказа. Поэтому дифференциальное сравнение движков дополняется expected-output tests и проверкой меток генератора.
+Доступны две политики:
 
-## CLI и измерения
+- `LEGACY_MAX_PRIORITY` (`conflictPriorityWindow=0`) — сохраняет историческую baseline-семантику;
+- `CONSERVATIVE_NEAR_PRIORITY` — дополнительно учитывает сильные противоречащие правила в пределах заданного окна приоритетов.
 
-Команды `generate`, `verify`, `benchmark`, `explain` и `export-dmn` реализованы в `ru.itam.typing.cli.Main`.
+В research track значение `conflictPriorityWindow=80` сначала было выбрано по заранее зафиксированному sweep-критерию, затем подтверждено на новом seed. Конструкторы движков по умолчанию остаются legacy-совместимыми; research runners явно включают conservative policy там, где это требуется.
 
-Verification сравнивает результаты и метки, формирует упорядоченные SHA-256 digest и возвращает ненулевой exit code при расхождении, некорректном или пустом input. Записи без expected type участвуют в сравнении движков, но не в label coverage; в отчёте это видно по `groundTruthChecked`.
+Финальные статусы остаются едиными:
 
-Benchmark потоково читает распарсенные batch, измеряет classification/checksum time каждого движка и формирует summary по проходам. JSON parsing, file I/O, создание движков, сериализация отчёта и input hashing находятся за пределами per-engine timed section.
+- `NOT_CLASSIFIED` — совпавших правил нет;
+- `TYPE_CONFLICT` — несовместимые типы;
+- `SUBTYPE_CONFLICT` — несовместимые подтипы одного типа;
+- `AUTO_TYPE_ONLY` — тип известен, подтип намеренно не выбран;
+- `AUTO` — полный автоматический type/subtype.
 
-Контролируемый baseline v2 добавляет к этой же модели исполнения явный provenance хоста, контейнера и JVM, не меняя семантику классификации. Точные границы измерения и ограничения описаны в [методике](METHODOLOGY_RU.md), разделение архивного и контролируемого baseline — в [результатах](../benchmark-results/README_RU.md), а class/module execution flow — в [подробной программной реализации](IMPLEMENTATION_RU.md).
+## Модель проверки корректности
+
+Baseline verification сравнивает BitSet, CEL и DMN и проверяет метки seeded generator.
+
+Realistic research path добавляет более сильные проверки:
+
+- ground truth хранится отдельно от наблюдений;
+- детерминированный label-independent holdout 80/20;
+- независимый linear reference evaluator;
+- source-shape validation;
+- явные сценарии missing/stale/conflicting evidence;
+- заранее зафиксированные acceptance gates и SHA-256 manifests.
+
+См. [итоговую исследовательскую сводку](RESEARCH_SUMMARY_RU.md), [Experiment Protocol v2](EXPERIMENT_PROTOCOL_V2_RU.md), [калибровку порога противоречия](CONFLICT_WINDOW_CALIBRATION_RU.md), [Robustness v2](ROBUSTNESS_V2_RU.md) и [Software Taxonomy v3](SOFTWARE_TAXONOMY_V3_RU.md).
+
+## Runtime и границы измерений
+
+Стабильный baseline CLI (`generate`, `verify`, `benchmark`, `explain`, `export-dmn`) остаётся в `ru.itam.typing.cli.Main`.
+
+Research-specific CLI и runners находятся в `ru.itam.typing.realistic` и `scripts/`. Research track добавляет END_TO_END, ENGINE_ONLY и JMH измерения, но throughput никогда не используется как correctness gate.
+
+Проект по-прежнему не реализует live ITAM service, database persistence, queues, background scheduling, дедупликацию активов или live ingestion из AD/Nmap/KSC/Zabbix/SIEM.
+
+## Карта документации
+
+- [Подробная программная реализация](IMPLEMENTATION_RU.md) — текущие baseline и research execution paths;
+- [Подробная реализация движков](ENGINE_IMPLEMENTATION_RU.md) — BitSet, CEL, DMN, reference evaluator и resolution policy;
+- [Baseline-методика](METHODOLOGY_RU.md) — детали архивного и контролируемого baseline;
+- [Итоговая research-сводка](RESEARCH_SUMMARY_RU.md) — результаты realistic workload и ограничения выводов.
+
+Редактируемые baseline flow diagrams сохранены в `docs/diagrams/`.

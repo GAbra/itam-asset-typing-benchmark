@@ -1,0 +1,12 @@
+{
+  "rawInput" : "results/robustness-v2/a620b78030cb-20260911T095249Z/distributions/software-heavy/raw.jsonl",
+  "truthInput" : "results/robustness-v2/a620b78030cb-20260911T095249Z/distributions/software-heavy/truth.jsonl",
+  "holdoutPct" : 20,
+  "salt" : "realistic-v2-holdout-v1",
+  "trainCount" : 79899,
+  "holdoutCount" : 20101,
+  "trainRawSha256" : "180fd98dd88b564b7592da623f4957c137fd087e6ad856172a8724d28ad95251",
+  "trainTruthSha256" : "8b344df91cdd9960540c850e2d48163be498c7b0745a30e3a0445e9ba93fc272",
+  "holdoutRawSha256" : "4cff1ee0eea1041690dab6628c316be744c6a131655585423943c20a9d1c3610",
+  "holdoutTruthSha256" : "1422509b049563d4fbd14c282e72a71676b683a54681ff358b920b8cd1301c7e"
+}

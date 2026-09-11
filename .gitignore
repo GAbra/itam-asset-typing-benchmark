@@ -8,5 +8,82 @@ target/
 /itam-asset-typing-benchmark-prebuilt.tar
 /itam-asset-typing-benchmark-prebuilt.zip
 /itam-typing-demo-prebuilt.tar
-/results/
+
+# Test/research outputs: keep bulky generated corpora and logs out of Git,
+# but expose compact, reviewable reports so experiment results can be committed.
+/results/*
+
+# CI JSON reports
+!/results/ci/
+/results/ci/**
+!/results/ci/**/
+!/results/ci/**/*.json
+
+# Realistic Workload v2 reviewable artifacts
+!/results/research-v2/
+/results/research-v2/**
+!/results/research-v2/**/
+!/results/research-v2/**/accuracy.json
+!/results/research-v2/**/split.json
+!/results/research-v2/**/*.meta.json
+!/results/research-v2/**/benchmark-*.json
+!/results/research-v2/**/jmh.json
+!/results/research-v2/**/rules-*.yaml
+!/results/research-v2/**/SHA256SUMS.txt
+!/results/research-v2/**/provenance/*.txt
+!/results/research-v2/**/provenance/*.env
+
+# Robustness / abstention v2 reviewable artifacts
+!/results/robustness-v2/
+/results/robustness-v2/**
+!/results/robustness-v2/**/
+!/results/robustness-v2/**/baseline.json
+!/results/robustness-v2/**/conservative.json
+!/results/robustness-v2/**/split.json
+!/results/robustness-v2/**/*.meta.json
+!/results/robustness-v2/**/robustness-summary.json
+!/results/robustness-v2/**/SHA256SUMS.txt
+!/results/robustness-v2/**/provenance/*.txt
+!/results/robustness-v2/**/provenance/*.env
+
+# Conflict-window calibration reviewable artifacts
+!/results/conflict-window-sweep-v2/
+/results/conflict-window-sweep-v2/**
+!/results/conflict-window-sweep-v2/**/
+!/results/conflict-window-sweep-v2/**/baseline.json
+!/results/conflict-window-sweep-v2/**/window-*.json
+!/results/conflict-window-sweep-v2/**/split.json
+!/results/conflict-window-sweep-v2/**/*.meta.json
+!/results/conflict-window-sweep-v2/**/sweep-summary.json
+!/results/conflict-window-sweep-v2/**/SHA256SUMS.txt
+!/results/conflict-window-sweep-v2/**/provenance/*.txt
+!/results/conflict-window-sweep-v2/**/provenance/*.env
+
+# Software ambiguity v2 reviewable artifacts
+!/results/software-ambiguity-v2/
+/results/software-ambiguity-v2/**
+!/results/software-ambiguity-v2/**/
+!/results/software-ambiguity-v2/**/accuracy.json
+!/results/software-ambiguity-v2/**/injection.json
+!/results/software-ambiguity-v2/**/split.json
+!/results/software-ambiguity-v2/**/*.meta.json
+!/results/software-ambiguity-v2/**/software-summary.json
+!/results/software-ambiguity-v2/**/SHA256SUMS.txt
+!/results/software-ambiguity-v2/**/provenance/*.txt
+!/results/software-ambiguity-v2/**/provenance/*.env
+
+# Software taxonomy v3 reviewable artifacts
+!/results/software-taxonomy-v3/
+/results/software-taxonomy-v3/**
+!/results/software-taxonomy-v3/**/
+!/results/software-taxonomy-v3/**/accuracy.json
+!/results/software-taxonomy-v3/**/generation.json
+!/results/software-taxonomy-v3/**/split.json
+!/results/software-taxonomy-v3/**/software-taxonomy-summary.json
+!/results/software-taxonomy-v3/**/SHA256SUMS.txt
+!/results/software-taxonomy-v3/**/provenance/*.txt
+!/results/software-taxonomy-v3/**/provenance/*.env
+
+# Intentionally still ignored under research result trees:
+# *.jsonl corpora, *.log files, review-pack archives and other large intermediates.
 __pycache__/

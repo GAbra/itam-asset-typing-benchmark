@@ -1,7 +1,8 @@
 package ru.itam.typing.engine.bitset;
 
-import ru.itam.typing.engine.TypingEngine;
+import ru.itam.typing.engine.FeatureMapTypingEngine;
 import ru.itam.typing.engine.common.MatchResolver;
+import ru.itam.typing.engine.common.ResolutionPolicy;
 import ru.itam.typing.features.FeatureExtractor;
 import ru.itam.typing.model.AssetTypingContext;
 import ru.itam.typing.model.RuleMatch;
@@ -11,15 +12,21 @@ import ru.itam.typing.rules.RuleSet;
 
 import java.util.*;
 
-public final class BitSetTypingEngine implements TypingEngine {
+public final class BitSetTypingEngine implements FeatureMapTypingEngine {
     private final FeatureExtractor featureExtractor;
+    private final ResolutionPolicy resolutionPolicy;
     private final Map<String, Integer> featureIds;
     private final List<CompiledRule> compiledRules;
     private final Map<Integer, int[]> anchorIndex;
     private final int[] unanchoredRuleIds;
 
     public BitSetTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor) {
+        this(ruleSet, featureExtractor, ResolutionPolicy.LEGACY_MAX_PRIORITY);
+    }
+
+    public BitSetTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor, ResolutionPolicy resolutionPolicy) {
         this.featureExtractor = featureExtractor;
+        this.resolutionPolicy = Objects.requireNonNull(resolutionPolicy, "resolutionPolicy");
         SortedSet<String> allFeatures = new TreeSet<>();
         for (CanonicalRule rule : ruleSet.rules()) {
             if (!rule.enabled()) continue;
@@ -63,7 +70,11 @@ public final class BitSetTypingEngine implements TypingEngine {
 
     @Override
     public TypingResult classify(AssetTypingContext context) {
-        Map<String, Boolean> features = featureExtractor.extract(context);
+        return classifyFeatures(context.assetId(), featureExtractor.extract(context));
+    }
+
+    @Override
+    public TypingResult classifyFeatures(String assetId, Map<String, Boolean> features) {
         BitSet asset = new BitSet(featureIds.size());
         features.forEach((name, present) -> {
             if (Boolean.TRUE.equals(present)) {
@@ -87,7 +98,7 @@ public final class BitSetTypingEngine implements TypingEngine {
                 matches.add(new RuleMatch(r.ruleId(), r.targetType(), r.targetSubtype(), r.priority()));
             }
         }
-        return MatchResolver.resolve(context.assetId(), matches);
+        return MatchResolver.resolve(assetId, matches, resolutionPolicy);
     }
 
     public int featureCount() {
