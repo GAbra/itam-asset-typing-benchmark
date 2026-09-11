@@ -1,0 +1,390 @@
+{
+  "result" : "OK",
+  "data" : "results/software-taxonomy-v3/a78e2034b5e2-20260911T111235Z/cases/stress/holdout-normalized.jsonl",
+  "truth" : "results/software-taxonomy-v3/a78e2034b5e2-20260911T111235Z/cases/stress/holdout-truth.jsonl",
+  "rules" : "rules/software-taxonomy-v3.yaml",
+  "resolutionPolicy" : "CONSERVATIVE_NEAR_PRIORITY",
+  "conflictPriorityWindow" : 80,
+  "total" : 39878,
+  "engineDivergences" : 0,
+  "typeAccuracy" : 1.0,
+  "exactTypeSubtypeAccuracy" : 0.9767290235217413,
+  "autoCoverage" : 1.0,
+  "autoErrorRate" : 0.02327097647825869,
+  "unresolvedRate" : 0.0,
+  "fullAutoCount" : 39087,
+  "fullAutoWrong" : 137,
+  "fullAutoCoverage" : 0.9801645017302774,
+  "fullAutoErrorRate" : 0.0035050016629569933,
+  "wrongFullAutoPerTotal" : 0.003435478208536035,
+  "subtypeAbstentionRate" : 0.019835498269722654,
+  "statusCounts" : {
+    "AUTO" : 39087,
+    "AUTO_TYPE_ONLY" : 791
+  },
+  "profileCounts" : {
+    "OPERATING_SYSTEM" : 4376,
+    "APPLICATION_SOFTWARE" : 1603,
+    "COMMUNICATION" : 2205,
+    "DESIGN_MODELING" : 2179,
+    "RUNTIME_PLATFORM" : 2617,
+    "DATABASE_TOOL" : 2784,
+    "DEV_TOOL" : 3755,
+    "COMPONENT_AGENT" : 1537,
+    "CRYPTO_SOFTWARE" : 1071,
+    "BUSINESS_SOFTWARE" : 2788,
+    "DATABASE_SERVER" : 2198,
+    "BROWSER" : 2138,
+    "SECURITY_SOFTWARE" : 1597,
+    "IDE" : 3746,
+    "OFFICE_SOFTWARE" : 2615,
+    "UTILITY" : 2669
+  },
+  "profileExactAccuracy" : {
+    "OPERATING_SYSTEM" : 0.9760054844606947,
+    "APPLICATION_SOFTWARE" : 0.9831565814098565,
+    "COMMUNICATION" : 0.9841269841269841,
+    "DESIGN_MODELING" : 0.9825608077099587,
+    "RUNTIME_PLATFORM" : 0.9587313717997707,
+    "DATABASE_TOOL" : 0.9791666666666666,
+    "DEV_TOOL" : 0.9845539280958722,
+    "COMPONENT_AGENT" : 0.9011060507482108,
+    "CRYPTO_SOFTWARE" : 0.9990662931839402,
+    "BUSINESS_SOFTWARE" : 0.9802725968436155,
+    "DATABASE_SERVER" : 0.9845313921747043,
+    "BROWSER" : 0.9850327408793265,
+    "SECURITY_SOFTWARE" : 0.9987476518472135,
+    "IDE" : 0.9676988788040577,
+    "OFFICE_SOFTWARE" : 0.982791586998088,
+    "UTILITY" : 0.9786436867740727
+  },
+  "confusion" : {
+    "SOFTWARE/COMMUNICATION" : {
+      "SOFTWARE/COMMUNICATION/AUTO" : 2170,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 35
+    },
+    "SOFTWARE/DESIGN_MODELING" : {
+      "SOFTWARE/DESIGN_MODELING/AUTO" : 2141,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 38
+    },
+    "SOFTWARE/DATABASE_TOOL" : {
+      "SOFTWARE/DATABASE_TOOL/AUTO" : 2726,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 58
+    },
+    "SOFTWARE/OPERATING_SYSTEM" : {
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 105,
+      "SOFTWARE/OPERATING_SYSTEM/AUTO" : 4271
+    },
+    "SOFTWARE/COMPONENT_AGENT" : {
+      "SOFTWARE/BUSINESS_SOFTWARE/AUTO" : 65,
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 72,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 15,
+      "SOFTWARE/COMPONENT_AGENT/AUTO" : 1385
+    },
+    "SOFTWARE/CRYPTO_SOFTWARE" : {
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 1,
+      "SOFTWARE/CRYPTO_SOFTWARE/AUTO" : 1070
+    },
+    "SOFTWARE/APPLICATION_SOFTWARE" : {
+      "SOFTWARE/APPLICATION_SOFTWARE/AUTO" : 1576,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 27
+    },
+    "SOFTWARE/BUSINESS_SOFTWARE" : {
+      "SOFTWARE/BUSINESS_SOFTWARE/AUTO" : 2733,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 55
+    },
+    "SOFTWARE/BROWSER" : {
+      "SOFTWARE/BROWSER/AUTO" : 2106,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 32
+    },
+    "SOFTWARE/DATABASE_SERVER" : {
+      "SOFTWARE/DATABASE_SERVER/AUTO" : 2164,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 34
+    },
+    "SOFTWARE/IDE" : {
+      "SOFTWARE/IDE/AUTO" : 3625,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 121
+    },
+    "SOFTWARE/OFFICE_SOFTWARE" : {
+      "SOFTWARE/OFFICE_SOFTWARE/AUTO" : 2570,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 45
+    },
+    "SOFTWARE/RUNTIME_PLATFORM" : {
+      "SOFTWARE/RUNTIME_PLATFORM/AUTO" : 2509,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 108
+    },
+    "SOFTWARE/SECURITY_SOFTWARE" : {
+      "SOFTWARE/SECURITY_SOFTWARE/AUTO" : 1595,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 2
+    },
+    "SOFTWARE/UTILITY" : {
+      "SOFTWARE/UTILITY/AUTO" : 2612,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 57
+    },
+    "SOFTWARE/DEV_TOOL" : {
+      "SOFTWARE/DEV_TOOL/AUTO" : 3697,
+      "SOFTWARE/null/AUTO_TYPE_ONLY" : 58
+    }
+  },
+  "samples" : [ {
+    "expectedSubtype" : "COMPONENT_AGENT",
+    "actual" : {
+      "assetId" : "swv3-000000070",
+      "type" : "SOFTWARE",
+      "subtype" : "BUSINESS_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "SW_BUSINESS" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "COMPONENT_AGENT",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000000070"
+  }, {
+    "expectedSubtype" : "COMPONENT_AGENT",
+    "actual" : {
+      "assetId" : "swv3-000000111",
+      "type" : "SOFTWARE",
+      "subtype" : "BUSINESS_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "SW_BUSINESS" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "COMPONENT_AGENT",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000000111"
+  }, {
+    "expectedSubtype" : "BUSINESS_SOFTWARE",
+    "actual" : {
+      "assetId" : "swv3-000000558",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "BUSINESS_SOFTWARE",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000000558"
+  }, {
+    "expectedSubtype" : "IDE",
+    "actual" : {
+      "assetId" : "swv3-000000802",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "IDE",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000000802"
+  }, {
+    "expectedSubtype" : "DATABASE_TOOL",
+    "actual" : {
+      "assetId" : "swv3-000001173",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "DATABASE_TOOL",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000001173"
+  }, {
+    "expectedSubtype" : "APPLICATION_SOFTWARE",
+    "actual" : {
+      "assetId" : "swv3-000001226",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "APPLICATION_SOFTWARE",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000001226"
+  }, {
+    "expectedSubtype" : "COMPONENT_AGENT",
+    "actual" : {
+      "assetId" : "swv3-000002076",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "SW_SECURITY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "COMPONENT_AGENT",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000002076"
+  }, {
+    "expectedSubtype" : "IDE",
+    "actual" : {
+      "assetId" : "swv3-000002128",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "IDE",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000002128"
+  }, {
+    "expectedSubtype" : "UTILITY",
+    "actual" : {
+      "assetId" : "swv3-000002188",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "UTILITY",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000002188"
+  }, {
+    "expectedSubtype" : "DATABASE_SERVER",
+    "actual" : {
+      "assetId" : "swv3-000002198",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "DATABASE_SERVER",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000002198"
+  }, {
+    "expectedSubtype" : "OFFICE_SOFTWARE",
+    "actual" : {
+      "assetId" : "swv3-000002223",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "OFFICE_SOFTWARE",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000002223"
+  }, {
+    "expectedSubtype" : "DATABASE_SERVER",
+    "actual" : {
+      "assetId" : "swv3-000002441",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "DATABASE_SERVER",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000002441"
+  }, {
+    "expectedSubtype" : "COMPONENT_AGENT",
+    "actual" : {
+      "assetId" : "swv3-000002533",
+      "type" : "SOFTWARE",
+      "subtype" : "BUSINESS_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "SW_BUSINESS" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "COMPONENT_AGENT",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000002533"
+  }, {
+    "expectedSubtype" : "COMPONENT_AGENT",
+    "actual" : {
+      "assetId" : "swv3-000002626",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "SW_SECURITY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "COMPONENT_AGENT",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000002626"
+  }, {
+    "expectedSubtype" : "COMPONENT_AGENT",
+    "actual" : {
+      "assetId" : "swv3-000003156",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "SW_SECURITY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "COMPONENT_AGENT",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000003156"
+  }, {
+    "expectedSubtype" : "IDE",
+    "actual" : {
+      "assetId" : "swv3-000003433",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "IDE",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000003433"
+  }, {
+    "expectedSubtype" : "OPERATING_SYSTEM",
+    "actual" : {
+      "assetId" : "swv3-000004079",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "OPERATING_SYSTEM",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000004079"
+  }, {
+    "expectedSubtype" : "OPERATING_SYSTEM",
+    "actual" : {
+      "assetId" : "swv3-000004512",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "OPERATING_SYSTEM",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000004512"
+  }, {
+    "expectedSubtype" : "COMPONENT_AGENT",
+    "actual" : {
+      "assetId" : "swv3-000004549",
+      "type" : "SOFTWARE",
+      "subtype" : "SECURITY_SOFTWARE",
+      "status" : "AUTO",
+      "matchedRuleIds" : [ "SW_SECURITY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "COMPONENT_AGENT",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000004549"
+  }, {
+    "expectedSubtype" : "IDE",
+    "actual" : {
+      "assetId" : "swv3-000004657",
+      "type" : "SOFTWARE",
+      "subtype" : null,
+      "status" : "AUTO_TYPE_ONLY",
+      "matchedRuleIds" : [ "SW_TYPE_ONLY" ]
+    },
+    "kind" : "GROUND_TRUTH_ERROR",
+    "profile" : "IDE",
+    "expectedType" : "SOFTWARE",
+    "assetId" : "swv3-000004657"
+  } ]
+}
