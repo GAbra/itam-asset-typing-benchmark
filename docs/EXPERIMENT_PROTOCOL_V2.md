@@ -2,7 +2,7 @@
 
 **English** · [Русский](EXPERIMENT_PROTOCOL_V2_RU.md)
 
-This protocol applies only to branch `research/realistic-workload-v2`. Historical baseline v1 remains unchanged and is not treated as a before-state for speedup claims.
+This protocol describes the synthetic Realistic Workload v2 frozen in release `v2.0.0`. The historical branch `research/realistic-workload-v2` was used for development, but after publication the canonical reproduction point is tag `v2.0.0`. Historical baseline v1 remains unchanged and is not treated as a before-state for speedup claims.
 
 ## State frozen before a run
 
@@ -26,13 +26,17 @@ The application-level benchmark measures `END_TO_END` and `ENGINE_ONLY` separate
 
 A separate Maven `jmh` profile builds a `*-jmh.jar`. JMH measures all three engines in both modes for 14/100/500 rules using one thread, 5 × 1 s warmup, 8 × 1 s measurement, and 3 independent fork JVMs.
 
-## Run from Git Bash
+## Reproduce the release from Git Bash
+
+After `v2.0.0` is published, reproduce the release from the tag:
 
 ```bash
-git checkout research/realistic-workload-v2
-git pull --ff-only origin research/realistic-workload-v2
+git fetch --tags --force
+git checkout --detach v2.0.0
 sh scripts/run-research-v2-docker.sh
 ```
+
+Development runs may use `main`, but their reports must retain the actual commit SHA and must not be described as `v2.0.0` results when the code differs from the tag.
 
 Defaults are 100,000 assets per noise-regime accuracy corpus, 50,000 per distribution-sensitivity corpus, and 500,000 for the performance corpus. A heavier final run can be requested before launch, for example:
 
@@ -47,7 +51,7 @@ Do not change `SEED`, `WARMUP`, `RUNS`, or `BATCH` between engines within the sa
 
 ## Output artifacts
 
-All results are written under `results/research-v2/<commit>-<UTC>/`: accuracy reports, split manifests, performance reports, JMH JSON, logs, environment/protocol metadata, and `SHA256SUMS.txt`. `results/` is already ignored by Git, so measurements do not dirty the worktree.
+All results are written under `results/research-v2/<commit>-<UTC>/`: accuracy reports, split manifests, performance reports, JMH JSON, logs, environment/protocol metadata, and `SHA256SUMS.txt`. The repository is configured so bulky intermediates remain ignored while compact reviewable reports can be retained separately.
 
 The runner finishes with `scripts/validate-research-v2.py`. PASS means artifact integrity, expected matrix coverage, and zero engine divergence. PASS does **not** mean 100% production accuracy and does not make synthetic scenario distributions production statistics.
 
@@ -55,4 +59,4 @@ The runner finishes with `scripts/validate-research-v2.py`. PASS means artifact 
 
 The internal methodology is ready for evaluation after a successful full run when all three engines match the independent reference evaluator, holdout and train are disjoint, source fixtures and generated observations pass schema gates, all five `TypingStatus` outcomes are covered by tests, results exist across multiple noise regimes/profile distributions/ruleset sizes, and the application benchmark is cross-checked by forked JMH.
 
-The one irreducibly external gate for production-accuracy claims is an independently labelled real-world or well-anonymized production-like corpus. Without that dataset, the synthetic experiment can establish robustness and implementation comparisons, but not the real error prevalence of a specific environment.
+The synthetic stage is frozen by release `v2.0.0`. The remaining irreducibly external gate for production-accuracy claims is an independently labelled real-world or appropriately anonymized production-like corpus, evaluated under the separate [real-world validation protocol](REAL_WORLD_VALIDATION_PROTOCOL.md). Without that evidence, the synthetic experiment establishes robustness and implementation comparisons, not the real error prevalence of a specific environment.
