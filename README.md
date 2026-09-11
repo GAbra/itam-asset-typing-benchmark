@@ -11,16 +11,16 @@
 
 The project compares a custom indexed **HashMap + BitSet** evaluator, **CEL Java** and **DMN / Apache KIE** on the same normalized assets and rule semantics. The research track also evaluates missing/conflicting evidence, conservative abstention and a broader software taxonomy relevant to RU-oriented enterprise environments.
 
-[Final research summary](docs/RESEARCH_SUMMARY.md) · [Methodology](docs/METHODOLOGY.md) · [Baseline results](benchmark-results/README.md) · [Experiment protocol v2](docs/EXPERIMENT_PROTOCOL_V2.md) · [Architecture](docs/ARCHITECTURE.md)
+[Final research summary](docs/RESEARCH_SUMMARY.md) · [Methodology](docs/METHODOLOGY.md) · [Baseline results](benchmark-results/README.md) · [Experiment protocol v2](docs/EXPERIMENT_PROTOCOL_V2.md) · [Real-world validation](docs/REAL_WORLD_VALIDATION_PROTOCOL.md) · [Architecture](docs/ARCHITECTURE.md)
 
 ## Project status
 
 There are two intentionally different layers in this repository:
 
 1. **Controlled baseline v2** — the stable performance/correctness baseline using the original 14-rule canonical semantics.
-2. **`research/realistic-workload-v2`** — the completed research track with source-shaped observations, independent ground truth, noise/conflict scenarios, rule-count scaling, JMH cross-checks, a calibrated conflict policy and Software Taxonomy v3.
+2. **Realistic Workload v2** — the completed research track with source-shaped observations, independent ground truth, noise/conflict scenarios, rule-count scaling, JMH cross-checks, a calibrated conflict policy and Software Taxonomy v3.
 
-The research track is complete at the synthetic-prototype level. Further synthetic tuning is not required for the current prototype. The next meaningful validation step is an independently labelled real or properly anonymized production-like corpus.
+Release **`v2.0.0`** freezes the completed synthetic stage before any classifier results are inspected on real data. The current rulesets, taxonomy, normalization, resolver semantics and `conflictPriorityWindow=80` are treated as the frozen baseline. The next meaningful step is validation on an independently labelled real or appropriately anonymized production-like corpus under the preregistered protocol.
 
 The project does **not** claim production accuracy from synthetic results.
 
@@ -48,7 +48,7 @@ The full research experiment used 1,000,000 assets and preserved zero engine div
 | CEL | 115,012 | 8,695 |
 | DMN / KIE | 48,938 | 20,434 |
 
-The ranking remained consistent when the controlled ruleset was scaled to 50, 100 and 500 rules. The branch also contains ENGINE_ONLY measurements and a JMH cross-check.
+The ranking remained consistent when the controlled ruleset was scaled to 50, 100 and 500 rules. The research track also contains ENGINE_ONLY measurements and a JMH cross-check.
 
 ### Conservative conflict handling
 
@@ -146,8 +146,8 @@ The quick demo builds/tests the project, generates 10,000 synthetic assets, veri
 
 ```sh
 mvn -B clean verify
-java -jar target/itam-asset-typing-benchmark-1.0.0.jar generate --count 10000 --seed 20260909
-java -jar target/itam-asset-typing-benchmark-1.0.0.jar verify \
+java -jar target/itam-asset-typing-benchmark-2.0.0.jar generate --count 10000 --seed 20260909
+java -jar target/itam-asset-typing-benchmark-2.0.0.jar verify \
   --data data/generated/normalized-10000.jsonl \
   --out results/local/verify-10000.json
 ```
@@ -155,13 +155,13 @@ java -jar target/itam-asset-typing-benchmark-1.0.0.jar verify \
 After verification succeeds:
 
 ```sh
-java -jar target/itam-asset-typing-benchmark-1.0.0.jar benchmark \
+java -jar target/itam-asset-typing-benchmark-2.0.0.jar benchmark \
   --data data/generated/normalized-10000.jsonl \
   --warmup 2 --runs 5 --batch 2000 \
   --out results/local/benchmark-10000.json
 ```
 
-For the realistic research track, use [Experiment Protocol v2](docs/EXPERIMENT_PROTOCOL_V2.md), [Conflict-window calibration](docs/CONFLICT_WINDOW_CALIBRATION.md), [Robustness v2](docs/ROBUSTNESS_V2.md) and [Software Taxonomy v3](docs/SOFTWARE_TAXONOMY_V3.md).
+For Realistic Workload v2 reproduction, use [Experiment Protocol v2](docs/EXPERIMENT_PROTOCOL_V2.md). Before using a real corpus, follow the [Real-world Validation Protocol](docs/REAL_WORLD_VALIDATION_PROTOCOL.md). Also see [Conflict-window calibration](docs/CONFLICT_WINDOW_CALIBRATION.md), [Robustness v2](docs/ROBUSTNESS_V2.md) and [Software Taxonomy v3](docs/SOFTWARE_TAXONOMY_V3.md).
 
 ## Controlled environment for baseline v2
 
@@ -193,8 +193,9 @@ Committed experiment outputs intentionally keep compact JSON/provenance reports 
 - Product/catalog coverage does not imply market share or prevalence.
 - Production ingestion connectors are not benchmarked end to end.
 - Baseline and research performance results are machine/environment-specific.
-- The conflict window `80` is calibrated for the controlled research workload; external validation may justify recalibration.
+- The conflict window `80` is calibrated for the controlled research workload; if external validation justifies recalibration, that becomes a new version rather than a retroactive change to `v2.0.0`.
 - A synthetic PASS proves reproducibility and behavior under the defined scenarios, not real-world production accuracy.
+- The project types already-correlated assets; cross-source entity resolution is outside the current classifier.
 
 ## Research roadmap
 
@@ -208,7 +209,8 @@ Committed experiment outputs intentionally keep compact JSON/provenance reports 
 - [x] Conflict-window calibration and fresh-seed confirmation (`80`)
 - [x] Conservative robustness confirmation
 - [x] RU-oriented Software Taxonomy v3 and independent confirmation
-- [ ] Independently labelled real or properly anonymized production-like corpus
+- [x] Preregistered external-validation protocol before real-world model results
+- [ ] Independently labelled real or appropriately anonymized production-like corpus
 - [ ] External-machine replication / production-oriented capacity testing
 
 ## Documentation
@@ -217,6 +219,7 @@ Committed experiment outputs intentionally keep compact JSON/provenance reports 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Methodology](docs/METHODOLOGY.md)
 - [Experiment Protocol v2](docs/EXPERIMENT_PROTOCOL_V2.md)
+- [Real-world Validation Protocol](docs/REAL_WORLD_VALIDATION_PROTOCOL.md)
 - [Conflict-window calibration](docs/CONFLICT_WINDOW_CALIBRATION.md)
 - [Software Taxonomy v3](docs/SOFTWARE_TAXONOMY_V3.md)
 - [Data provenance](data/SOURCES.md)
@@ -224,6 +227,6 @@ Committed experiment outputs intentionally keep compact JSON/provenance reports 
 
 ## Contributing and citation
 
-Bug reports and carefully scoped reproductions are welcome. Keep source data synthetic unless you have explicit rights to share it, and preserve provenance when making performance or accuracy claims. Use [CITATION.cff](CITATION.cff) or GitHub's **Cite this repository** action and record the exact commit used.
+Bug reports and carefully scoped reproductions are welcome. Keep source data synthetic unless you have explicit rights to share it, and preserve provenance when making performance or accuracy claims. Use [CITATION.cff](CITATION.cff) or GitHub's **Cite this repository** action and record the release and exact commit used.
 
 [MIT licensed](LICENSE). Third-party libraries retain their own licenses; see [dependencies](docs/DEPENDENCIES.md).
