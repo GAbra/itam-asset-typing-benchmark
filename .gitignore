@@ -46,6 +46,19 @@ target/
 !/results/robustness-v2/**/provenance/*.txt
 !/results/robustness-v2/**/provenance/*.env
 
+# Conflict-window calibration reviewable artifacts
+!/results/conflict-window-sweep-v2/
+/results/conflict-window-sweep-v2/**
+!/results/conflict-window-sweep-v2/**/
+!/results/conflict-window-sweep-v2/**/baseline.json
+!/results/conflict-window-sweep-v2/**/window-*.json
+!/results/conflict-window-sweep-v2/**/split.json
+!/results/conflict-window-sweep-v2/**/*.meta.json
+!/results/conflict-window-sweep-v2/**/sweep-summary.json
+!/results/conflict-window-sweep-v2/**/SHA256SUMS.txt
+!/results/conflict-window-sweep-v2/**/provenance/*.txt
+!/results/conflict-window-sweep-v2/**/provenance/*.env
+
 # Intentionally still ignored under research result trees:
 # *.jsonl corpora, *.log files, review-pack archives and other large intermediates.
 __pycache__/

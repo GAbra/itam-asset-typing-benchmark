@@ -1,0 +1,48 @@
+name: conflict-window-sweep-smoke
+
+on:
+  pull_request:
+    paths:
+      - 'src/main/java/ru/itam/typing/**'
+      - 'src/test/java/ru/itam/typing/**'
+      - 'rules/**'
+      - 'Dockerfile'
+      - 'scripts/run-conflict-window-sweep.sh'
+      - 'scripts/run-conflict-window-sweep-docker.sh'
+      - 'scripts/summarize-conflict-window-sweep.py'
+      - 'scripts/validate-conflict-window-sweep.py'
+      - '.github/workflows/conflict-window-sweep-smoke.yml'
+      - 'pom.xml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sweep-runner-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Execute conflict-window sweep Docker orchestration with smoke sizes
+        env:
+          CALIBRATION_COUNT: '500'
+          SEED: '20260912'
+          WINDOWS: '20 40 60 80 100 120'
+          STRICT_GATE: '0'
+          OUT_DIR: 'results/conflict-window-sweep-v2/ci-orchestration-smoke'
+        run: sh scripts/run-conflict-window-sweep-docker.sh
+      - name: Assert expected artifacts
+        run: |
+          test -f results/conflict-window-sweep-v2/ci-orchestration-smoke/SHA256SUMS.txt
+          test -f results/conflict-window-sweep-v2/ci-orchestration-smoke/sweep-summary.json
+          test -f results/conflict-window-sweep-v2/ci-orchestration-smoke/accuracy/clean/baseline.json
+          test -f results/conflict-window-sweep-v2/ci-orchestration-smoke/accuracy/severe/window-80.json
+          python3 scripts/validate-conflict-window-sweep.py \
+            results/conflict-window-sweep-v2/ci-orchestration-smoke \
+            --windows 20 40 60 80 100 120
