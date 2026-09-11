@@ -2,7 +2,7 @@
 
 [English](EXPERIMENT_PROTOCOL_V2.md) · **Русский**
 
-Этот протокол относится только к ветке `research/realistic-workload-v2`. Исторический baseline v1 не изменяется и не используется как «до» для заявления об ускорении.
+Этот протокол описывает синтетический Realistic Workload v2, замороженный в релизе `v2.0.0`. Историческая ветка `research/realistic-workload-v2` использовалась для разработки, но канонической воспроизводимой точкой после публикации релиза является тег `v2.0.0`. Исторический baseline v1 не изменяется и не используется как «до» для заявления об ускорении.
 
 ## Что фиксируется до запуска
 
@@ -26,13 +26,17 @@ Application-level benchmark отдельно измеряет `END_TO_END` и `E
 
 Дополнительно Maven profile `jmh` собирает отдельный `*-jmh.jar`. JMH измеряет те же три движка в `END_TO_END` и `ENGINE_ONLY` режимах для 14/100/500 rules: single thread, 5 × 1 s warmup, 8 × 1 s measurement, 3 независимых fork JVM.
 
-## Запуск из Git Bash
+## Воспроизведение релиза из Git Bash
+
+После публикации `v2.0.0` используйте именно тег:
 
 ```bash
-git checkout research/realistic-workload-v2
-git pull --ff-only origin research/realistic-workload-v2
+git fetch --tags --force
+git checkout --detach v2.0.0
 sh scripts/run-research-v2-docker.sh
 ```
+
+Для разработки после релиза можно использовать `main`, но результаты такого запуска должны сохранять фактический commit SHA и не называться результатами `v2.0.0`, если код отличается от тега.
 
 По умолчанию accuracy использует 100 000 assets на noise regime, distribution sensitivity — 50 000, performance corpus — 500 000. Для финального более тяжёлого прогона можно перед запуском задать, например:
 
@@ -43,11 +47,11 @@ export PERF_COUNT=1000000
 sh scripts/run-research-v2-docker.sh
 ```
 
-Не изменяй `SEED`, `WARMUP`, `RUNS`, `BATCH` между сравниваемыми движками в одном эксперименте. Перед финальным performance run желательно закрыть тяжёлые фоновые задачи и остановить другие Docker containers; сам скрипт ничего на хосте принудительно не завершает.
+Не изменяйте `SEED`, `WARMUP`, `RUNS`, `BATCH` между сравниваемыми движками в одном эксперименте. Перед финальным performance run желательно закрыть тяжёлые фоновые задачи и остановить другие Docker containers; сам скрипт ничего на хосте принудительно не завершает.
 
 ## Выходные артефакты
 
-Все результаты сохраняются под `results/research-v2/<commit>-<UTC>/`. Там находятся accuracy reports, split manifests, performance reports, JMH JSON, логи, environment/protocol metadata и `SHA256SUMS.txt`. Каталог `results/` уже исключён из Git, поэтому измерения не загрязняют worktree.
+Все результаты сохраняются под `results/research-v2/<commit>-<UTC>/`. Там находятся accuracy reports, split manifests, performance reports, JMH JSON, логи, environment/protocol metadata и `SHA256SUMS.txt`. Каталог `results/` настроен так, чтобы большие промежуточные файлы не загрязняли репозиторий, а компактные reviewable reports могли сохраняться отдельно.
 
 В конце автоматически запускается `scripts/validate-research-v2.py`. PASS означает целостность артефактов, наличие всех ожидаемых матриц и отсутствие divergence движков. PASS **не означает** 100% production accuracy и не превращает synthetic scenario distributions в production statistics.
 
@@ -55,4 +59,4 @@ sh scripts/run-research-v2-docker.sh
 
 Внутренняя методология считается готовой для оценки после успешного full run, когда: все три движка эквивалентны независимому reference evaluator; holdout не пересекается с train; source fixtures и source-shaped generator проходят schema gates; все пять `TypingStatus` покрыты тестами; результаты получены для нескольких noise regimes, нескольких profile distributions и нескольких ruleset sizes; application benchmark подтверждён forked JMH.
 
-Единственный принципиально внешний gate для утверждений о production accuracy — независимая размеченная real-world или качественно обезличенная production-like выборка. Без неё synthetic experiment оценивает robustness и сравнительную реализацию, но не измеряет реальную частоту ошибок в конкретной инфраструктуре.
+Синтетический этап зафиксирован релизом `v2.0.0`. Следующий принципиально внешний gate для утверждений о production accuracy — независимо размеченная real-world или качественно обезличенная production-like выборка. Она исследуется по отдельному [протоколу внешней валидации](REAL_WORLD_VALIDATION_PROTOCOL_RU.md). Без этого synthetic experiment оценивает robustness и сравнительную реализацию, но не измеряет реальную частоту ошибок в конкретной инфраструктуре.
