@@ -11,6 +11,7 @@ import org.kie.dmn.core.internal.utils.DMNRuntimeBuilder;
 import org.kie.internal.io.ResourceFactory;
 import ru.itam.typing.engine.FeatureMapTypingEngine;
 import ru.itam.typing.engine.common.MatchResolver;
+import ru.itam.typing.engine.common.ResolutionPolicy;
 import ru.itam.typing.features.FeatureExtractor;
 import ru.itam.typing.model.*;
 import ru.itam.typing.rules.RuleSet;
@@ -20,15 +21,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public final class DmnTypingEngine implements FeatureMapTypingEngine {
     private final FeatureExtractor featureExtractor;
+    private final ResolutionPolicy resolutionPolicy;
     private final DMNRuntime runtime;
     private final DMNModel model;
     private final String generatedDmn;
 
     public DmnTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor) {
+        this(ruleSet, featureExtractor, ResolutionPolicy.LEGACY_MAX_PRIORITY);
+    }
+
+    public DmnTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor, ResolutionPolicy resolutionPolicy) {
         this.featureExtractor = featureExtractor;
+        this.resolutionPolicy = Objects.requireNonNull(resolutionPolicy, "resolutionPolicy");
         this.generatedDmn = new DmnModelGenerator().generate(ruleSet);
         Resource resource = ResourceFactory.newByteArrayResource(generatedDmn.getBytes(StandardCharsets.UTF_8));
         resource.setSourcePath("generated/itam-typing.dmn");
@@ -75,7 +83,7 @@ public final class DmnTypingEngine implements FeatureMapTypingEngine {
         } else if (raw != null) {
             addMatch(raw, matches);
         }
-        return MatchResolver.resolve(assetId, matches);
+        return MatchResolver.resolve(assetId, matches, resolutionPolicy);
     }
 
     public String generatedDmn() {

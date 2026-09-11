@@ -10,6 +10,7 @@ import dev.cel.runtime.CelRuntime;
 import dev.cel.runtime.CelRuntimeFactory;
 import ru.itam.typing.engine.FeatureMapTypingEngine;
 import ru.itam.typing.engine.common.MatchResolver;
+import ru.itam.typing.engine.common.ResolutionPolicy;
 import ru.itam.typing.features.FeatureExtractor;
 import ru.itam.typing.model.AssetTypingContext;
 import ru.itam.typing.model.RuleMatch;
@@ -25,12 +26,18 @@ import java.util.*;
  */
 public final class CelTypingEngine implements FeatureMapTypingEngine {
     private final FeatureExtractor featureExtractor;
+    private final ResolutionPolicy resolutionPolicy;
     private final List<CompiledRule> rules;
     private final Map<String, int[]> anchorIndex;
     private final int[] unanchoredRuleIndexes;
 
     public CelTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor) {
+        this(ruleSet, featureExtractor, ResolutionPolicy.LEGACY_MAX_PRIORITY);
+    }
+
+    public CelTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor, ResolutionPolicy resolutionPolicy) {
         this.featureExtractor = featureExtractor;
+        this.resolutionPolicy = Objects.requireNonNull(resolutionPolicy, "resolutionPolicy");
         CelCompiler compiler = CelCompilerFactory.standardCelCompilerBuilder()
                 .addVar("features", MapType.create(SimpleType.STRING, SimpleType.BOOL))
                 .setResultType(SimpleType.BOOL)
@@ -96,7 +103,7 @@ public final class CelTypingEngine implements FeatureMapTypingEngine {
                 throw new IllegalStateException("CEL evaluation failed for " + compiled.rule().ruleId(), e);
             }
         }
-        return MatchResolver.resolve(assetId, matches);
+        return MatchResolver.resolve(assetId, matches, resolutionPolicy);
     }
 
     public List<String> compiledExpressions() {

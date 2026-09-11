@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import ru.itam.typing.engine.FeatureMapTypingEngine;
 import ru.itam.typing.engine.bitset.BitSetTypingEngine;
 import ru.itam.typing.engine.cel.CelTypingEngine;
+import ru.itam.typing.engine.common.ResolutionPolicy;
 import ru.itam.typing.engine.dmn.DmnTypingEngine;
 import ru.itam.typing.engine.reference.ReferenceTypingEngine;
 import ru.itam.typing.features.FeatureExtractor;
@@ -33,14 +34,16 @@ public final class AccuracyEvaluationCli {
         Path truth = Path.of(required(a, "--truth"));
         Path rules = Path.of(a.getOrDefault("--rules", "rules/canonical-rules.yaml"));
         Path out = Path.of(a.getOrDefault("--out", "results/local/realistic-v2-accuracy.json"));
+        int conflictWindow = Integer.parseInt(a.getOrDefault("--conflict-window", "0"));
+        ResolutionPolicy policy = ResolutionPolicy.conservative(conflictWindow);
 
         var ruleSet = RuleLoader.load(rules);
         FeatureExtractor extractor = new FeatureExtractor();
-        ReferenceTypingEngine reference = new ReferenceTypingEngine(ruleSet, extractor);
+        ReferenceTypingEngine reference = new ReferenceTypingEngine(ruleSet, extractor, policy);
         List<FeatureMapTypingEngine> engines = List.of(
-                new BitSetTypingEngine(ruleSet, extractor),
-                new CelTypingEngine(ruleSet, extractor),
-                new DmnTypingEngine(ruleSet, extractor));
+                new BitSetTypingEngine(ruleSet, extractor, policy),
+                new CelTypingEngine(ruleSet, extractor, policy),
+                new DmnTypingEngine(ruleSet, extractor, policy));
 
         Stats stats = new Stats();
         try (BufferedReader dataReader = Files.newBufferedReader(data, StandardCharsets.UTF_8);
@@ -74,7 +77,7 @@ public final class AccuracyEvaluationCli {
             }
         }
 
-        EvaluationReport report = stats.report(data, truth, rules);
+        EvaluationReport report = stats.report(data, truth, rules, policy);
         Files.createDirectories(out.toAbsolutePath().getParent());
         JSON.writeValue(out.toFile(), report);
         System.out.println(JSON.writeValueAsString(report));
@@ -86,6 +89,9 @@ public final class AccuracyEvaluationCli {
         long exactCorrect;
         long autoCount;
         long autoWrong;
+        long fullAutoCount;
+        long fullAutoWrong;
+        long subtypeAbstained;
         long unresolved;
         long engineDivergences;
         final Map<String, Long> statusCounts = new TreeMap<>();
@@ -105,11 +111,20 @@ public final class AccuracyEvaluationCli {
                 exactCorrect++;
                 profileExactCorrect.merge(label.profile(), 1L, Long::sum);
             }
+
             boolean auto = actual.status() == TypingStatus.AUTO || actual.status() == TypingStatus.AUTO_TYPE_ONLY;
             if (auto) {
                 autoCount++;
                 if (!exactOk) autoWrong++;
             }
+
+            if (actual.status() == TypingStatus.AUTO) {
+                fullAutoCount++;
+                if (!exactOk) fullAutoWrong++;
+            } else {
+                subtypeAbstained++;
+            }
+
             if (actual.status() == TypingStatus.NOT_CLASSIFIED || actual.status() == TypingStatus.TYPE_CONFLICT
                     || actual.status() == TypingStatus.SUBTYPE_CONFLICT) unresolved++;
 
@@ -121,15 +136,20 @@ public final class AccuracyEvaluationCli {
                     "expectedType", label.type(), "expectedSubtype", label.subtype(), "actual", actual));
         }
 
-        EvaluationReport report(Path data, Path truth, Path rules) {
+        EvaluationReport report(Path data, Path truth, Path rules, ResolutionPolicy policy) {
             Map<String, Double> profileAccuracy = new TreeMap<>();
             profileCounts.forEach((profile, count) -> profileAccuracy.put(profile,
                     count == 0 ? 0.0 : profileExactCorrect.getOrDefault(profile, 0L) / (double) count));
             return new EvaluationReport(
                     engineDivergences == 0 ? "OK" : "ENGINE_DIVERGENCE",
-                    data.toString(), truth.toString(), rules.toString(), total, engineDivergences,
+                    data.toString(), truth.toString(), rules.toString(),
+                    policy.name(), policy.conflictPriorityWindow(),
+                    total, engineDivergences,
                     ratio(typeCorrect, total), ratio(exactCorrect, total), ratio(autoCount, total),
                     ratio(autoWrong, autoCount), ratio(unresolved, total),
+                    fullAutoCount, fullAutoWrong,
+                    ratio(fullAutoCount, total), ratio(fullAutoWrong, fullAutoCount),
+                    ratio(fullAutoWrong, total), ratio(subtypeAbstained, total),
                     Map.copyOf(statusCounts), Map.copyOf(profileCounts), Map.copyOf(profileAccuracy),
                     deepCopy(confusion), List.copyOf(samples));
         }
@@ -165,6 +185,8 @@ public final class AccuracyEvaluationCli {
             String data,
             String truth,
             String rules,
+            String resolutionPolicy,
+            int conflictPriorityWindow,
             long total,
             long engineDivergences,
             double typeAccuracy,
@@ -172,6 +194,12 @@ public final class AccuracyEvaluationCli {
             double autoCoverage,
             double autoErrorRate,
             double unresolvedRate,
+            long fullAutoCount,
+            long fullAutoWrong,
+            double fullAutoCoverage,
+            double fullAutoErrorRate,
+            double wrongFullAutoPerTotal,
+            double subtypeAbstentionRate,
             Map<String, Long> statusCounts,
             Map<String, Long> profileCounts,
             Map<String, Double> profileExactAccuracy,

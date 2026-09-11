@@ -2,6 +2,7 @@ package ru.itam.typing.engine.bitset;
 
 import ru.itam.typing.engine.FeatureMapTypingEngine;
 import ru.itam.typing.engine.common.MatchResolver;
+import ru.itam.typing.engine.common.ResolutionPolicy;
 import ru.itam.typing.features.FeatureExtractor;
 import ru.itam.typing.model.AssetTypingContext;
 import ru.itam.typing.model.RuleMatch;
@@ -13,13 +14,19 @@ import java.util.*;
 
 public final class BitSetTypingEngine implements FeatureMapTypingEngine {
     private final FeatureExtractor featureExtractor;
+    private final ResolutionPolicy resolutionPolicy;
     private final Map<String, Integer> featureIds;
     private final List<CompiledRule> compiledRules;
     private final Map<Integer, int[]> anchorIndex;
     private final int[] unanchoredRuleIds;
 
     public BitSetTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor) {
+        this(ruleSet, featureExtractor, ResolutionPolicy.LEGACY_MAX_PRIORITY);
+    }
+
+    public BitSetTypingEngine(RuleSet ruleSet, FeatureExtractor featureExtractor, ResolutionPolicy resolutionPolicy) {
         this.featureExtractor = featureExtractor;
+        this.resolutionPolicy = Objects.requireNonNull(resolutionPolicy, "resolutionPolicy");
         SortedSet<String> allFeatures = new TreeSet<>();
         for (CanonicalRule rule : ruleSet.rules()) {
             if (!rule.enabled()) continue;
@@ -91,7 +98,7 @@ public final class BitSetTypingEngine implements FeatureMapTypingEngine {
                 matches.add(new RuleMatch(r.ruleId(), r.targetType(), r.targetSubtype(), r.priority()));
             }
         }
-        return MatchResolver.resolve(assetId, matches);
+        return MatchResolver.resolve(assetId, matches, resolutionPolicy);
     }
 
     public int featureCount() {

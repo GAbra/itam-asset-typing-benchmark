@@ -33,6 +33,19 @@ target/
 !/results/research-v2/**/provenance/*.txt
 !/results/research-v2/**/provenance/*.env
 
-# Intentionally still ignored under results/research-v2:
+# Robustness / abstention v2 reviewable artifacts
+!/results/robustness-v2/
+/results/robustness-v2/**
+!/results/robustness-v2/**/
+!/results/robustness-v2/**/baseline.json
+!/results/robustness-v2/**/conservative.json
+!/results/robustness-v2/**/split.json
+!/results/robustness-v2/**/*.meta.json
+!/results/robustness-v2/**/robustness-summary.json
+!/results/robustness-v2/**/SHA256SUMS.txt
+!/results/robustness-v2/**/provenance/*.txt
+!/results/robustness-v2/**/provenance/*.env
+
+# Intentionally still ignored under research result trees:
 # *.jsonl corpora, *.log files, review-pack archives and other large intermediates.
 __pycache__/
