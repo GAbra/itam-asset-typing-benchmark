@@ -9,18 +9,18 @@
 
 **Одна семантика типизации. Три движка. Воспроизводимые эксперименты ITAM — от чистого baseline до шумных мульти-источниковых данных.**
 
-Проект сравнивает специализированный индексированный **HashMap + BitSet**, **CEL Java** и **DMN / Apache KIE** на одних и тех же нормализованных активах и правилах. Исследовательская ветка дополнительно проверяет неполные/противоречивые данные, консервативный отказ от рискованного AUTO и расширенную типизацию ПО, ориентированную на российский корпоративный IT.
+Проект сравнивает специализированный индексированный **HashMap + BitSet**, **CEL Java** и **DMN / Apache KIE** на одних и тех же нормализованных активах и правилах. Research-контур дополнительно проверяет неполные/противоречивые данные, консервативный отказ от рискованного AUTO и расширенную типизацию ПО, ориентированную на российский корпоративный IT.
 
-[Итоговая исследовательская сводка](docs/RESEARCH_SUMMARY_RU.md) · [Методика](docs/METHODOLOGY_RU.md) · [Baseline-результаты](benchmark-results/README_RU.md) · [Experiment Protocol v2](docs/EXPERIMENT_PROTOCOL_V2_RU.md) · [Архитектура](docs/ARCHITECTURE_RU.md)
+[Итоговая исследовательская сводка](docs/RESEARCH_SUMMARY_RU.md) · [Методика](docs/METHODOLOGY_RU.md) · [Baseline-результаты](benchmark-results/README_RU.md) · [Experiment Protocol v2](docs/EXPERIMENT_PROTOCOL_V2_RU.md) · [Внешняя валидация](docs/REAL_WORLD_VALIDATION_PROTOCOL_RU.md) · [Архитектура](docs/ARCHITECTURE_RU.md)
 
 ## Статус проекта
 
 В репозитории сознательно разделены два уровня:
 
 1. **Controlled baseline v2** — стабильный baseline производительности и корректности на исходной 14-rule семантике.
-2. **`research/realistic-workload-v2`** — завершённый исследовательский трек с source-shaped данными, независимым ground truth, noise/conflict сценариями, масштабированием правил, JMH cross-check, откалиброванной политикой противоречий и Software Taxonomy v3.
+2. **Realistic Workload v2** — завершённый research-контур с source-shaped данными, независимым ground truth, noise/conflict сценариями, масштабированием правил, JMH cross-check, откалиброванной политикой противоречий и Software Taxonomy v3.
 
-Исследовательский этап завершён на уровне синтетического прототипа. Дальнейшее синтетическое «докручивание» для текущей версии не требуется. Следующий содержательный шаг — проверка на независимо размеченном реальном или корректно обезличенном production-like корпусе.
+Релиз **`v2.0.0`** фиксирует завершение синтетического этапа до просмотра результатов на реальных данных. Текущие ruleset, таксономия, нормализация, resolver и `conflictPriorityWindow=80` рассматриваются как замороженный baseline. Следующий содержательный шаг — проверка на независимо размеченном реальном или корректно обезличенном production-like корпусе по заранее зафиксированному протоколу.
 
 Проект **не** заявляет production accuracy по результатам синтетики.
 
@@ -48,11 +48,11 @@
 | CEL | 115 012 | 8 695 |
 | DMN / KIE | 48 938 | 20 434 |
 
-Порядок движков сохранился при контролируемом увеличении набора правил до 50, 100 и 500. В ветке также есть ENGINE_ONLY замеры и JMH cross-check.
+Порядок движков сохранился при контролируемом увеличении набора правил до 50, 100 и 500. В research-контуре также есть ENGINE_ONLY замеры и JMH cross-check.
 
 ### Консервативная обработка противоречий
 
-Исследовательская ветка добавляет консервативную политику resolver для случаев, когда сильные противоречащие правила близки по приоритету. **Весов по источникам нет.** Дополнительный параметр один — `conflictPriorityWindow`.
+Research-контур добавляет консервативную политику resolver для случаев, когда сильные противоречащие правила близки по приоритету. **Весов по источникам нет.** Дополнительный параметр один — `conflictPriorityWindow`.
 
 По заранее зафиксированному sweep `20, 40, 60, 80, 100, 120` выбрано:
 
@@ -64,7 +64,7 @@ conflictPriorityWindow = 80
 
 ### Software Taxonomy v3
 
-Исходное бинарное деление ПО заменено в research-треке на 16 подтипов: ОС, офисное и бизнес-ПО, браузеры, IDE, инструменты и серверы БД, проектирование/дизайн, security/crypto, runtime, dev tools, утилиты, коммуникации, компоненты/агенты и прочее прикладное ПО.
+Исходное бинарное деление ПО заменено в research-контуре на 16 подтипов: ОС, офисное и бизнес-ПО, браузеры, IDE, инструменты и серверы БД, проектирование/дизайн, security/crypto, runtime, dev tools, утилиты, коммуникации, компоненты/агенты и прочее прикладное ПО.
 
 Каталог содержит **74 репрезентативных продукта/семейства** для покрытия RU-oriented корпоративных сценариев. В нём есть российские и международные продукты; это **не** модель рыночных долей.
 
@@ -108,7 +108,7 @@ flowchart LR
     O --> V
 ```
 
-Движки получают одинаковые нормализованные признаки и семантику решения. BitSet и CEL используют application-level candidate indexing; DMN — сгенерированную decision table. Исследовательская ветка также содержит независимый линейный reference evaluator, чтобы уменьшить риск общей ошибки во всех реализациях.
+Движки получают одинаковые нормализованные признаки и семантику решения. BitSet и CEL используют application-level candidate indexing; DMN — сгенерированную decision table. Research-контур также содержит независимый линейный reference evaluator, чтобы уменьшить риск общей ошибки во всех реализациях.
 
 ## Зачем нужен эксперимент
 
@@ -146,8 +146,8 @@ Quick demo собирает и тестирует проект, генериру
 
 ```sh
 mvn -B clean verify
-java -jar target/itam-asset-typing-benchmark-1.0.0.jar generate --count 10000 --seed 20260909
-java -jar target/itam-asset-typing-benchmark-1.0.0.jar verify \
+java -jar target/itam-asset-typing-benchmark-2.0.0.jar generate --count 10000 --seed 20260909
+java -jar target/itam-asset-typing-benchmark-2.0.0.jar verify \
   --data data/generated/normalized-10000.jsonl \
   --out results/local/verify-10000.json
 ```
@@ -155,13 +155,13 @@ java -jar target/itam-asset-typing-benchmark-1.0.0.jar verify \
 После успешной проверки:
 
 ```sh
-java -jar target/itam-asset-typing-benchmark-1.0.0.jar benchmark \
+java -jar target/itam-asset-typing-benchmark-2.0.0.jar benchmark \
   --data data/generated/normalized-10000.jsonl \
   --warmup 2 --runs 5 --batch 2000 \
   --out results/local/benchmark-10000.json
 ```
 
-Для realistic research-трека используйте [Experiment Protocol v2](docs/EXPERIMENT_PROTOCOL_V2_RU.md), [калибровку порога](docs/CONFLICT_WINDOW_CALIBRATION_RU.md), [Robustness v2](docs/ROBUSTNESS_V2_RU.md) и [Software Taxonomy v3](docs/SOFTWARE_TAXONOMY_V3_RU.md).
+Для воспроизведения Realistic Workload v2 используйте [Experiment Protocol v2](docs/EXPERIMENT_PROTOCOL_V2_RU.md). Перед работой с реальным корпусом — [Протокол внешней валидации](docs/REAL_WORLD_VALIDATION_PROTOCOL_RU.md). Также см. [калибровку порога](docs/CONFLICT_WINDOW_CALIBRATION_RU.md), [Robustness v2](docs/ROBUSTNESS_V2_RU.md) и [Software Taxonomy v3](docs/SOFTWARE_TAXONOMY_V3_RU.md).
 
 ## Контролируемая среда baseline v2
 
@@ -181,7 +181,7 @@ java -jar target/itam-asset-typing-benchmark-1.0.0.jar benchmark \
 
 ## Корректность и воспроизводимость
 
-Baseline verifier сравнивает тип, подтип, статус и отсортированные winning rule IDs. Research-трек дополнительно использует отдельно хранимый ground truth, детерминированный holdout, проверки source shape, независимый reference evaluator, noise-сценарии, SHA-256 manifests и заранее зафиксированные acceptance criteria.
+Baseline verifier сравнивает тип, подтип, статус и отсортированные winning rule IDs. Research-контур дополнительно использует отдельно хранимый ground truth, детерминированный holdout, проверки source shape, независимый reference evaluator, noise-сценарии, SHA-256 manifests и заранее зафиксированные acceptance criteria.
 
 Throughput **не** используется как CI pass/fail threshold. Проверки корректности и структуры артефактов отделены от наблюдений производительности.
 
@@ -193,8 +193,9 @@ Throughput **не** используется как CI pass/fail threshold. Пр
 - Наличие продукта в каталоге не означает его долю рынка или распространённость.
 - Production ingestion connectors не измеряются end-to-end.
 - Производительность baseline/research зависит от машины и окружения.
-- `conflictPriorityWindow=80` откалиброван на контролируемом research workload; внешняя валидация может потребовать повторной калибровки.
+- `conflictPriorityWindow=80` откалиброван на контролируемом research workload; если внешняя валидация потребует повторной калибровки, это будет уже новая версия, а не изменение `v2.0.0` задним числом.
 - Синтетический PASS доказывает воспроизводимость и поведение в заданных сценариях, но не production accuracy.
+- Проект типизирует уже сопоставленные активы; entity resolution между источниками находится вне текущего алгоритма.
 
 ## Research roadmap
 
@@ -208,6 +209,7 @@ Throughput **не** используется как CI pass/fail threshold. Пр
 - [x] Калибровка порога и подтверждение на новом seed (`80`)
 - [x] Подтверждение conservative robustness
 - [x] RU-oriented Software Taxonomy v3 и независимый confirmation run
+- [x] Заранее зафиксированный протокол внешней валидации до просмотра реальных результатов
 - [ ] Независимо размеченный реальный или корректно обезличенный production-like corpus
 - [ ] Репликация на внешних машинах / production-oriented capacity testing
 
@@ -217,6 +219,7 @@ Throughput **не** используется как CI pass/fail threshold. Пр
 - [Архитектура](docs/ARCHITECTURE_RU.md)
 - [Методика](docs/METHODOLOGY_RU.md)
 - [Experiment Protocol v2](docs/EXPERIMENT_PROTOCOL_V2_RU.md)
+- [Протокол внешней валидации](docs/REAL_WORLD_VALIDATION_PROTOCOL_RU.md)
 - [Калибровка порога](docs/CONFLICT_WINDOW_CALIBRATION_RU.md)
 - [Software Taxonomy v3](docs/SOFTWARE_TAXONOMY_V3_RU.md)
 - [Происхождение данных](data/SOURCES_RU.md)
@@ -224,6 +227,6 @@ Throughput **не** используется как CI pass/fail threshold. Пр
 
 ## Участие и цитирование
 
-Bug reports и аккуратно ограниченные воспроизводимые эксперименты приветствуются. Не добавляйте реальные чувствительные данные без явного права на публикацию и сохраняйте provenance для любых заявлений о производительности или точности. Для цитирования используйте [CITATION.cff](CITATION.cff) или GitHub **Cite this repository**, обязательно фиксируя точный commit.
+Bug reports и аккуратно ограниченные воспроизводимые эксперименты приветствуются. Не добавляйте реальные чувствительные данные без явного права на публикацию и сохраняйте provenance для любых заявлений о производительности или точности. Для цитирования используйте [CITATION.cff](CITATION.cff) или GitHub **Cite this repository**, обязательно фиксируя релиз и точный commit.
 
 [Лицензия MIT](LICENSE). Сторонние библиотеки сохраняют собственные лицензии; см. [dependencies](docs/DEPENDENCIES_RU.md).

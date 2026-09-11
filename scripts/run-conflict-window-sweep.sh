@@ -23,7 +23,7 @@ export JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS:-"-Xms2g -Xmx2g -XX:+UseG1GC -XX:Ac
 
 echo "Building application..."
 mvn -q clean package
-JAR=target/itam-asset-typing-benchmark-1.0.0.jar
+JAR=target/itam-asset-typing-benchmark-2.0.0.jar
 
 run_case() {
   noise=$1

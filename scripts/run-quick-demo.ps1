@@ -53,16 +53,16 @@ Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'mvn', '-B',
 
 Write-Host "[2/5] Generate deterministic 10K dataset"
 New-Item -ItemType Directory -Force -Path data/generated,results/local,rules/generated | Out-Null
-Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'java', '-jar', 'target/itam-asset-typing-benchmark-1.0.0.jar', 'generate', '--count', '10000', '--seed', '20260909', '--out', 'data/generated/normalized-10000.jsonl') -Description 'Dataset generation'
+Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'java', '-jar', 'target/itam-asset-typing-benchmark-2.0.0.jar', 'generate', '--count', '10000', '--seed', '20260909', '--out', 'data/generated/normalized-10000.jsonl') -Description 'Dataset generation'
 
 Write-Host "[3/5] Differential verification: BitSet = CEL = DMN"
-Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'java', '-jar', 'target/itam-asset-typing-benchmark-1.0.0.jar', 'verify', '--data', 'data/generated/normalized-10000.jsonl', '--out', 'results/local/verify-10000.json') -Description 'Differential verification'
+Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'java', '-jar', 'target/itam-asset-typing-benchmark-2.0.0.jar', 'verify', '--data', 'data/generated/normalized-10000.jsonl', '--out', 'results/local/verify-10000.json') -Description 'Differential verification'
 
 Write-Host "[4/5] Simple repeatable benchmark"
-Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'java', '-jar', 'target/itam-asset-typing-benchmark-1.0.0.jar', 'benchmark', '--data', 'data/generated/normalized-10000.jsonl', '--warmup', '2', '--runs', '5', '--batch', '2000', '--out', 'results/local/benchmark-10000.json') -Description 'Benchmark'
+Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'java', '-jar', 'target/itam-asset-typing-benchmark-2.0.0.jar', 'benchmark', '--data', 'data/generated/normalized-10000.jsonl', '--warmup', '2', '--runs', '5', '--batch', '2000', '--out', 'results/local/benchmark-10000.json') -Description 'Benchmark'
 
 Write-Host "[5/5] Export generated DMN"
-Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'java', '-jar', 'target/itam-asset-typing-benchmark-1.0.0.jar', 'export-dmn', '--out', 'rules/generated/itam-typing.dmn') -Description 'DMN export'
+Invoke-DockerChecked -Arguments @('compose', 'run', '--rm', 'demo', 'java', '-jar', 'target/itam-asset-typing-benchmark-2.0.0.jar', 'export-dmn', '--out', 'rules/generated/itam-typing.dmn') -Description 'DMN export'
 
 Write-Host ""
 Write-Host "DONE. Results:"
