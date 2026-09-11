@@ -37,24 +37,24 @@ jobs:
         run: mvn -B --no-transfer-progress -Pjmh -DskipTests package
       - name: Smoke-test JMH research benchmark
         run: |
-          java -jar target/itam-asset-typing-benchmark-1.0.0-jmh.jar \
+          java -jar target/itam-asset-typing-benchmark-2.0.0-jmh.jar \
             'ru.itam.typing.bench.EngineJmhBenchmark.bitsetEngineOnly' \
             -p ruleCount=14 -wi 1 -i 1 -f 1 -w 100ms -r 100ms
       - name: Smoke-test realistic v2 holdout and accuracy path
         run: |
-          java -cp target/itam-asset-typing-benchmark-1.0.0.jar ru.itam.typing.realistic.RealisticWorkloadCli all \
+          java -cp target/itam-asset-typing-benchmark-2.0.0.jar ru.itam.typing.realistic.RealisticWorkloadCli all \
             --count 2000 --seed 20260910 --noise moderate --distribution device-heavy \
             --raw data/generated/ci-v2-raw.jsonl --truth data/generated/ci-v2-truth.jsonl \
             --out data/generated/ci-v2-normalized.jsonl
-          java -cp target/itam-asset-typing-benchmark-1.0.0.jar ru.itam.typing.realistic.HoldoutSplitCli \
+          java -cp target/itam-asset-typing-benchmark-2.0.0.jar ru.itam.typing.realistic.HoldoutSplitCli \
             --raw data/generated/ci-v2-raw.jsonl --truth data/generated/ci-v2-truth.jsonl \
             --train-raw data/generated/ci-v2-train-raw.jsonl --train-truth data/generated/ci-v2-train-truth.jsonl \
             --holdout-raw data/generated/ci-v2-holdout-raw.jsonl --holdout-truth data/generated/ci-v2-holdout-truth.jsonl \
             --out results/ci/v2-split.json
-          java -cp target/itam-asset-typing-benchmark-1.0.0.jar ru.itam.typing.realistic.RealisticWorkloadCli materialize \
+          java -cp target/itam-asset-typing-benchmark-2.0.0.jar ru.itam.typing.realistic.RealisticWorkloadCli materialize \
             --raw data/generated/ci-v2-holdout-raw.jsonl --truth data/generated/ci-v2-holdout-truth.jsonl \
             --out data/generated/ci-v2-holdout-normalized.jsonl
-          java -cp target/itam-asset-typing-benchmark-1.0.0.jar ru.itam.typing.realistic.AccuracyEvaluationCli \
+          java -cp target/itam-asset-typing-benchmark-2.0.0.jar ru.itam.typing.realistic.AccuracyEvaluationCli \
             --data data/generated/ci-v2-holdout-normalized.jsonl --truth data/generated/ci-v2-holdout-truth.jsonl \
             --out results/ci/v2-accuracy.json
           python -c 'import json; r=json.load(open("results/ci/v2-accuracy.json")); assert r["result"]=="OK" and r["engineDivergences"]==0 and r["total"]>0'
@@ -65,15 +65,15 @@ jobs:
           python scripts/render-results.py --check
       - name: Check deterministic generation across JVM processes
         run: |
-          java -jar target/itam-asset-typing-benchmark-1.0.0.jar generate --count 10000 --seed 20260909
-          java -jar target/itam-asset-typing-benchmark-1.0.0.jar generate --count 10000 --seed 20260909 --out data/generated/repeated.jsonl
+          java -jar target/itam-asset-typing-benchmark-2.0.0.jar generate --count 10000 --seed 20260909
+          java -jar target/itam-asset-typing-benchmark-2.0.0.jar generate --count 10000 --seed 20260909 --out data/generated/repeated.jsonl
           cmp data/generated/normalized-10000.jsonl data/generated/repeated.jsonl
       - name: Verify 10000 assets and ground truth
         run: |
-          java -jar target/itam-asset-typing-benchmark-1.0.0.jar verify --data data/generated/normalized-10000.jsonl --out results/ci/verify-10000.json
+          java -jar target/itam-asset-typing-benchmark-2.0.0.jar verify --data data/generated/normalized-10000.jsonl --out results/ci/verify-10000.json
           python -c 'import json; r=json.load(open("results/ci/verify-10000.json")); assert r["result"]=="PASS" and r["checked"]==r["groundTruthChecked"]==10000; assert r["engineMismatches"]==r["groundTruthMismatches"]==0; assert r["hashBitset"]==r["hashCel"]==r["hashDmn"]'
       - name: Smoke-test benchmark report (no performance threshold)
-        run: java -jar target/itam-asset-typing-benchmark-1.0.0.jar benchmark --data data/generated/normalized-10000.jsonl --warmup 1 --runs 1 --batch 2000 --out results/ci/benchmark-smoke.json
+        run: java -jar target/itam-asset-typing-benchmark-2.0.0.jar benchmark --data data/generated/normalized-10000.jsonl --warmup 1 --runs 1 --batch 2000 --out results/ci/benchmark-smoke.json
       - name: Validate scripts and Compose
         run: |
           for script in run-quick-demo.sh scripts/*.sh; do sh -n "$script"; done
@@ -103,7 +103,7 @@ jobs:
             SHA256SUMS
             SOURCE_COMMIT
             IMAGE_ID
-            target/itam-asset-typing-benchmark-1.0.0.jar
+            target/itam-asset-typing-benchmark-2.0.0.jar
           compression-level: 0
           retention-days: 14
           if-no-files-found: error
@@ -122,7 +122,7 @@ jobs:
           docker push "$image:latest"
           cp target/itam-asset-typing-benchmark-"$version".jar .
           sha256sum itam-asset-typing-benchmark-"$version".jar itam-asset-typing-benchmark-prebuilt.tar > SHA256SUMS
-          gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME — research baseline" --notes-file docs/RELEASE_NOTES.md --draft
+          gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME — synthetic validation freeze" --notes-file docs/RELEASE_NOTES.md --draft
           gh release upload "$GITHUB_REF_NAME" itam-asset-typing-benchmark-"$version".jar itam-asset-typing-benchmark-prebuilt.tar SHA256SUMS SOURCE_COMMIT IMAGE_ID
           gh release edit "$GITHUB_REF_NAME" --draft=false
       - name: Upload test and verification reports
