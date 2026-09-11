@@ -76,17 +76,24 @@ def main():
         if len(clean["categoryCounts"]) < 14:
             failures.append("clean workload exercises fewer than 14 software categories")
 
+    # These stricter gates were frozen before the 20260917 confirmation run.
+    # The previous 20260916 run showed that every wrong confident AUTO under
+    # stress/severe came from COMPONENT_AGENT being promoted to a parent family.
     if stress:
-        if stress["fullAutoErrorRate"] > 0.03:
-            failures.append("stress FULL AUTO error rate exceeds 0.03")
-        if stress["fullAutoCoverage"] < 0.55:
-            failures.append("stress FULL AUTO coverage is below 0.55")
+        if stress["fullAutoErrorRate"] > 0.001:
+            failures.append("stress FULL AUTO error rate exceeds 0.001")
+        if stress["fullAutoCoverage"] < 0.95:
+            failures.append("stress FULL AUTO coverage is below 0.95")
+        if stress["categoryAccuracy"].get("COMPONENT_AGENT", 0.0) < 0.93:
+            failures.append("stress COMPONENT_AGENT exact accuracy is below 0.93")
 
     if severe:
-        if severe["fullAutoErrorRate"] > 0.05:
-            failures.append("severe FULL AUTO error rate exceeds 0.05")
-        if severe["fullAutoCoverage"] < 0.40:
-            failures.append("severe FULL AUTO coverage is below 0.40")
+        if severe["fullAutoErrorRate"] > 0.002:
+            failures.append("severe FULL AUTO error rate exceeds 0.002")
+        if severe["fullAutoCoverage"] < 0.88:
+            failures.append("severe FULL AUTO coverage is below 0.88")
+        if severe["categoryAccuracy"].get("COMPONENT_AGENT", 0.0) < 0.84:
+            failures.append("severe COMPONENT_AGENT exact accuracy is below 0.84")
 
     report = {
         "result": "PASS" if not failures else "FAIL",
@@ -98,10 +105,12 @@ def main():
             "pairedTruthUnchanged": True,
             "cleanExactSubtypeAccuracyMin": 0.99,
             "cleanFullAutoErrorRateMax": 0.01,
-            "stressFullAutoErrorRateMax": 0.03,
-            "stressFullAutoCoverageMin": 0.55,
-            "severeFullAutoErrorRateMax": 0.05,
-            "severeFullAutoCoverageMin": 0.40,
+            "stressFullAutoErrorRateMax": 0.001,
+            "stressFullAutoCoverageMin": 0.95,
+            "stressComponentAgentExactAccuracyMin": 0.93,
+            "severeFullAutoErrorRateMax": 0.002,
+            "severeFullAutoCoverageMin": 0.88,
+            "severeComponentAgentExactAccuracyMin": 0.84,
         },
         "cases": cases,
         "failures": failures,
